@@ -1,0 +1,27 @@
+{
+  "name": "apa-control",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sistema ERP para instituição de adoção de animais",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "turbo build",
+    "biome:staged": "biome check --write --no-errors-on-unmatched --staged",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "prepare": "husky",
+    "reinstall": "find . -type d -name node_modules | xargs rm -rf && pnpm i"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/format": "^19.8.0",
+    "husky": "^9.1.7",
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=20"
+  }
+}

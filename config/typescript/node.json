@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "target": "es2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+
+    "incremental": true
+  }
+}
