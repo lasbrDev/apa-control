@@ -329,14 +329,14 @@ INSERT INTO "module" ("id", "name", "parent_id", "title") VALUES
   (14, 'Despesas', 13, 'Despesas'),
   (15, 'Receitas', 13, 'Receitas'),
   (16, 'Reports', 1, 'Relatórios'),
-  (17, 'Settings', 1, 'Configurações'),
-  (18, 'ProcedureTypes', 17, 'Tipos de Procedimento'),
-  (19, 'AppointmentTypes', 17, 'Tipos de Consulta'),
-  (20, 'CampaignTypes', 17, 'Tipos de Campanha'),
-  (21, 'TransactionTypes', 17, 'Tipos de Transação'),
-  (22, 'FinalDestinationTypes', 17, 'Tipos de Destino Final'),
-  (23, 'AccessProfiles', 17, 'Perfis de Acesso'),
-  (24, 'Employees', 17, 'Funcionários');--> statement-breakpoint
+  (17, 'Registrations', 1, 'Cadastros'),
+  (18, 'AccessProfiles', 1, 'Perfis de Acesso'),
+  (19, 'Employees', 1, 'Funcionários'),
+  (20, 'ProcedureTypes', 17, 'Tipos de Procedimento'),
+  (21, 'AppointmentTypes', 17, 'Tipos de Consulta'),
+  (22, 'CampaignTypes', 17, 'Tipos de Campanha'),
+  (23, 'TransactionTypes', 17, 'Tipos de Transação'),
+  (24, 'FinalDestinationTypes', 17, 'Tipos de Destino Final');--> statement-breakpoint
 
   INSERT INTO "permission" ("profile_id", "module_id") VALUES
   (1, 1);--> statement-breakpoint

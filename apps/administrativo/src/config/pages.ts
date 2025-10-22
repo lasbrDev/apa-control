@@ -12,12 +12,16 @@ import {
   NewspaperIcon,
   PlusCircleIcon,
   SyringeIcon,
+  UserCogIcon,
+  UserIcon,
   WalletIcon,
 } from 'lucide-react'
 import type { PageProps } from '../components/panel-outlet'
 
 export const pages: PageProps[] = [
   { title: 'Animais', path: '/animais', icon: DogIcon, roles: ['AdminPanel', 'Animals'] },
+  { title: 'Funcionários', path: '/funcionarios', icon: UserIcon, roles: ['AdminPanel', 'Employees'] },
+  { title: 'Perfis de Acesso', path: '/perfis', icon: UserCogIcon, roles: ['AdminPanel', 'AccessProfiles'] },
   { title: 'Resgates', path: '/resgates', icon: LifeBuoyIcon, roles: ['AdminPanel', 'Rescues'] },
   { title: 'Adoções', path: '/adocoes', icon: HeartHandshakeIcon, roles: ['AdminPanel', 'Adoptions'] },
   { title: 'Adotantes', path: '/adotantes', icon: HeartIcon, roles: ['AdminPanel', 'Adopters'] },
@@ -57,13 +61,11 @@ export const pages: PageProps[] = [
     title: 'Cadastros',
     icon: PlusCircleIcon,
     pages: [
-      { title: 'Funcionários', path: '/funcionarios' },
-      { title: 'Perfis de Acesso', path: '/perfis' },
-      { title: 'Tipos de Procedimento', path: '/tipos-procedimento' },
-      { title: 'Tipos de Consulta', path: '/tipos-consulta' },
-      { title: 'Tipos de Campanha', path: '/tipos-campanha' },
-      { title: 'Tipos de Transação', path: '/tipos-transacao' },
-      { title: 'Tipos de Destino Final', path: '/tipos-destino' },
+      { title: 'Tipos de Procedimento', path: '/tipos-procedimentos', roles: ['AdminPanel', 'ProcedureTypes'] },
+      { title: 'Tipos de Consulta', path: '/tipos-consultas', roles: ['AdminPanel', 'AppointmentTypes'] },
+      { title: 'Tipos de Campanha', path: '/tipos-campanhas', roles: ['AdminPanel', 'CampaignTypes'] },
+      { title: 'Tipos de Transação', path: '/tipos-transacoes', roles: ['AdminPanel', 'TransactionTypes'] },
+      { title: 'Tipos de Destino Final', path: '/tipos-destino', roles: ['AdminPanel', 'FinalDestinationTypes'] },
     ],
     roles: ['AdminPanel', 'Settings'],
   },

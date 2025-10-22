@@ -11,6 +11,7 @@ import { ForgotPassword } from './pages/forgot-password'
 import { Home } from './pages/home'
 import { Login } from './pages/login'
 import { NotFound } from './pages/not-found'
+import { ProcedureTypeList } from './pages/procedure-type-list'
 import { ProfileForm } from './pages/profile-form'
 import { ProfileList } from './pages/profile-list'
 
@@ -27,6 +28,9 @@ ReactDOM.createRoot(rootElement!).render(
           <Route path="perfis" element={<ProfileList />} />
           <Route path="perfis/cadastro" element={<ProfileForm />} />
           <Route path="perfis/:id" element={<ProfileForm />} />
+          <Route path="tipos-procedimentos" element={<ProcedureTypeList />} />
+          <Route path="tipos-procedimentos/cadastro" element={<ProcedureTypeList />} />
+          <Route path="tipos-procedimentos/:id" element={<ProcedureTypeList />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
