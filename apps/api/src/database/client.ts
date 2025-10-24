@@ -10,7 +10,15 @@ const pool = new Pool({
   min: 2,
   max: 20,
   idleTimeoutMillis: 1000 * 60 * 5,
-  connectionTimeoutMillis: 1000 * 10,
+  connectionTimeoutMillis: 1000 * 5,
+
+  statement_timeout: 1000 * 60,
+  query_timeout: 1000 * 60,
+
+  keepAlive: true,
+  allowExitOnIdle: true,
+  keepAliveInitialDelayMillis: 10000,
+  application_name: 'apa-control-api',
 })
 
 const db = drizzle(pool, { schema, casing: 'snake_case' })
