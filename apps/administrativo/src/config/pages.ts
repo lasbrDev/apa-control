@@ -19,9 +19,43 @@ import {
 import type { PageProps } from '../components/panel-outlet'
 
 export const pages: PageProps[] = [
-  { title: 'Animais', path: '/animais', icon: DogIcon, roles: ['AdminPanel', 'Animals'] },
   { title: 'Funcionários', path: '/funcionarios', icon: UserIcon, roles: ['AdminPanel', 'Employees'] },
   { title: 'Perfis de Acesso', path: '/perfis', icon: UserCogIcon, roles: ['AdminPanel', 'AccessProfiles'] },
+  {
+    title: 'Cadastros',
+    icon: PlusCircleIcon,
+    pages: [
+      {
+        title: 'Tipos de Procedimento',
+        path: '/tipos-procedimentos',
+        roles: ['AdminPanel', 'Registrations', 'ProcedureTypes'],
+      },
+      {
+        title: 'Tipos de Consulta',
+        path: '/tipos-consultas',
+        roles: ['AdminPanel', 'Registrations', 'AppointmentTypes'],
+      },
+      { title: 'Tipos de Campanha', path: '/tipos-campanhas', roles: ['AdminPanel', 'Registrations', 'CampaignTypes'] },
+      {
+        title: 'Tipos de Transação',
+        path: '/tipos-transacoes',
+        roles: ['AdminPanel', 'Registrations', 'TransactionTypes'],
+      },
+      {
+        title: 'Tipos de Destino Final',
+        path: '/tipos-destino',
+        roles: ['AdminPanel', 'Registrations', 'FinalDestinationTypes'],
+      },
+    ],
+    roles: ['AdminPanel', 'Registrations'],
+  },
+  {
+    title: 'Clínicas Veterinárias',
+    path: '/clinicas',
+    icon: HospitalIcon,
+    roles: ['AdminPanel', 'VeterinaryClinics'],
+  },
+  { title: 'Animais', path: '/animais', icon: DogIcon, roles: ['AdminPanel', 'Animals'] },
   { title: 'Resgates', path: '/resgates', icon: LifeBuoyIcon, roles: ['AdminPanel', 'Rescues'] },
   { title: 'Adoções', path: '/adocoes', icon: HeartHandshakeIcon, roles: ['AdminPanel', 'Adoptions'] },
   { title: 'Adotantes', path: '/adotantes', icon: HeartIcon, roles: ['AdminPanel', 'Adopters'] },
@@ -34,12 +68,6 @@ export const pages: PageProps[] = [
     roles: ['AdminPanel', 'ClinicalProcedures'],
   },
   { title: 'Campanhas', path: '/campanhas', icon: MegaphoneIcon, roles: ['AdminPanel', 'Campaigns'] },
-  {
-    title: 'Clínicas Veterinárias',
-    path: '/clinicas',
-    icon: HospitalIcon,
-    roles: ['AdminPanel', 'VeterinaryClinics'],
-  },
   {
     title: 'Destino Final',
     path: '/destino-final',
@@ -57,16 +85,4 @@ export const pages: PageProps[] = [
     roles: ['AdminPanel', 'Financial'],
   },
   { title: 'Relatórios', path: '/relatorios', icon: BarChart3Icon, roles: ['AdminPanel', 'Reports'] },
-  {
-    title: 'Cadastros',
-    icon: PlusCircleIcon,
-    pages: [
-      { title: 'Tipos de Procedimento', path: '/tipos-procedimentos', roles: ['AdminPanel', 'ProcedureTypes'] },
-      { title: 'Tipos de Consulta', path: '/tipos-consultas', roles: ['AdminPanel', 'AppointmentTypes'] },
-      { title: 'Tipos de Campanha', path: '/tipos-campanhas', roles: ['AdminPanel', 'CampaignTypes'] },
-      { title: 'Tipos de Transação', path: '/tipos-transacoes', roles: ['AdminPanel', 'TransactionTypes'] },
-      { title: 'Tipos de Destino Final', path: '/tipos-destino', roles: ['AdminPanel', 'FinalDestinationTypes'] },
-    ],
-    roles: ['AdminPanel', 'Settings'],
-  },
 ]

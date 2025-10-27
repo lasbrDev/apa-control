@@ -7,8 +7,13 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppProvider } from './App'
 import { PanelOutlet } from './components/panel-outlet'
 import { pages } from './config/pages'
+import { AdopterForm } from './pages/adopter-form'
+import { AdopterList } from './pages/adopter-list'
+import { AppointmentTypeList } from './pages/appointment-type-list'
+import { CampaignTypeList } from './pages/campaign-type-list'
 import { EmployeeForm } from './pages/employee-form'
 import { EmployeeList } from './pages/employee-list'
+import { FinalDestinationTypeList } from './pages/final-destination-type-list'
 import { ForgotPassword } from './pages/forgot-password'
 import { Home } from './pages/home'
 import { Login } from './pages/login'
@@ -16,6 +21,9 @@ import { NotFound } from './pages/not-found'
 import { ProcedureTypeList } from './pages/procedure-type-list'
 import { ProfileForm } from './pages/profile-form'
 import { ProfileList } from './pages/profile-list'
+import { TransactionTypeList } from './pages/transaction-type-list'
+import { VeterinaryClinicForm } from './pages/veterinary-clinic-form'
+import { VeterinaryClinicList } from './pages/veterinary-clinic-list'
 
 const rootElement = document.getElementById('root')
 
@@ -36,6 +44,24 @@ ReactDOM.createRoot(rootElement!).render(
           <Route path="tipos-procedimentos" element={<ProcedureTypeList />} />
           <Route path="tipos-procedimentos/cadastro" element={<ProcedureTypeList />} />
           <Route path="tipos-procedimentos/:id" element={<ProcedureTypeList />} />
+          <Route path="tipos-consultas" element={<AppointmentTypeList />} />
+          <Route path="tipos-consultas/cadastro" element={<AppointmentTypeList />} />
+          <Route path="tipos-consultas/:id" element={<AppointmentTypeList />} />
+          <Route path="tipos-campanhas" element={<CampaignTypeList />} />
+          <Route path="tipos-campanhas/cadastro" element={<CampaignTypeList />} />
+          <Route path="tipos-campanhas/:id" element={<CampaignTypeList />} />
+          <Route path="tipos-destino" element={<FinalDestinationTypeList />} />
+          <Route path="tipos-destino/cadastro" element={<FinalDestinationTypeList />} />
+          <Route path="tipos-destino/:id" element={<FinalDestinationTypeList />} />
+          <Route path="tipos-transacoes" element={<TransactionTypeList />} />
+          <Route path="tipos-transacoes/cadastro" element={<TransactionTypeList />} />
+          <Route path="tipos-transacoes/:id" element={<TransactionTypeList />} />
+          <Route path="clinicas" element={<VeterinaryClinicList />} />
+          <Route path="clinicas/cadastro" element={<VeterinaryClinicForm />} />
+          <Route path="clinicas/:id" element={<VeterinaryClinicForm />} />
+          <Route path="adotantes" element={<AdopterList />} />
+          <Route path="adotantes/cadastro" element={<AdopterForm />} />
+          <Route path="adotantes/:id" element={<AdopterForm />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

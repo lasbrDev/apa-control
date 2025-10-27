@@ -1,0 +1,138 @@
+import { useEffect, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+
+import { z } from 'zod'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { useApp } from '../../App'
+import { Form } from '../../components/form-hook'
+import { ErrorAlert } from '../../components/form/error-alert'
+import { LoadingCard } from '../../components/loading-card'
+import { ModalForm } from '../../components/modal-form'
+import { errorMessageHandler } from '../../helpers/axios'
+import { RequiredMessage } from '../../helpers/constants'
+import { api } from '../../service'
+
+interface CampaignTypeFormProps {
+  id?: number
+  show: boolean
+  refresh: VoidFunction
+}
+
+const campaignTypeSchema = z.object({
+  id: z.number().nullish(),
+  name: z.string().min(1, RequiredMessage),
+  description: z.string().min(1, RequiredMessage),
+  category: z.enum(['doacao', 'rifa', 'evento', 'patrocinio']),
+  active: z.coerce.boolean(),
+})
+
+type CampaignTypeData = z.infer<typeof campaignTypeSchema>
+
+export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) => {
+  const { modal, token } = useApp()
+  const pushTo = useNavigate()
+  const [fetching, setFetching] = useState(false)
+  const [displayName, setDisplayName] = useState('')
+
+  const campaignTypeForm = useForm({
+    resolver: zodResolver(campaignTypeSchema),
+    defaultValues: { category: 'doacao', active: true },
+  })
+
+  const {
+    handleSubmit,
+    reset,
+    setError,
+    formState: { isSubmitting, errors },
+  } = campaignTypeForm
+
+  async function addOrUpdateCampaignType(values: CampaignTypeData) {
+    try {
+      await api[id ? 'put' : 'post'](id ? 'campaign-type.update' : 'campaign-type.add', values, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      refresh()
+      pushTo(-1)
+    } catch (err) {
+      setError('root', { message: errorMessageHandler(err) })
+    }
+  }
+
+  function handleClose() {
+    setDisplayName('')
+    pushTo(-1)
+  }
+
+  useEffect(() => {
+    if (id) {
+      setFetching(true)
+
+      api
+        .get(`campaign-type.key/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(({ data }) => {
+          reset(data)
+          setDisplayName(data.name)
+        })
+        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .finally(() => setFetching(false))
+    }
+  }, [id])
+
+  if (fetching) return <LoadingCard />
+
+  return (
+    <FormProvider {...campaignTypeForm}>
+      <ModalForm
+        title={displayName || 'Novo Tipo de Campanha'}
+        show={show}
+        fetching={fetching}
+        submitting={isSubmitting}
+        resetForm={reset}
+        onSubmit={handleSubmit(addOrUpdateCampaignType)}
+        closeAction={handleClose}
+      >
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <div>
+            <Form.Label htmlFor="name">Nome</Form.Label>
+            <Form.Input name="name" />
+            <Form.ErrorMessage field="name" />
+          </div>
+
+          <div>
+            <Form.Label htmlFor="category">Categoria</Form.Label>
+            <Form.Select name="category" options={campaignCategoryOptions} />
+            <Form.ErrorMessage field="category" />
+          </div>
+        </div>
+
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <div>
+            <Form.Label htmlFor="description">Descrição</Form.Label>
+            <Form.Input name="description" />
+            <Form.ErrorMessage field="description" />
+          </div>
+
+          <div className="mb-6 flex items-center space-x-2">
+            <Form.Switch name="active" />
+            <Form.Label htmlFor="active" className="mb-0 leading-normal">
+              Ativo?
+            </Form.Label>
+          </div>
+        </div>
+
+        <ErrorAlert className="mt-5" error={errors.root?.message} />
+      </ModalForm>
+    </FormProvider>
+  )
+}
+
+const campaignCategoryOptions = [
+  { label: 'Doação', value: 'doacao' },
+  { label: 'Rifa', value: 'rifa' },
+  { label: 'Evento', value: 'evento' },
+  { label: 'Patrocínio', value: 'patrocinio' },
+]
