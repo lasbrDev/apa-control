@@ -322,7 +322,7 @@ export const EmployeeForm = () => {
               <span>Voltar</span>
             </Button>
 
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" variant="success" disabled={isSubmitting}>
               {isSubmitting ? (
                 <Spinner />
               ) : (

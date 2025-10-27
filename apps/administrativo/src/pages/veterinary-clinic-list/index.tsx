@@ -127,7 +127,7 @@ export const VeterinaryClinicList = () => {
         </CardTitle>
 
         <CardToolbar>
-          <Button variant="success" onClick={() => navigate('cadastro')}>
+          <Button variant="danger" onClick={() => navigate('cadastro')}>
             <PlusIcon className="mr-2 h-5 w-5" />
             <span>Nova Clínica Veterinária</span>
           </Button>

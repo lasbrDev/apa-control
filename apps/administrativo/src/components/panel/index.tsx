@@ -37,17 +37,17 @@ export const Panel = ({ pages, version, title, signOut, basename = '' }: PanelPr
 
   return (
     <div id="panel" className="flex w-full flex-col overflow-x-hidden">
-      <header className="fixed top-0 right-0 left-0 z-97 flex min-h-[calc(70px+env(safe-area-inset-top))] items-stretch justify-between bg-dark pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] shadow-[0_4px_30px_4px_#0000001a] transition-[height] duration-300">
+      <header className="fixed top-0 right-0 left-0 z-97 flex min-h-[calc(70px+env(safe-area-inset-top))] items-stretch justify-between bg-stone-100 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] shadow-[0_4px_30px_4px_#0000001a] transition-[height] duration-300">
         <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 lg:px-20">
           <Link className="flex items-center" to={basename}>
             <Logo className="inline h-10 max-w-full" />
-            <span className="pl-3 font-semibold text-sm text-white">{title}</span>
+            <span className="pl-3 font-semibold text-dark text-sm">{title}</span>
           </Link>
 
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              className="inline-flex items-center justify-center font-semibold text-sm text-white outline-hidden lg:hidden"
+              className="inline-flex items-center justify-center font-semibold text-dark text-sm outline-hidden lg:hidden"
               onClick={() => setSidebarOpened(true)}
             >
               <MenuIcon className="mr-1 h-4 w-4" />
@@ -56,7 +56,7 @@ export const Panel = ({ pages, version, title, signOut, basename = '' }: PanelPr
 
             <button
               type="button"
-              className="inline-flex cursor-pointer items-center justify-center font-semibold text-sm text-white outline-hidden"
+              className="inline-flex cursor-pointer items-center justify-center font-semibold text-dark text-sm outline-hidden"
               onClick={signOut}
             >
               <LogOutIcon className="mr-1 h-4 w-4" />

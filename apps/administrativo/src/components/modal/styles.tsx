@@ -71,7 +71,7 @@ const ModalAction = React.forwardRef<
   React.ElementRef<typeof AlertDialog.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialog.Action>
 >(({ className, ...props }, ref) => (
-  <AlertDialog.Action ref={ref} className={cn(buttonVariants(), className)} {...props} />
+  <AlertDialog.Action ref={ref} className={cn(buttonVariants({ variant: 'success' }), className)} {...props} />
 ))
 
 ModalAction.displayName = AlertDialog.Action.displayName
@@ -86,13 +86,13 @@ const ModalCancel = React.forwardRef<
 ModalCancel.displayName = AlertDialog.Cancel.displayName
 
 export {
-  ModalRoot,
-  ModalContainer,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalTitle,
-  ModalDescription,
   ModalAction,
   ModalCancel,
+  ModalContainer,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalRoot,
+  ModalTitle,
 }

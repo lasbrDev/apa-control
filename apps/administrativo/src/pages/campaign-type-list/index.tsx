@@ -71,7 +71,7 @@ export const CampaignTypeList = () => {
           </CardTitle>
 
           <CardToolbar>
-            <Button variant="success" asChild>
+            <Button variant="danger" asChild>
               <Link to="cadastro">
                 <PlusIcon className="mr-2 h-5 w-5" />
                 <span>Novo Tipo de Campanha</span>
