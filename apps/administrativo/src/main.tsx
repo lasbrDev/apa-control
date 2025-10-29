@@ -53,9 +53,9 @@ ReactDOM.createRoot(rootElement!).render(
           <Route path="tipos-destino" element={<FinalDestinationTypeList />} />
           <Route path="tipos-destino/cadastro" element={<FinalDestinationTypeList />} />
           <Route path="tipos-destino/:id" element={<FinalDestinationTypeList />} />
-          <Route path="tipos-transacoes" element={<TransactionTypeList />} />
-          <Route path="tipos-transacoes/cadastro" element={<TransactionTypeList />} />
-          <Route path="tipos-transacoes/:id" element={<TransactionTypeList />} />
+          <Route path="tipos-lancamento" element={<TransactionTypeList />} />
+          <Route path="tipos-lancamento/cadastro" element={<TransactionTypeList />} />
+          <Route path="tipos-lancamento/:id" element={<TransactionTypeList />} />
           <Route path="clinicas" element={<VeterinaryClinicList />} />
           <Route path="clinicas/cadastro" element={<VeterinaryClinicForm />} />
           <Route path="clinicas/:id" element={<VeterinaryClinicForm />} />
