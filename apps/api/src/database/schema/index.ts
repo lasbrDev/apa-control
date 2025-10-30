@@ -1,5 +1,6 @@
 export * from './access-profile'
 export * from './adopter'
+export * from './adoption'
 export * from './anamnesis'
 export * from './animal'
 export * from './appointment'

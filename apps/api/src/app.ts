@@ -6,6 +6,7 @@ import { adopterRoutes } from './http/controllers/adopter/routes'
 import { appointmentTypeRoutes } from './http/controllers/appointment-type/routes'
 import { authRoutes } from './http/controllers/auth/routes'
 import { campaignTypeRoutes } from './http/controllers/campaign-type/routes'
+import { dashboardRoutes } from './http/controllers/dashboard/routes'
 import { employeeRoutes } from './http/controllers/employee/routes'
 import { finalDestinationTypeRoutes } from './http/controllers/final-destination-type/routes'
 import { procedureTypeRoutes } from './http/controllers/procedure-type/routes'
@@ -26,5 +27,6 @@ app.register(finalDestinationTypeRoutes)
 app.register(transactionTypeRoutes)
 app.register(veterinaryClinicRoutes)
 app.register(adopterRoutes)
+app.register(dashboardRoutes)
 
 export { app }
