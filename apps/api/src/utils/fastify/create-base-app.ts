@@ -15,8 +15,10 @@ export function createBaseApp() {
     return this.toNumber() as unknown as string
   }
 
+  const trustProxy = env.NODE_ENV === 'production' ? true : getLocalhostIPs()
+
   const app = fastify({
-    trustProxy: getLocalhostIPs(),
+    trustProxy,
     requestTimeout: 60e3 * 5,
     routerOptions: { ignoreTrailingSlash: true, caseSensitive: false },
   })
@@ -24,6 +26,7 @@ export function createBaseApp() {
   app.setErrorHandler(exceptionHandler)
   app.setNotFoundHandler(notFoundHandler)
   app.register(cors, {
+    origin: true,
     exposedHeaders: ['X-Total-Count'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,

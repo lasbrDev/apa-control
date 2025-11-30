@@ -4,6 +4,8 @@ import { Pool } from 'pg'
 
 import * as schema from './schema'
 
+const useSSL = env.DATABASE_URL.includes('sslmode=require') || env.NODE_ENV === 'production'
+
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
   min: 2,
@@ -18,7 +20,7 @@ const pool = new Pool({
   allowExitOnIdle: true,
   keepAliveInitialDelayMillis: 10000,
   application_name: 'apa-control-api',
-  ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : false,
+  ssl: useSSL,
 })
 
 const db = drizzle(pool, { schema, casing: 'snake_case' })

@@ -10,6 +10,7 @@ import { campaignTypeRoutes } from './http/controllers/campaign-type/routes'
 import { dashboardRoutes } from './http/controllers/dashboard/routes'
 import { employeeRoutes } from './http/controllers/employee/routes'
 import { finalDestinationTypeRoutes } from './http/controllers/final-destination-type/routes'
+import { healthRoutes } from './http/controllers/health/routes'
 import { procedureTypeRoutes } from './http/controllers/procedure-type/routes'
 import { transactionTypeRoutes } from './http/controllers/transaction-type/routes'
 import { veterinaryClinicRoutes } from './http/controllers/veterinary-clinic/routes'
@@ -18,6 +19,7 @@ import { createBaseApp } from './utils/fastify/create-base-app'
 const app = createBaseApp()
 
 app.register(rateLimit, rateLimitOptions)
+app.register(healthRoutes)
 app.register(authRoutes)
 app.register(accessProfileRoutes)
 app.register(procedureTypeRoutes)

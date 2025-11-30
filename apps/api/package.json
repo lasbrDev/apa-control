@@ -11,9 +11,14 @@
     "dev": "tsx watch --inspect --env-file .env src/server.ts",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "@date-fns/tz": "^1.2.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
@@ -52,7 +57,6 @@
     "@types/pg": "^8.15.5",
     "@types/request-ip": "^0.0.41",
     "@vitest/coverage-v8": "^2.1.4",
-    "dotenv": "^17.2.3",
     "form-data": "^4.0.4",
     "tsup": "^8.5.0",
     "tsx": "^4.20.6",
