@@ -17,9 +17,9 @@ export function errorMessageHandler(error: unknown) {
       if (status === 500) {
         return (
           <>
-            <p>500 - Entre em contato com o suporte</p>
+            <p className="dark:text-gray-200">500 - Entre em contato com o suporte</p>
 
-            <pre className="mt-3 whitespace-pre-wrap break-all rounded-md border border-stone-400 bg-stone-50 p-3 text-left text-sm">
+            <pre className="mt-3 whitespace-pre-wrap break-all rounded-md border border-stone-400 bg-stone-50 p-3 text-left text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300">
               <code>{data.message?.trim()}</code>
             </pre>
           </>

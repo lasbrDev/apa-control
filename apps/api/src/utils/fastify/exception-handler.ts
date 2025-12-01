@@ -24,7 +24,6 @@ function isDatabaseConnectionError(error: unknown): boolean {
     'ENETUNREACH',
   ]
 
-  // Mensagens de erro comuns de conexão
   const connectionErrorMessages = [
     'connection',
     'timeout',
