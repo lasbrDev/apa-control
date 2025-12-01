@@ -11,7 +11,7 @@ const FormLabel = React.forwardRef<
   <Label.Root
     ref={ref}
     className={cn(
-      'mb-2 inline-block font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+      'mb-2 inline-block font-medium text-base leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
       className,
     )}
     {...props}

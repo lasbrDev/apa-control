@@ -36,7 +36,7 @@ export const Pagination = ({ current, total, changePage }: PaginationProps) => {
           key={num}
           type="button"
           className={cn(
-            'relative hidden items-center px-4 py-2 font-semibold text-gray-900 text-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex',
+            'relative hidden items-center px-4 py-2 font-semibold text-base text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex',
             {
               'inline-flex bg-brand text-white hover:bg-brand focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2':
                 num === current,

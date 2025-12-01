@@ -46,8 +46,11 @@ export const Login = () => {
         <HomeBox>
           <HomeBoxLogo />
 
-          <div className="mt-5 mb-7 text-center">
-            <h1 className="font-black text-brand text-xl">APA Control</h1>
+          <div className="mt-5 mb-8 text-center">
+            <h1 className="mb-2 bg-linear-to-r from-brand via-pink-600 to-purple-600 bg-clip-text font-black text-3xl text-transparent">
+              APA Control
+            </h1>
+            <p className="text-base text-muted-foreground">Sistema de gestão para adoção de animais</p>
           </div>
 
           <FormProvider {...loginForm}>
@@ -78,17 +81,20 @@ export const Login = () => {
               <Button
                 type="submit"
                 variant="brand"
-                className="flex h-14 w-full rounded-md font-normal text-lg"
+                className="group relative h-14 w-full overflow-hidden rounded-xl bg-linear-to-r from-brand to-pink-600 font-semibold text-lg shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:opacity-50"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    <LogInIcon className="mr-2 h-5 w-5" />
-                    <span>Entrar</span>
-                  </>
-                )}
+                <span className="relative z-10 flex items-center justify-center">
+                  {isSubmitting ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <LogInIcon className="mr-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      <span>Entrar</span>
+                    </>
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-linear-to-r from-pink-600 to-purple-600 opacity-0 transition-opacity group-hover:opacity-100" />
               </Button>
             </form>
           </FormProvider>

@@ -17,11 +17,10 @@ export interface PageProps {
 
 interface PanelProps {
   pages: PageProps[]
-  title?: string
   basename?: string
 }
 
-export function PanelOutlet({ pages, title = 'Painel', basename = '' }: PanelProps) {
+export function PanelOutlet({ pages, basename = '' }: PanelProps) {
   const app = useApp()
   const location = useLocation()
 
@@ -54,5 +53,5 @@ export function PanelOutlet({ pages, title = 'Painel', basename = '' }: PanelPro
       return newPage
     })
 
-  return <Panel basename={basename} version={version} pages={filteredPages} title={title} signOut={app.signOut} />
+  return <Panel basename={basename} version={version} pages={filteredPages} signOut={app.signOut} />
 }
