@@ -10,7 +10,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Helmet } from 'react-helmet-async'
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
@@ -85,8 +84,6 @@ export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormPr
       setDisplayName('')
     }
   }, [id, show])
-
-  if (fetching) return <LoadingCard />
 
   return (
     <>

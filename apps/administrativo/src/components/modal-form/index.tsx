@@ -51,7 +51,7 @@ export const ModalForm = ({
     if (!show && resetForm) {
       setTimeout(resetForm, 300)
     }
-  }, [show])
+  }, [show, resetForm])
 
   return (
     <ModalRoot open={show}>

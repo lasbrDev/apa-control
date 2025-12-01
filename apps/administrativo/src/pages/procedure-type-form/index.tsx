@@ -11,7 +11,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
@@ -87,8 +86,6 @@ export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps)
       setDisplayName('')
     }
   }, [id, show])
-
-  if (fetching) return <LoadingCard />
 
   return (
     <>
