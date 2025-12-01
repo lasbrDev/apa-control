@@ -37,13 +37,12 @@ Sistema ERP para instituição de adoção de animais desenvolvido com React, No
    Crie um arquivo `.env` na pasta `apps/api/` com as seguintes variáveis:
 
    ```bash
-   .env
    # Servidor
-   PORT=3001
+   PORT=3333
    NODE_ENV=development
 
    # Aplicação
-   API_URL=http://localhost:3001
+   API_URL=http://localhost:3333
    APP_SECRET=seu-secret-key-aqui
    APP_NAME=APA Control
    APP_LOG_DIR=./logs
@@ -58,6 +57,16 @@ Sistema ERP para instituição de adoção de animais desenvolvido com React, No
    EMAIL_PASSWORD=sua-senha-de-app
    OVERRIDE_EMAIL=email-para-testes@exemplo.com
    ```
+
+3. **Configure as variáveis de ambiente do Frontend**
+
+   Crie um arquivo `.env` na pasta `apps/administrativo/` com:
+
+   ```bash
+   VITE_API_URL=http://localhost:3333
+   ```
+
+   **Nota:** Se não configurar, o frontend usará `http://localhost:3333` como padrão.
 
 ### Migração do Banco de Dados
 
@@ -94,7 +103,7 @@ pnpm dev
 Este comando irá iniciar:
 
 - **Frontend (Administrativo)**: http://localhost:5173
-- **Backend (API)**: http://localhost:3001
+- **Backend (API)**: http://localhost:3333 (porta padrão, configurável via variável `PORT`)
 
 ### Executando Aplicações Separadamente
 
@@ -225,6 +234,7 @@ pnpm test
 - Verifique se o PostgreSQL está rodando
 - Confirme as credenciais no arquivo `.env`
 - Teste a conexão: `psql -h localhost -U usuario -d nome_do_banco`
+- Em caso de múltiplas requisições simultâneas, verifique se o pool de conexões está configurado adequadamente (padrão: mínimo 2, máximo 30 conexões)
 
 **Erro de dependências:**
 
