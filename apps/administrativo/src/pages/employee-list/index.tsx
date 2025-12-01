@@ -271,7 +271,7 @@ export const EmployeeList = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-6 p-6">
-            <span className="text-base">{itemCountMessage('funcionários', page, pages, total)}</span>
+            <span className="text-base dark:text-gray-300">{itemCountMessage('funcionários', page, pages, total)}</span>
 
             <Pagination current={page} total={pages} changePage={changePage} />
           </div>

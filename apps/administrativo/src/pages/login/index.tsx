@@ -50,7 +50,9 @@ export const Login = () => {
             <h1 className="mb-2 bg-linear-to-r from-brand via-pink-600 to-purple-600 bg-clip-text font-black text-3xl text-transparent">
               APA Control
             </h1>
-            <p className="text-base text-muted-foreground">Sistema de gestão para adoção de animais</p>
+            <p className="text-base text-muted-foreground dark:text-gray-400">
+              Sistema de gestão para adoção de animais
+            </p>
           </div>
 
           <FormProvider {...loginForm}>

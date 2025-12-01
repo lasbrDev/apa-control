@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand: hsl(358 73% 46%);
   --color-primary: hsl(225 2% 45%);
@@ -23,6 +26,12 @@ body {
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background 0.3s ease;
+}
+
+html.dark body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #1a1a2e 75%, #16213e 100%);
+  background-size: 400% 400%;
 }
 
 .glass-card {
@@ -34,7 +43,14 @@ body {
   isolation: isolate;
   transform: translateZ(0);
   will-change: backdrop-filter;
-  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+html.dark .glass-card {
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.5);
+  color: rgb(243, 244, 246);
 }
 
 @keyframes gradient {

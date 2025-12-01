@@ -17,5 +17,5 @@ export function FormErrorMessage({ field }: ErrorMessageProps) {
     return null
   }
 
-  return <span className="mt-1 block text-base text-danger">{fieldError.message?.toString()}</span>
+  return <span className="mt-1 block text-base text-danger dark:text-red-400">{fieldError.message?.toString()}</span>
 }

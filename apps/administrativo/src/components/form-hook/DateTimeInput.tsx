@@ -46,7 +46,7 @@ export function FormDateTimeInput({ name, isClearable, ...props }: DateTimeInput
                 className="-translate-y-1/2 absolute top-1/2 right-3"
                 onClick={() => field.onChange(null)}
               >
-                <XIcon className="h-5 w-5" />
+                <XIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
             )}
           </div>

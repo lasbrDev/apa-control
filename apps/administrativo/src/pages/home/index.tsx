@@ -18,6 +18,7 @@ import { useApp } from '../../App'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/card'
 import { LoadingCard } from '../../components/loading-card'
 import { errorMessageHandler } from '../../helpers/axios'
+import { useTheme } from '../../hooks/theme'
 import { api } from '../../service'
 
 interface DashboardStats {
@@ -51,6 +52,7 @@ interface MonthlyFinancialData {
 
 export const Home = () => {
   const { modal, operator, token } = useApp()
+  const { theme } = useTheme()
   const [stats, setStats] = useState<DashboardStats>({})
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
   const [financialStats, setFinancialStats] = useState<FinancialStats>({
@@ -60,6 +62,15 @@ export const Home = () => {
     monthlyData: [],
   })
   const [fetching, setFetching] = useState(true)
+
+  const isDark = theme === 'dark'
+  const tooltipStyle = {
+    backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(10px)',
+    border: isDark ? '1px solid rgba(75, 85, 99, 0.5)' : '1px solid rgba(255, 255, 255, 0.18)',
+    borderRadius: '12px',
+    color: isDark ? '#f3f4f6' : '#111827',
+  }
 
   useEffect(() => {
     setFetching(true)
@@ -122,7 +133,7 @@ export const Home = () => {
             <h1 className="mb-2 bg-linear-to-r from-brand via-pink-600 to-purple-600 bg-clip-text font-bold text-3xl text-transparent">
               Olá, {operator.name} 👋
             </h1>
-            <p className="text-gray-600 text-sm">Bem-vindo ao painel de controle</p>
+            <p className="text-gray-600 text-sm dark:text-gray-400">Bem-vindo ao painel de controle</p>
           </div>
 
           {statsCards.length > 0 && (
@@ -131,17 +142,17 @@ export const Home = () => {
                 const Icon = stat.icon
                 return (
                   <Link key={stat.key} to={stat.path}>
-                    <Card className="glass-card group h-full cursor-pointer overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-brand/30 hover:shadow-xl">
+                    <Card className="glass-card group h-full cursor-pointer overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-brand/30 hover:shadow-xl dark:border-gray-700/50">
                       <CardContent className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
                         {Icon && (
-                          <div className="rounded-lg bg-linear-to-br from-brand/20 via-brand/15 to-pink-500/20 p-2 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md">
+                          <div className="rounded-lg bg-linear-to-br from-brand/20 via-brand/15 to-pink-500/20 p-2 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md dark:from-brand/30 dark:via-brand/25 dark:to-pink-500/30">
                             <Icon className="h-5 w-5 text-brand transition-transform duration-300 group-hover:scale-110" />
                           </div>
                         )}
-                        <p className="bg-linear-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text font-bold text-2xl text-transparent transition-all duration-300 group-hover:scale-105">
+                        <p className="bg-linear-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text font-bold text-2xl text-transparent transition-all duration-300 group-hover:scale-105 dark:from-gray-100 dark:via-gray-200 dark:to-gray-300">
                           {stat.value}
                         </p>
-                        <p className="font-medium text-base text-gray-600 transition-colors duration-300 group-hover:text-brand">
+                        <p className="font-medium text-base text-gray-600 transition-colors duration-300 group-hover:text-brand dark:text-gray-400">
                           {stat.label}
                         </p>
                       </CardContent>
@@ -153,11 +164,11 @@ export const Home = () => {
           )}
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <Card className="glass-card overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-blue-200/50 hover:shadow-xl">
-              <CardHeader className="border-gray-100 border-b bg-linear-to-r from-blue-50/50 to-purple-50/50">
+            <Card className="glass-card overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-blue-200/50 hover:shadow-xl dark:border-gray-700/50 dark:hover:border-blue-700/50">
+              <CardHeader className="border-gray-100 border-b bg-linear-to-r from-blue-50/50 to-purple-50/50 dark:border-gray-700 dark:from-blue-900/20 dark:to-purple-900/20">
                 <CardTitle className="flex items-center gap-2 bg-linear-to-r from-blue-600 via-blue-500 to-purple-600 bg-clip-text text-lg text-transparent">
-                  <div className="rounded-lg bg-linear-to-br from-blue-500/20 to-purple-500/20 p-1.5">
-                    <TrendingUpIcon className="h-4 w-4 text-blue-600" />
+                  <div className="rounded-lg bg-linear-to-br from-blue-500/20 to-purple-500/20 p-1.5 dark:from-blue-500/30 dark:to-purple-500/30">
+                    <TrendingUpIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   Atividade Mensal
                 </CardTitle>
@@ -166,17 +177,15 @@ export const Home = () => {
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.3} />
-                      <XAxis dataKey="month" stroke="#6b7280" />
-                      <YAxis stroke="#6b7280" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(255, 255, 255, 0.18)',
-                          borderRadius: '12px',
-                        }}
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e5e7eb"
+                        opacity={0.3}
+                        className="dark:stroke-gray-700"
                       />
+                      <XAxis dataKey="month" stroke="#6b7280" className="dark:stroke-gray-400" />
+                      <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
+                      <Tooltip contentStyle={tooltipStyle} />
                       <Legend />
                       <Bar dataKey="animals" fill="url(#colorAnimals)" name="Animais" radius={[8, 8, 0, 0]} />
                       <Bar dataKey="adoptions" fill="url(#colorAdoptions)" name="Adoções" radius={[8, 8, 0, 0]} />
@@ -201,28 +210,28 @@ export const Home = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-emerald-200/50 hover:shadow-xl">
-              <CardHeader className="border-gray-100 border-b bg-linear-to-r from-emerald-50/50 to-teal-50/50">
+            <Card className="glass-card overflow-hidden border border-gray-200/50 transition-all duration-300 hover:border-emerald-200/50 hover:shadow-xl dark:border-gray-700/50 dark:hover:border-emerald-700/50">
+              <CardHeader className="border-gray-100 border-b bg-linear-to-r from-emerald-50/50 to-teal-50/50 dark:border-gray-700 dark:from-emerald-900/20 dark:to-teal-900/20">
                 <CardTitle className="flex items-center gap-2 bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-lg text-transparent">
-                  <div className="rounded-lg bg-linear-to-br from-emerald-500/20 to-teal-500/20 p-1.5">
-                    <DollarSignIcon className="h-4 w-4 text-emerald-600" />
+                  <div className="rounded-lg bg-linear-to-br from-emerald-500/20 to-teal-500/20 p-1.5 dark:from-emerald-500/30 dark:to-teal-500/30">
+                    <DollarSignIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   Financeiro
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="mb-4 grid grid-cols-3 gap-2">
-                  <div className="group rounded-lg bg-linear-to-br from-emerald-50 via-emerald-50/80 to-green-50 p-3 text-center shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
-                    <p className="mb-1 font-medium text-gray-600 text-xs">Receitas</p>
-                    <p className="font-bold text-base text-emerald-600 transition-transform duration-300 group-hover:scale-105">
+                  <div className="group rounded-lg bg-linear-to-br from-emerald-50 via-emerald-50/80 to-green-50 p-3 text-center shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md dark:from-emerald-900/30 dark:via-emerald-900/25 dark:to-green-900/30">
+                    <p className="mb-1 font-medium text-gray-600 text-xs dark:text-gray-400">Receitas</p>
+                    <p className="font-bold text-base text-emerald-600 transition-transform duration-300 group-hover:scale-105 dark:text-emerald-400">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                         financialStats.totalIncome,
                       )}
                     </p>
                   </div>
-                  <div className="group rounded-lg bg-linear-to-br from-rose-50 via-rose-50/80 to-red-50 p-3 text-center shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
-                    <p className="mb-1 font-medium text-gray-600 text-xs">Despesas</p>
-                    <p className="font-bold text-base text-rose-600 transition-transform duration-300 group-hover:scale-105">
+                  <div className="group rounded-lg bg-linear-to-br from-rose-50 via-rose-50/80 to-red-50 p-3 text-center shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md dark:from-rose-900/30 dark:via-rose-900/25 dark:to-red-900/30">
+                    <p className="mb-1 font-medium text-gray-600 text-xs dark:text-gray-400">Despesas</p>
+                    <p className="font-bold text-base text-rose-600 transition-transform duration-300 group-hover:scale-105 dark:text-rose-400">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                         financialStats.totalExpense,
                       )}
@@ -231,14 +240,16 @@ export const Home = () => {
                   <div
                     className={`group rounded-lg p-3 text-center shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md ${
                       financialStats.balance >= 0
-                        ? 'bg-linear-to-br from-emerald-50 via-emerald-50/80 to-green-50'
-                        : 'bg-linear-to-br from-rose-50 via-rose-50/80 to-red-50'
+                        ? 'bg-linear-to-br from-emerald-50 via-emerald-50/80 to-green-50 dark:from-emerald-900/30 dark:via-emerald-900/25 dark:to-green-900/30'
+                        : 'bg-linear-to-br from-rose-50 via-rose-50/80 to-red-50 dark:from-rose-900/30 dark:via-rose-900/25 dark:to-red-900/30'
                     }`}
                   >
-                    <p className="mb-1 font-medium text-gray-600 text-xs">Saldo</p>
+                    <p className="mb-1 font-medium text-gray-600 text-xs dark:text-gray-400">Saldo</p>
                     <p
                       className={`font-bold text-base transition-transform duration-300 group-hover:scale-105 ${
-                        financialStats.balance >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                        financialStats.balance >= 0
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-rose-600 dark:text-rose-400'
                       }`}
                     >
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
@@ -250,19 +261,19 @@ export const Home = () => {
                 <div className="h-52">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={financialStats.monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.3} />
-                      <XAxis dataKey="month" stroke="#6b7280" />
-                      <YAxis stroke="#6b7280" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e5e7eb"
+                        opacity={0.3}
+                        className="dark:stroke-gray-700"
+                      />
+                      <XAxis dataKey="month" stroke="#6b7280" className="dark:stroke-gray-400" />
+                      <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
                       <Tooltip
                         formatter={(value: number) =>
                           new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
                         }
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(255, 255, 255, 0.18)',
-                          borderRadius: '12px',
-                        }}
+                        contentStyle={tooltipStyle}
                       />
                       <Legend />
                       <Bar dataKey="income" fill="url(#colorIncome)" name="Receitas" radius={[8, 8, 0, 0]} />

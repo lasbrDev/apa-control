@@ -160,7 +160,7 @@ export const EmployeeForm = () => {
       <FormProvider {...employeeForm}>
         <form autoComplete="off" onSubmit={handleSubmit(addOrUpdateEmployee)}>
           <CardContent>
-            <h4 className="mb-6 font-semibold leading-none tracking-tight">Dados</h4>
+            <h4 className="mb-6 font-semibold leading-none tracking-tight dark:text-gray-200">Dados</h4>
 
             <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
               <div>
@@ -265,7 +265,7 @@ export const EmployeeForm = () => {
             </div>
 
             <Separator className="my-7" />
-            <div className="mb-6 font-semibold leading-none tracking-tight">Endereço</div>
+            <div className="mb-6 font-semibold leading-none tracking-tight dark:text-gray-200">Endereço</div>
 
             <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
               <div>
@@ -312,7 +312,6 @@ export const EmployeeForm = () => {
                 <Form.ErrorMessage field="state" />
               </div>
             </div>
-
           </CardContent>
 
           <CardFooter>

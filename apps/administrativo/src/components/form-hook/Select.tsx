@@ -50,7 +50,7 @@ export const FormSelect = (props: FormSelectProps) => {
             {isClearable && !(field.value === '' || field.value === null || typeof field.value === 'undefined') && (
               <button
                 type="button"
-                className="-translate-y-1/2 absolute top-1/2 right-8 text-danger"
+                className="-translate-y-1/2 absolute top-1/2 right-8 text-danger dark:text-red-400"
                 aria-label="Limpar"
                 onClick={() => setValue(field.name, null)}
               >

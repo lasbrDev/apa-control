@@ -1,31 +1,56 @@
+import { useEffect, useState } from 'react'
+
 import { cn } from '../../helpers/classname'
 import { Logo } from '../logo'
 
-const HomeBoxBackground: React.FC<React.InputHTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
-  <div
-    {...props}
-    className={cn(
-      'flex min-h-screen w-full flex-col flex-wrap items-center justify-center bg-linear-to-br from-violet-50 via-pink-50 to-rose-50 px-4',
-      className,
-    )}
-    style={{
-      background: 'linear-gradient(135deg, #b8c4f5 0%, #c4a8d4 25%, #f8d2fe 50%, #fbb5be 75%, #b8dfff 100%)',
-      backgroundSize: '400% 400%',
-      animation: 'gradient 15s ease infinite',
-    }}
-  >
-    <style>
-      {`
+const HomeBoxBackground: React.FC<React.InputHTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => {
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDark(document.documentElement.classList.contains('dark'))
+    }
+
+    checkTheme()
+    const observer = new MutationObserver(checkTheme)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  const lightGradient = 'linear-gradient(135deg, #b8c4f5 0%, #c4a8d4 25%, #f8d2fe 50%, #fbb5be 75%, #b8dfff 100%)'
+  const darkGradient = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #1a1a2e 75%, #16213e 100%)'
+
+  return (
+    <div
+      {...props}
+      className={cn(
+        'flex min-h-screen w-full flex-col flex-wrap items-center justify-center bg-linear-to-br from-violet-50 via-pink-50 to-rose-50 px-4',
+        className,
+      )}
+      style={{
+        background: isDark ? darkGradient : lightGradient,
+        backgroundSize: '400% 400%',
+        animation: 'gradient 15s ease infinite',
+        transition: 'background 0.3s ease',
+      }}
+    >
+      <style>
+        {`
         @keyframes gradient {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
       `}
-    </style>
-    {children}
-  </div>
-)
+      </style>
+      {children}
+    </div>
+  )
+}
 
 const HomeBox: React.FC<React.InputHTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
   <div

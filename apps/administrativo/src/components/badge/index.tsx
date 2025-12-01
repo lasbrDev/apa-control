@@ -13,8 +13,8 @@ const badgeVariants = cva(
         warning: 'border-transparent bg-warning text-white shadow',
         success: 'border-transparent bg-success text-white shadow',
         brand: 'border-transparent bg-brand text-white shadow',
-        outline: 'border-stone-200 bg-transparent text-stone-600',
-        default: 'text-stone-600',
+        outline: 'border-stone-200 bg-transparent text-stone-600 dark:border-gray-700 dark:text-gray-300',
+        default: 'text-stone-600 dark:text-gray-300',
       },
     },
     defaultVariants: {

@@ -63,7 +63,7 @@ export const ModalForm = ({
             <ModalHeader>
               <ModalTitle>{title}</ModalTitle>
               <ModalDescription className="text-left">
-                {fetching ? <Spinner containerClassName="py-4" className="fill-black" /> : children}
+                {fetching ? <Spinner containerClassName="py-4" className="fill-black dark:fill-gray-200" /> : children}
               </ModalDescription>
             </ModalHeader>
             <ModalFooter>

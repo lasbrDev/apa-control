@@ -59,14 +59,14 @@ export const FormDurationInput = (props: FormDurationInputProps) => {
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
                   align="end"
-                  className="z-[1060] min-w-[14rem] rounded-md rounded-t-none bg-white py-3 shadow-[0_0_50px_0_rgba(0,0,0,.2)]"
+                  className="z-1060 min-w-56 rounded-md rounded-t-none bg-white py-3 shadow-[0_0_50px_0_rgba(0,0,0,.2)] dark:border dark:border-gray-700 dark:bg-gray-800"
                 >
                   {types.map((type) => (
                     <DropdownMenu.Item key={type.id} asChild>
                       <button
                         type="button"
                         className={cn(
-                          'flex w-full grow items-center whitespace-nowrap px-5 py-2 text-sm outline-hidden hover:bg-stone-100 hover:text-black',
+                          'flex w-full grow items-center whitespace-nowrap px-5 py-2 text-sm outline-hidden hover:bg-stone-100 hover:text-black dark:hover:bg-gray-700 dark:hover:text-gray-100',
                           { 'bg-brand text-white hover:bg-brand/90 hover:text-white': type.id === selectedType.id },
                         )}
                         onClick={() => setSelectedType(type)}

@@ -58,7 +58,7 @@ export const ForgotPassword = () => {
           <div className="my-5 text-center">
             <h1 className="font-black text-brand text-xl">Esqueceu sua senha ?</h1>
 
-            <div className="mt-2 font-medium text-gray-500 text-sm">
+            <div className="mt-2 font-medium text-gray-500 text-sm dark:text-gray-400">
               <p>
                 Insira seu cpf abaixo e nós enviaremos um link para o seu e-mail cadastrado para criar uma nova senha.
               </p>

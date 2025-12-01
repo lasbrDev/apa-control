@@ -138,7 +138,7 @@ export const AnimalForm = () => {
         <FormProvider {...animalForm}>
           <form autoComplete="off" onSubmit={handleSubmit(addOrUpdateAnimal)}>
             <CardContent>
-              <h4 className="mb-6 font-semibold leading-none tracking-tight">Dados Básicos</h4>
+              <h4 className="mb-6 font-semibold leading-none tracking-tight dark:text-gray-200">Dados Básicos</h4>
 
               <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                 <div>

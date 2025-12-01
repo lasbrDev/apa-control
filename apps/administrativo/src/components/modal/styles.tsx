@@ -13,7 +13,7 @@ const ModalOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialog.Overlay
     className={cn(
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[1040] bg-black/50 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=open]:animate-in',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-1040 bg-black/50 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=open]:animate-in',
       className,
     )}
     {...props}
@@ -37,7 +37,7 @@ const ModalContent = React.forwardRef<
   <AlertDialog.Content
     ref={ref}
     className={cn(
-      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-[1050] grid max-h-[95vh] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:rounded-lg md:w-full',
+      'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-1050 grid max-h-[95vh] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:rounded-lg md:w-full dark:border-gray-700 dark:bg-gray-800 dark:shadow-xl',
       className,
     )}
     {...props}
@@ -58,13 +58,15 @@ const ModalTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialog.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialog.Title>
 >(({ className, ...props }, ref) => (
-  <AlertDialog.Title ref={ref} className={cn('font-semibold text-lg', className)} {...props} />
+  <AlertDialog.Title ref={ref} className={cn('font-semibold text-lg dark:text-gray-100', className)} {...props} />
 ))
 
 ModalTitle.displayName = AlertDialog.Title.displayName
 
-const ModalDescription = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('text-sm text-stone-500', className)} {...props} />
+const ModalDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('text-sm text-stone-500 dark:text-gray-400', className)} {...props} />
+  ),
 )
 
 const ModalAction = React.forwardRef<

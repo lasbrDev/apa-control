@@ -56,7 +56,7 @@ export const FormTree = ({ name, options }: FormTreeProps) => {
 function processData(nodes: FormTreeNode[]): FormTreeNode[] {
   return nodes.map((node) => ({
     ...node,
-    title: <span className="ml-1">{node.title}</span>,
+    title: <span className="ml-1 dark:text-gray-200">{node.title}</span>,
     children: node.children ? processData(node.children) : node.children,
   }))
 }

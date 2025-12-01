@@ -237,7 +237,9 @@ export const VeterinaryClinicList = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-6 p-6">
-            <span className="text-sm">{itemCountMessage('clínicas veterinárias', page, pages, total)}</span>
+            <span className="text-sm dark:text-gray-300">
+              {itemCountMessage('clínicas veterinárias', page, pages, total)}
+            </span>
 
             <Pagination current={page} total={pages} changePage={changePage} />
           </div>

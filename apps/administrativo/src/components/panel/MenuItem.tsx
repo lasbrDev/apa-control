@@ -47,7 +47,7 @@ export const SingleMenuItem = ({ page, basename }: SingleMenuItemProps) => {
               className={cn(
                 'relative z-10 mr-3 h-5 w-5 transition-all duration-200',
                 'group-hover:scale-110 group-hover:drop-shadow-sm',
-                match ? 'text-brand drop-shadow-sm' : 'text-gray-600 group-hover:text-brand',
+                match ? 'text-brand drop-shadow-sm' : 'text-gray-600 group-hover:text-brand dark:text-gray-400',
               )}
             />
           )}
@@ -77,7 +77,7 @@ export const SingleMenuItem = ({ page, basename }: SingleMenuItemProps) => {
             className={cn(
               'relative z-10 mr-3 h-5 w-5 transition-all duration-200',
               'group-hover:scale-110',
-              match ? 'text-brand' : 'text-gray-600 group-hover:text-brand',
+              match ? 'text-brand' : 'text-gray-600 group-hover:text-brand dark:text-gray-400',
             )}
           />
         )}
@@ -112,7 +112,7 @@ const ChildMenuItem = ({ page, basename, strictActive }: SingleMenuItemProps & {
           className={cn(
             'relative z-10 mr-3 h-4 w-4 transition-all duration-200',
             'group-hover:scale-110',
-            match ? 'text-brand' : 'text-gray-500 group-hover:text-brand',
+            match ? 'text-brand' : 'text-gray-500 group-hover:text-brand dark:text-gray-500',
           )}
         />
         <span className={cn('relative z-10 font-medium text-sm transition-colors', match && 'text-brand')}>

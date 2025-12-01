@@ -55,7 +55,7 @@ export const FormSelectSearchable = (props: FormSelectSearchableProps) => {
             {isClearable && field.value && (
               <button
                 type="button"
-                className="-translate-y-1/2 absolute top-1/2 right-8 text-danger"
+                className="-translate-y-1/2 absolute top-1/2 right-8 text-danger dark:text-red-400"
                 aria-label="Limpar"
                 onClick={() => setValue(field.name, null)}
               >

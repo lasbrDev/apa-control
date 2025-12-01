@@ -15,9 +15,10 @@ const buttonVariants = cva(
         success: 'bg-success text-white hover:bg-success/90',
         warning: 'bg-warning text-white hover:bg-warning/90',
         danger: 'bg-danger text-white hover:bg-danger/90',
-        outline: 'text-stone-600 border border-zinc-200 bg-white hover:bg-stone-100 hover:text-black',
-        link: 'text-primary underline-offset-4 hover:underline',
-        text: 'text-neutral-600',
+        outline:
+          'text-stone-600 border border-zinc-200 bg-white hover:bg-stone-100 hover:text-black dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-gray-100',
+        link: 'text-primary underline-offset-4 hover:underline dark:text-brand',
+        text: 'text-neutral-600 dark:text-gray-300',
       },
       size: {
         default: 'h-10 px-4 py-2',

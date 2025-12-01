@@ -15,7 +15,7 @@ export const Pagination = ({ current, total, changePage }: PaginationProps) => {
     <nav className="-space-x-px isolate inline-flex rounded-md shadow-xs" aria-label="Paginação">
       <button
         type="button"
-        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60"
+        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60 dark:text-gray-500 dark:ring-gray-600 dark:disabled:bg-gray-800 dark:hover:bg-gray-700"
         disabled={current === 1}
         onClick={() => changePage(1)}
       >
@@ -24,7 +24,7 @@ export const Pagination = ({ current, total, changePage }: PaginationProps) => {
 
       <button
         type="button"
-        className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60"
+        className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60 dark:text-gray-500 dark:ring-gray-600 dark:disabled:bg-gray-800 dark:hover:bg-gray-700"
         disabled={current === 1}
         onClick={() => changePage(current - 1)}
       >
@@ -36,7 +36,7 @@ export const Pagination = ({ current, total, changePage }: PaginationProps) => {
           key={num}
           type="button"
           className={cn(
-            'relative hidden items-center px-4 py-2 font-semibold text-base text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex',
+            'relative hidden items-center px-4 py-2 font-semibold text-base text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-700',
             {
               'inline-flex bg-brand text-white hover:bg-brand focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2':
                 num === current,
@@ -53,7 +53,7 @@ export const Pagination = ({ current, total, changePage }: PaginationProps) => {
 
       <button
         type="button"
-        className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60"
+        className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:bg-gray-50 disabled:opacity-60 dark:text-gray-500 dark:ring-gray-600 dark:disabled:bg-gray-800 dark:hover:bg-gray-700"
         disabled={current === total}
         onClick={() => changePage(current + 1)}
       >
