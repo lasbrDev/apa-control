@@ -85,7 +85,7 @@ export const Home = () => {
       })
       .catch((err) => modal.alert(errorMessageHandler(err)))
       .finally(() => setFetching(false))
-  }, [])
+  }, [token])
 
   const statsCards = useMemo(
     () =>
