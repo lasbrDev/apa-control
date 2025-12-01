@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -31,7 +31,7 @@ const campaignTypeSchema = z.object({
 type CampaignTypeData = z.infer<typeof campaignTypeSchema>
 
 export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -44,8 +44,7 @@ export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) =
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = campaignTypeForm
 
   async function addOrUpdateCampaignType(values: CampaignTypeData) {
@@ -54,10 +53,11 @@ export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) =
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Tipo de Campanha ${values.name} ${id ? 'atualizado' : 'criado'} com sucesso!`)
       refresh()
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -76,7 +76,7 @@ export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) =
           reset(data)
           setDisplayName(data.name)
         })
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else if (show) {
       reset({ active: true })
@@ -116,7 +116,6 @@ export const CampaignTypeForm = ({ show, refresh, id }: CampaignTypeFormProps) =
           </Form.Label>
         </div>
 
-        <ErrorAlert className="mt-5" error={errors.root?.message} />
       </ModalForm>
     </FormProvider>
   )

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -32,7 +32,7 @@ const transactionTypeSchema = z.object({
 type TransactionTypeData = z.infer<typeof transactionTypeSchema>
 
 export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormProps) => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -45,8 +45,7 @@ export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormPr
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = transactionTypeForm
 
   async function addOrUpdateTransactionType(values: TransactionTypeData) {
@@ -55,10 +54,11 @@ export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormPr
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Tipo de Lançamento ${values.name} ${id ? 'atualizado' : 'criado'} com sucesso!`)
       refresh()
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -77,7 +77,7 @@ export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormPr
           reset(data)
           setDisplayName(data.name)
         })
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else if (show) {
       reset({ active: true })
@@ -131,7 +131,6 @@ export const TransactionTypeForm = ({ show, refresh, id }: TransactionTypeFormPr
           </Form.Label>
         </div>
 
-        <ErrorAlert className="mt-5" error={errors.root?.message} />
       </ModalForm>
     </FormProvider>
   )

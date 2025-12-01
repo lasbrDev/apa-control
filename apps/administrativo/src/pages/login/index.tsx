@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LogInIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { type LoginData, loginSchema, useApp } from '../../App'
 import { Button } from '../../components/button'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert/index'
 import { HomeBox, HomeBoxBackground, HomeBoxLogo } from '../../components/home-box'
 import { Spinner } from '../../components/spinner'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -23,8 +23,7 @@ export const Login = () => {
 
   const {
     handleSubmit,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = loginForm
 
   async function logIn(values: LoginData) {
@@ -33,7 +32,7 @@ export const Login = () => {
 
       pushTo('/')
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -87,7 +86,6 @@ export const Login = () => {
               )}
             </Button>
 
-            <ErrorAlert className="mt-8" error={errors.root?.message} />
           </form>
         </FormProvider>
       </HomeBox>

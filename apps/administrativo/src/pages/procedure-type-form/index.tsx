@@ -3,13 +3,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { DollarSignIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -34,7 +34,7 @@ const procedureTypeSchema = z.object({
 type ProcedureTypeData = z.infer<typeof procedureTypeSchema>
 
 export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps) => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -47,8 +47,7 @@ export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps)
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = procedureTypeForm
 
   async function addOrUpdateProcedureType(values: ProcedureTypeData) {
@@ -57,10 +56,11 @@ export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps)
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Tipo de Procedimento ${values.name} ${id ? 'atualizado' : 'criado'} com sucesso!`)
       refresh()
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -79,7 +79,7 @@ export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps)
           reset(data)
           setDisplayName(data.name)
         })
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else if (show) {
       reset({ category: 'clinico', averageCost: 0, active: true })
@@ -140,7 +140,6 @@ export const ProcedureTypeForm = ({ show, refresh, id }: ProcedureTypeFormProps)
           </div>
         </div>
 
-        <ErrorAlert className="mt-5" error={errors.root?.message} />
       </ModalForm>
     </FormProvider>
   )

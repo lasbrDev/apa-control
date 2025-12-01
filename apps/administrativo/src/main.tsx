@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import { AppProvider } from './App'
+import { Toaster } from './components/sonner'
 import { PanelOutlet } from './components/panel-outlet'
 import { pages } from './config/pages'
 import { AdopterForm } from './pages/adopter-form'
@@ -70,6 +71,7 @@ ReactDOM.createRoot(rootElement!).render(
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      <Toaster />
     </AppProvider>
   </BrowserRouter>,
 )

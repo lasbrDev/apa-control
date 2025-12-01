@@ -5,13 +5,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import groupBy from 'lodash/groupBy'
 import { ChevronLeftIcon, SaveIcon, UserSquare2Icon } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/card'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { Spinner } from '../../components/spinner'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -35,7 +35,7 @@ interface Module {
 }
 
 export const ProfileForm = () => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const params = useParams()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
@@ -52,8 +52,7 @@ export const ProfileForm = () => {
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = profileForm
 
   async function addOrUpdateProfile(values: ProfileData) {
@@ -62,9 +61,10 @@ export const ProfileForm = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Perfil ${values.description} ${params.id ? 'atualizado' : 'criado'} com sucesso!`)
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -72,7 +72,7 @@ export const ProfileForm = () => {
     api
       .get('profile.modules', { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => setModules(data))
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
 
     if (params.id) {
       setFetching(true)
@@ -80,7 +80,7 @@ export const ProfileForm = () => {
       api
         .get(`profile.key/${params.id}`, { headers: { Authorization: `Bearer ${token}` } })
         .then(({ data }) => reset(data))
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     }
   }, [])
@@ -117,7 +117,6 @@ export const ProfileForm = () => {
               <Form.ErrorMessage field="permissions" />
             </Form.Field>
 
-            <ErrorAlert className="mt-5" error={errors.root?.message} />
           </CardContent>
 
           <CardFooter>

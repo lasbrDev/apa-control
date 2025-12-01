@@ -3,6 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { CalendarIcon, ChevronLeftIcon, DogIcon, HeartIcon, SaveIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,7 +12,6 @@ import { useApp } from '../../App'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/card'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
@@ -69,7 +69,7 @@ const statusOptions = [
 ]
 
 export const AnimalForm = () => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const params = useParams()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
@@ -85,8 +85,7 @@ export const AnimalForm = () => {
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = animalForm
 
   async function addOrUpdateAnimal(values: AnimalData) {
@@ -95,9 +94,10 @@ export const AnimalForm = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Animal ${values.name} ${params.id ? 'atualizado' : 'criado'} com sucesso!`)
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -112,7 +112,7 @@ export const AnimalForm = () => {
         .then(({ data }) => {
           reset(data)
         })
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else {
       setFetching(false)
@@ -211,7 +211,6 @@ export const AnimalForm = () => {
               <Form.ErrorMessage field="observations" />
             </div>
 
-            <ErrorAlert className="mt-5" error={errors.root?.message} />
           </CardContent>
 
           <CardFooter>

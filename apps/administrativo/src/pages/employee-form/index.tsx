@@ -3,6 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { ChevronLeftIcon, EyeIcon, EyeOffIcon, MailIcon, PhoneIcon, SaveIcon, UserIcon, Users2Icon } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,7 +12,6 @@ import { useApp } from '../../App'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/card'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
@@ -72,7 +72,7 @@ const employeeSchema = z
 type EmployeeData = z.infer<typeof employeeSchema>
 
 export const EmployeeForm = () => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const params = useParams()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
@@ -86,9 +86,8 @@ export const EmployeeForm = () => {
   const {
     handleSubmit,
     reset,
-    setError,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = employeeForm
 
   async function addOrUpdateEmployee(values: EmployeeData) {
@@ -97,9 +96,10 @@ export const EmployeeForm = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Funcionário ${values.name} ${params.id ? 'atualizado' : 'criado'} com sucesso!`)
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -119,7 +119,7 @@ export const EmployeeForm = () => {
           reset(keyData)
         }
       })
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
       .finally(() => setFetching(false))
   }, [])
 
@@ -313,7 +313,6 @@ export const EmployeeForm = () => {
               </div>
             </div>
 
-            <ErrorAlert className="mt-5" error={errors.root?.message} />
           </CardContent>
 
           <CardFooter>

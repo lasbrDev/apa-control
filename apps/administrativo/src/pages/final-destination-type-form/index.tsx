@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useApp } from '../../App'
 import { Form } from '../../components/form-hook'
-import { ErrorAlert } from '../../components/form/error-alert'
 import { LoadingCard } from '../../components/loading-card'
 import { ModalForm } from '../../components/modal-form'
 import { errorMessageHandler } from '../../helpers/axios'
@@ -32,7 +32,7 @@ const finalDestinationTypeSchema = z.object({
 type FinalDestinationTypeData = z.infer<typeof finalDestinationTypeSchema>
 
 export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestinationTypeFormProps) => {
-  const { modal, token } = useApp()
+  const { token } = useApp()
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -45,8 +45,7 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
   const {
     handleSubmit,
     reset,
-    setError,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = finalDestinationTypeForm
 
   async function addOrUpdateFinalDestinationType(values: FinalDestinationTypeData) {
@@ -55,10 +54,11 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
         headers: { Authorization: `Bearer ${token}` },
       })
 
+      toast.success(`Tipo de Destino Final ${values.name} ${id ? 'atualizado' : 'criado'} com sucesso!`)
       refresh()
       pushTo(-1)
     } catch (err) {
-      setError('root', { message: errorMessageHandler(err) })
+      toast.error(errorMessageHandler(err))
     }
   }
 
@@ -77,7 +77,7 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
           reset(data)
           setDisplayName(data.name)
         })
-        .catch((err) => modal.alert(errorMessageHandler(err)))
+        .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else if (show) {
       reset({ requiresApproval: false, active: true })
@@ -128,7 +128,6 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
           </div>
         </div>
 
-        <ErrorAlert className="mt-5" error={errors.root?.message} />
       </ModalForm>
     </FormProvider>
   )
