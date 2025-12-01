@@ -54,3 +54,21 @@ body {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
+
+.toaster [data-sonner-toast] {
+  min-width: 356px;
+  font-size: 0.9375rem;
+  padding: 1rem 1.25rem;
+}
+
+.toaster [data-sonner-toast] [data-title] {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.toaster [data-sonner-toast] [data-description] {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
