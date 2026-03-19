@@ -22,8 +22,9 @@ export class AnimalRepository {
     return connection.insert(animal).values(data).returning({ id: animal.id })
   }
 
-  async update(id: number, data: Partial<Animal>) {
-    await db
+  async update(id: number, data: Partial<Animal>, dbTransaction: DrizzleTransaction | null = null) {
+    const connection = dbTransaction ?? db
+    await connection
       .update(animal)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(animal.id, id))
@@ -89,7 +90,8 @@ export class AnimalRepository {
     return item as Pick<AnimalSelectSchema, K>
   }
 
-  async delete(id: number) {
-    await db.delete(animal).where(eq(animal.id, id))
+  async delete(id: number, dbTransaction: DrizzleTransaction | null = null) {
+    const connection = dbTransaction ?? db
+    await connection.delete(animal).where(eq(animal.id, id))
   }
 }

@@ -6,6 +6,7 @@ import { FormDurationInput } from './DurationInput'
 import { FormErrorMessage } from './ErrorMessage'
 import { FormField } from './Field'
 import { FormFileInput } from './FileInput'
+import { FormSearchableSelect } from './FormSearchableSelect'
 import { FormIcon } from './Icon'
 import { FormIconContainer } from './IconContainer'
 import { FormInput } from './Input'
@@ -28,6 +29,7 @@ export const Form = {
   Input: FormInput,
   InputLoading: FormInputLoading,
   FileInput: FormFileInput,
+  SearchableSelect: FormSearchableSelect,
   Select: FormSelect,
   AsyncSelect: FormAsyncSelect,
   MultiSelect: FormMultiSelect,

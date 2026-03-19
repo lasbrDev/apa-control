@@ -12,12 +12,12 @@ export function Alert({ message, closeModal }: AlertProps) {
     <ModalContent>
       <ModalHeader>
         <ModalTitle>Alerta</ModalTitle>
-        <ModalDescription className="max-h-[calc(95vh_-_16rem)] overflow-auto">
-          {typeof message === 'string' ? <p>{message}</p> : message}
+        <ModalDescription className="max-h-[calc(95vh-16rem)] overflow-auto text-base leading-6">
+          {typeof message === 'string' ? <p className="text-base">{message}</p> : message}
         </ModalDescription>
       </ModalHeader>
       <ModalFooter>
-        <ModalAction type="button" onClick={() => closeModal('submit')}>
+        <ModalAction type="button" onClick={() => closeModal('submit')} className="text-base">
           Ok
         </ModalAction>
       </ModalFooter>

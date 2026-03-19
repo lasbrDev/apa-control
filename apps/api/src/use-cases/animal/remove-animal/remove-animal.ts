@@ -1,5 +1,17 @@
+import { db } from '@/database/client'
+import {
+  adoption,
+  animalHistory,
+  appointment,
+  clinicalProcedure,
+  finalDestination,
+  financialTransaction,
+  rescue,
+} from '@/database/schema'
+import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
 import type { AnimalRepository } from '@/repositories/animal.repository'
 import { ApiError } from '@/utils/api-error'
+import { and, eq, ne } from 'drizzle-orm'
 import type { RemoveAnimalData } from './remove-animal.dto'
 
 export class RemoveAnimalUseCase {
@@ -12,6 +24,75 @@ export class RemoveAnimalUseCase {
       throw new ApiError('Animal não encontrado.', 404)
     }
 
-    await this.animalRepository.delete(data.id)
+    const rescueExists = await db.select({ id: rescue.id }).from(rescue).where(eq(rescue.animalId, data.id)).limit(1)
+    if (rescueExists.length > 0) {
+      throw new ApiError(
+        'Não é possível remover o animal pois ele já possui resgates ou atendimentos cadastrados.',
+        409,
+      )
+    }
+
+    const adoptionExists = await db
+      .select({ id: adoption.id })
+      .from(adoption)
+      .where(eq(adoption.animalId, data.id))
+      .limit(1)
+    if (adoptionExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal pois ele já possui adoção cadastrada.', 409)
+    }
+
+    const appointmentExists = await db
+      .select({ id: appointment.id })
+      .from(appointment)
+      .where(eq(appointment.animalId, data.id))
+      .limit(1)
+    if (appointmentExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal pois ele já possui consultas/agendamentos cadastrados.', 409)
+    }
+
+    const clinicalProcedureExists = await db
+      .select({ id: clinicalProcedure.id })
+      .from(clinicalProcedure)
+      .where(eq(clinicalProcedure.animalId, data.id))
+      .limit(1)
+    if (clinicalProcedureExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal pois ele já possui procedimentos clínicos cadastrados.', 409)
+    }
+
+    const finalDestinationExists = await db
+      .select({ id: finalDestination.id })
+      .from(finalDestination)
+      .where(eq(finalDestination.animalId, data.id))
+      .limit(1)
+    if (finalDestinationExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal pois ele já possui destino final cadastrado.', 409)
+    }
+
+    const financialTransactionExists = await db
+      .select({ id: financialTransaction.id })
+      .from(financialTransaction)
+      .where(eq(financialTransaction.animalId, data.id))
+      .limit(1)
+    if (financialTransactionExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal pois ele já possui transações financeiras cadastradas.', 409)
+    }
+
+    const nonRegistrationHistoryExists = await db
+      .select({ id: animalHistory.id })
+      .from(animalHistory)
+      .where(and(eq(animalHistory.animalId, data.id), ne(animalHistory.type, AnimalHistoryType.REGISTRATION)))
+      .limit(1)
+
+    if (nonRegistrationHistoryExists.length > 0) {
+      throw new ApiError(
+        'Não é possível remover o animal pois ele já possui histórico de resgates/atendimentos e/ou outros registros.',
+        409,
+      )
+    }
+
+    await db.transaction(async (tx) => {
+      await tx.delete(animalHistory).where(eq(animalHistory.animalId, data.id))
+      await this.animalRepository.delete(data.id, tx)
+    })
   }
 }

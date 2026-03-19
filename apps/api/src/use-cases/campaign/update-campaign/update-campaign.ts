@@ -1,0 +1,39 @@
+import Decimal from 'decimal.js'
+
+import type { CampaignTypeRepository } from '@/repositories/campaign-type.repository'
+import type { CampaignRepository } from '@/repositories/campaign.repository'
+import { ApiError } from '@/utils/api-error'
+import type { UpdateCampaignData } from './update-campaign.dto'
+
+export class UpdateCampaignUseCase {
+  constructor(
+    private campaignRepository: CampaignRepository,
+    private campaignTypeRepository: CampaignTypeRepository,
+  ) {}
+
+  async execute(data: UpdateCampaignData): Promise<void> {
+    const [campaign, campaignType] = await Promise.all([
+      this.campaignRepository.findById(data.id),
+      this.campaignTypeRepository.findById(data.campaignTypeId),
+    ])
+
+    if (!campaign) throw new ApiError('Campanha não encontrada.', 404)
+    if (!campaignType) throw new ApiError('Tipo de campanha não encontrado.', 404)
+    if (!campaignType.active) throw new ApiError('Tipo de campanha inativo.', 409)
+    if (new Date(data.startDate) > new Date(data.endDate)) {
+      throw new ApiError('A data inicial deve ser menor ou igual à data final.', 400)
+    }
+
+    await this.campaignRepository.update(data.id, {
+      campaignTypeId: data.campaignTypeId,
+      title: data.title,
+      description: data.description,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      fundraisingGoal: new Decimal(data.fundraisingGoal),
+      status: data.status,
+      observations: data.observations ?? null,
+      updatedAt: new Date(),
+    })
+  }
+}

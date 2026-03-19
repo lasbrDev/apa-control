@@ -3,7 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { DogIcon, PencilIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
+import { DogIcon, HistoryIcon, PencilIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { z } from 'zod'
 
@@ -220,6 +220,7 @@ export const AnimalList = () => {
                         values={item}
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: ':id' },
+                          { icon: HistoryIcon, title: 'Ver Histórico', action: ':id/historico' },
                           { icon: XIcon, title: 'Remover', action: removeAnimal },
                         ]}
                       />

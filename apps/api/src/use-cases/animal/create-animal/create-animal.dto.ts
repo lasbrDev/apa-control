@@ -1,4 +1,5 @@
 export interface CreateAnimalData {
+  employeeId: number
   name: string
   species: string
   breed?: string | null

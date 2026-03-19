@@ -6,6 +6,7 @@ export async function createAnimalController(request: FastifyRequest, reply: Fas
   const data = createAnimalSchema.parse(request.body)
   const createAnimalUseCase = makeCreateAnimalUseCase()
 
-  const id = await createAnimalUseCase.execute(data)
+  const employeeId = request.user.id
+  const id = await createAnimalUseCase.execute({ ...data, employeeId })
   return reply.status(201).send({ id })
 }

@@ -1,5 +1,6 @@
 export interface UpdateAnimalData {
   id: number
+  employeeId: number
   name: string
   species: string
   breed?: string | null

@@ -1,3 +1,4 @@
+import type { CampaignStatusValue } from '@/database/schema/enums/campaign-status'
 import type { Decimal } from 'decimal.js'
 
 export class Campaign {
@@ -8,7 +9,7 @@ export class Campaign {
   startDate: string
   endDate: string
   fundraisingGoal: Decimal
-  status: string
+  status: CampaignStatusValue
   observations?: string | null
   createdAt: Date
   updatedAt?: Date | null

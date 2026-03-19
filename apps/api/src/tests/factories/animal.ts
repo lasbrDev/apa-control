@@ -9,8 +9,10 @@ import { faker } from '@/tests/faker'
 
 import type { CreateAnimalData } from '@/use-cases/animal/create-animal/create-animal.dto'
 
+type CreateAnimalPartData = Omit<CreateAnimalData, 'employeeId'>
+
 const AnimalFactory = {
-  buildCreate: (props?: Partial<CreateAnimalData>): CreateAnimalData => ({
+  buildCreate: (props?: Partial<CreateAnimalPartData>): CreateAnimalPartData => ({
     name: faker.person.firstName(),
     species: faker.helpers.arrayElement(SpeciesValues),
     breed: faker.helpers.maybe(() => faker.animal.dog(), { probability: 0.7 }) ?? null,

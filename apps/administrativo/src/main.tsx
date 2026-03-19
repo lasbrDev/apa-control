@@ -13,11 +13,16 @@ import { ThemeProvider } from './hooks/theme'
 import { AdopterForm } from './pages/adopter-form'
 import { AdopterList } from './pages/adopter-list'
 import { AnimalForm } from './pages/animal-form'
+import { AnimalHistoryPage } from './pages/animal-history'
 import { AnimalList } from './pages/animal-list'
 import { AppointmentTypeList } from './pages/appointment-type-list'
+import { CampaignForm } from './pages/campaign-form'
+import { CampaignList } from './pages/campaign-list'
 import { CampaignTypeList } from './pages/campaign-type-list'
 import { EmployeeForm } from './pages/employee-form'
 import { EmployeeList } from './pages/employee-list'
+import { FinalDestinationForm } from './pages/final-destination-form'
+import { FinalDestinationList } from './pages/final-destination-list'
 import { FinalDestinationTypeList } from './pages/final-destination-type-list'
 import { ForgotPassword } from './pages/forgot-password'
 import { Home } from './pages/home'
@@ -26,6 +31,8 @@ import { NotFound } from './pages/not-found'
 import { ProcedureTypeList } from './pages/procedure-type-list'
 import { ProfileForm } from './pages/profile-form'
 import { ProfileList } from './pages/profile-list'
+import { RescueForm } from './pages/rescue-form'
+import { RescueList } from './pages/rescue-list'
 import { TransactionTypeList } from './pages/transaction-type-list'
 import { VeterinaryClinicForm } from './pages/veterinary-clinic-form'
 import { VeterinaryClinicList } from './pages/veterinary-clinic-list'
@@ -72,6 +79,16 @@ ReactDOM.createRoot(rootElement!).render(
               <Route path="animais" element={<AnimalList />} />
               <Route path="animais/cadastro" element={<AnimalForm />} />
               <Route path="animais/:id" element={<AnimalForm />} />
+              <Route path="animais/:id/historico" element={<AnimalHistoryPage />} />
+              <Route path="resgates" element={<RescueList />} />
+              <Route path="resgates/cadastro" element={<RescueForm />} />
+              <Route path="resgates/:id" element={<RescueForm />} />
+              <Route path="campanhas" element={<CampaignList />} />
+              <Route path="campanhas/cadastro" element={<CampaignForm />} />
+              <Route path="campanhas/:id" element={<CampaignForm />} />
+              <Route path="destino-final" element={<FinalDestinationList />} />
+              <Route path="destino-final/cadastro" element={<FinalDestinationForm />} />
+              <Route path="destino-final/:id" element={<FinalDestinationForm />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

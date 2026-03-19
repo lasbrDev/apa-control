@@ -30,6 +30,16 @@
       "nursery": { "useSortedClasses": "error" }
     }
   },
+  "overrides": [
+    {
+      "include": ["**/FormSearchableSelect.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": { "useSemanticElements": "off" }
+        }
+      }
+    }
+  ],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.css", "**/*.json"],
     "ignore": ["node_modules", "dist", "build", ".next"],

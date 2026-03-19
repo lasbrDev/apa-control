@@ -1,5 +1,6 @@
 import { pgEnum } from 'drizzle-orm/pg-core'
 import { AdoptionStatusValues } from './adoption-status'
+import { AnimalHistoryTypeValues } from './animal-history-type'
 import { AnimalStatusValues } from './animal-status'
 import { AppointmentStatusValues } from './appointment-status'
 import { CampaignStatusValues } from './campaign-status'
@@ -34,3 +35,5 @@ export const adoptionStatusEnum = pgEnum('adoption_status', AdoptionStatusValues
 export const transactionStatusEnum = pgEnum('transaction_status', TransactionStatusValues)
 export const postTypeEnum = pgEnum('post_type', PostTypeValues)
 export const postStatusEnum = pgEnum('post_status', PostStatusValues)
+
+export const animalHistoryTypeEnum = pgEnum('animal_history_type', AnimalHistoryTypeValues)

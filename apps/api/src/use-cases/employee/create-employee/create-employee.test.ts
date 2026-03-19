@@ -17,7 +17,11 @@ describe('Create employee', () => {
   it('should create an employee', async () => {
     const profile = await AccessProfileFactory.create()
     const token = getAuthToken({ roles: ['AdminPanel', 'Employees'] })
-    const employee = EmployeeFactory.buildCreate({ profileId: profile.id })
+    const employee = EmployeeFactory.buildCreate({
+      profileId: profile.id,
+      name: 'Funcionario Teste',
+      login: `teste${Date.now()}`,
+    })
 
     const response = await app.inject({
       method: 'POST',

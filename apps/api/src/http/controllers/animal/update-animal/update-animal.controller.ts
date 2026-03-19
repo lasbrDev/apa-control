@@ -6,7 +6,8 @@ export async function updateAnimalController(request: FastifyRequest, reply: Fas
   const data = updateAnimalSchema.parse(request.body)
   const updateAnimalUseCase = makeUpdateAnimalUseCase()
 
-  await updateAnimalUseCase.execute(data)
+  const employeeId = request.user.id
+  await updateAnimalUseCase.execute({ ...data, employeeId })
 
   return reply.status(204).send()
 }
