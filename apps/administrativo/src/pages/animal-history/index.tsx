@@ -37,6 +37,7 @@ const historyTypeOptions = [
   { value: 'cadastro', label: 'Cadastro' },
   { value: 'consulta', label: 'Consulta' },
   { value: 'procedimento', label: 'Procedimento' },
+  { value: 'ocorrencia', label: 'Ocorrência' },
   { value: 'destino_final', label: 'Destino Final' },
 ]
 
@@ -234,6 +235,7 @@ function formatHistoryType(type: string) {
     cadastro: 'Cadastro',
     consulta: 'Consulta',
     procedimento: 'Procedimento',
+    ocorrencia: 'Ocorrência',
     destino_final: 'Destino Final',
   }
   return map[type] ?? type

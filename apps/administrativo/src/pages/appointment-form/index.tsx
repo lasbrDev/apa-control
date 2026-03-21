@@ -1,0 +1,393 @@
+import { useCallback, useEffect, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CalendarHeartIcon, ChevronLeftIcon, ChevronRightIcon, SaveIcon } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+import { useApp } from '../../App'
+import { Button } from '../../components/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/card'
+import { Form } from '../../components/form-hook'
+import { LoadingCard } from '../../components/loading-card'
+import { Spinner } from '../../components/spinner'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
+import { errorMessageHandler } from '../../helpers/axios'
+import { RequiredMessage } from '../../helpers/constants'
+import { toQueryString } from '../../helpers/qs'
+import { api } from '../../service'
+
+interface SelectOption {
+  value: number
+  label: string
+}
+interface AnimalOption {
+  id: number
+  name: string
+}
+interface AnimalPreview {
+  name: string
+  species: string
+  breed: string
+  size: string
+  sex: string
+  age: string
+  healthCondition: string
+  entryDate: string
+  observations: string
+  status: string
+}
+const speciesOptions = [
+  { value: 'canina', label: 'Cachorro' },
+  { value: 'felina', label: 'Gato' },
+  { value: 'outros', label: 'Outros' },
+]
+const sizeOptions = [
+  { value: 'pequeno', label: 'Pequeno' },
+  { value: 'medio', label: 'Médio' },
+  { value: 'grande', label: 'Grande' },
+]
+const sexOptions = [
+  { value: 'macho', label: 'Macho' },
+  { value: 'femea', label: 'Fêmea' },
+]
+const healthConditionOptions = [
+  { value: 'saudavel', label: 'Saudável' },
+  { value: 'estavel', label: 'Estável' },
+  { value: 'critica', label: 'Crítica' },
+]
+const animalStatusOptions = [
+  { value: 'disponivel', label: 'Disponível' },
+  { value: 'em_tratamento', label: 'Em Tratamento' },
+  { value: 'adotado', label: 'Adotado' },
+]
+
+const schema = z.object({
+  id: z.number().nullish(),
+  animalId: z.number({ message: RequiredMessage }).int().positive(),
+  appointmentTypeId: z.number({ message: RequiredMessage }).int().positive(),
+  clinicId: z.number().nullish(),
+  appointmentDate: z.string().min(1, RequiredMessage),
+  consultationType: z.enum(['clinica', 'domiciliar', 'emergencia']),
+  status: z.enum(['agendado', 'realizado', 'cancelado']),
+  observations: z.string().optional().nullable(),
+})
+type Data = z.infer<typeof schema>
+
+const consultationTypeOptions = [
+  { value: 'clinica', label: 'Clínica' },
+  { value: 'domiciliar', label: 'Domiciliar' },
+  { value: 'emergencia', label: 'Emergência' },
+]
+const statusOptions = [
+  { value: 'agendado', label: 'Agendado' },
+  { value: 'realizado', label: 'Realizado' },
+  { value: 'cancelado', label: 'Cancelado' },
+]
+
+export const AppointmentForm = () => {
+  const { token } = useApp()
+  const params = useParams()
+  const pushTo = useNavigate()
+  const isEdit = Boolean(params.id)
+  const [fetching, setFetching] = useState(false)
+  const [activeTab, setActiveTab] = useState<'animal' | 'consulta'>('animal')
+  const [animalDisplayLabel, setAnimalDisplayLabel] = useState('')
+  const [animalPreview, setAnimalPreview] = useState<AnimalPreview | null>(null)
+  const [appointmentTypeOptions, setAppointmentTypeOptions] = useState<SelectOption[]>([])
+  const [clinicOptions, setClinicOptions] = useState<SelectOption[]>([])
+
+  const searchAnimalOptions = useCallback(
+    async (query: string): Promise<{ value: string; label: string }[]> => {
+      const config = { headers: { Authorization: `Bearer ${token}` } }
+      const qs = toQueryString({ name: query.trim(), perPage: 50, fields: 'id,name', sort: 'name' })
+      const { data } = await api.get<AnimalOption[]>(`animal.list?${qs}`, config)
+      const list = Array.isArray(data) ? data : []
+      return list.map((a) => ({ value: String(a.id), label: a.name }))
+    },
+    [token],
+  )
+
+  const form = useForm<Data>({
+    resolver: zodResolver(schema),
+    defaultValues: { status: 'agendado', consultationType: 'clinica', observations: '', clinicId: null },
+  })
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = form
+  const animalId = form.watch('animalId')
+
+  async function submit(values: Data) {
+    try {
+      await api[params.id ? 'put' : 'post'](params.id ? 'appointment.update' : 'appointment.add', values, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      toast.success(`Consulta ${params.id ? 'atualizada' : 'registrada'} com sucesso!`)
+      pushTo(-1)
+    } catch (error) {
+      toast.error(errorMessageHandler(error))
+    }
+  }
+
+  useEffect(() => {
+    setFetching(true)
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    Promise.all([
+      api.get(`appointment-type.list?${toQueryString({ page: 0, fields: 'id,name,active' })}`, config),
+      api.get(`veterinary-clinic.list?${toQueryString({ page: 0, fields: 'id,name,active' })}`, config),
+      params.id ? api.get(`appointment.key/${params.id}`, config) : Promise.resolve({ data: null }),
+    ])
+      .then(([typesRes, clinicsRes, keyResponse]) => {
+        setAppointmentTypeOptions(
+          (Array.isArray(typesRes.data) ? typesRes.data : [])
+            .filter((i: { active: boolean }) => i.active)
+            .map((i: { id: number; name: string }) => ({ value: i.id, label: i.name })),
+        )
+        setClinicOptions(
+          (Array.isArray(clinicsRes.data) ? clinicsRes.data : [])
+            .filter((i: { active: boolean }) => i.active)
+            .map((i: { id: number; name: string }) => ({ value: i.id, label: i.name })),
+        )
+
+        if (keyResponse.data) {
+          const key = keyResponse.data
+          setAnimalDisplayLabel(key.animalName ?? '')
+          const date = new Date(key.appointmentDate)
+          const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+          reset({
+            id: key.id,
+            animalId: key.animalId,
+            appointmentTypeId: key.appointmentTypeId,
+            clinicId: key.clinicId ?? null,
+            appointmentDate: local,
+            consultationType: key.consultationType,
+            status: key.status,
+            observations: key.observations ?? '',
+          })
+        }
+      })
+      .catch((error) => toast.error(errorMessageHandler(error)))
+      .finally(() => setFetching(false))
+  }, [])
+
+  useEffect(() => {
+    if (!animalId || Number(animalId) <= 0) {
+      setAnimalPreview(null)
+      return
+    }
+    api
+      .get(`animal.key/${animalId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ data }) =>
+        setAnimalPreview({
+          name: data.name ?? '',
+          species: data.species ?? '',
+          breed: data.breed ?? '',
+          size: data.size ?? '',
+          sex: data.sex ?? '',
+          age: String(data.age ?? ''),
+          healthCondition: data.healthCondition ?? '',
+          entryDate: data.entryDate?.split('T')[0] ?? '',
+          observations: data.observations ?? '',
+          status: data.status ?? '',
+        }),
+      )
+      .catch(() => setAnimalPreview(null))
+  }, [animalId, token])
+
+  if (fetching) return <LoadingCard />
+
+  return (
+    <>
+      <Helmet>
+        <title>Consulta - APA Control</title>
+      </Helmet>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <CalendarHeartIcon />
+            {params.id ? 'Editar consulta' : 'Nova consulta'}
+          </CardTitle>
+        </CardHeader>
+        <FormProvider {...form}>
+          <form autoComplete="off" onSubmit={handleSubmit(submit)}>
+            <CardContent>
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => setActiveTab(value as 'animal' | 'consulta')}
+                className="w-full"
+              >
+                <TabsList className="mb-4">
+                  <TabsTrigger value="animal">Dados do Animal</TabsTrigger>
+                  <TabsTrigger value="consulta">Dados da Consulta</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="animal">
+                  <div className="mb-6">
+                    <Form.Label htmlFor="animalId">Animal</Form.Label>
+                    <Form.SearchableSelect
+                      name="animalId"
+                      type="number"
+                      searchOptions={searchAnimalOptions}
+                      minChars={3}
+                      debounceMs={300}
+                      displayLabel={animalDisplayLabel || undefined}
+                    />
+                    <Form.ErrorMessage field="animalId" />
+                  </div>
+                  <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
+                    <div>
+                      <Form.Label htmlFor="animalNamePreview">Nome</Form.Label>
+                      <Form.Input name="animalNamePreview" value={animalPreview?.name ?? ''} disabled />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="speciesPreview">Espécie</Form.Label>
+                      <Form.Select
+                        name="speciesPreview"
+                        options={speciesOptions}
+                        disabled
+                        value={animalPreview?.species ?? ''}
+                      />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="breedPreview">Raça</Form.Label>
+                      <Form.Input name="breedPreview" value={animalPreview?.breed ?? ''} disabled />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="sizePreview">Porte</Form.Label>
+                      <Form.Select
+                        name="sizePreview"
+                        options={sizeOptions}
+                        disabled
+                        value={animalPreview?.size ?? ''}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
+                    <div>
+                      <Form.Label htmlFor="sexPreview">Sexo</Form.Label>
+                      <Form.Select name="sexPreview" options={sexOptions} disabled value={animalPreview?.sex ?? ''} />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="agePreview">Idade (anos)</Form.Label>
+                      <Form.Input name="agePreview" value={animalPreview?.age ?? ''} disabled />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="healthConditionPreview">Condição de saúde</Form.Label>
+                      <Form.Select
+                        name="healthConditionPreview"
+                        options={healthConditionOptions}
+                        disabled
+                        value={animalPreview?.healthCondition ?? ''}
+                      />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
+                      <Form.Input name="entryDatePreview" type="date" value={animalPreview?.entryDate ?? ''} disabled />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="statusPreview">Status</Form.Label>
+                      <Form.Select
+                        name="statusPreview"
+                        options={animalStatusOptions}
+                        disabled
+                        className="bg-gray-100 dark:bg-gray-800"
+                        value={animalPreview?.status ?? ''}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
+                    <Form.TextArea
+                      name="animalObservationsPreview"
+                      rows={2}
+                      disabled
+                      value={animalPreview?.observations ?? ''}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="consulta">
+                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <Form.Label htmlFor="appointmentTypeId">Tipo de consulta</Form.Label>
+                      <Form.Select name="appointmentTypeId" type="number" options={appointmentTypeOptions} />
+                      <Form.ErrorMessage field="appointmentTypeId" />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="appointmentDate">Data/hora</Form.Label>
+                      <Form.DateTimeInput name="appointmentDate" />
+                      <Form.ErrorMessage field="appointmentDate" />
+                    </div>
+                  </div>
+                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <Form.Label htmlFor="clinicId">Clínica (opcional)</Form.Label>
+                      <Form.Select
+                        name="clinicId"
+                        type="number"
+                        isClearable
+                        placeholder="Nenhuma"
+                        options={clinicOptions}
+                      />
+                      <Form.ErrorMessage field="clinicId" />
+                    </div>
+                    <div>
+                      <Form.Label htmlFor="consultationType">Modalidade</Form.Label>
+                      <Form.Select name="consultationType" options={consultationTypeOptions} />
+                      <Form.ErrorMessage field="consultationType" />
+                    </div>
+                  </div>
+                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                    <div>
+                      <Form.Label htmlFor="status">Status</Form.Label>
+                      <Form.Select name="status" options={statusOptions} />
+                      <Form.ErrorMessage field="status" />
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <Form.Label htmlFor="observations">Observações</Form.Label>
+                    <Form.TextArea name="observations" rows={4} />
+                    <Form.ErrorMessage field="observations" />
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => (!isEdit && activeTab !== 'animal' ? setActiveTab('animal') : pushTo(-1))}
+              >
+                <ChevronLeftIcon className="mr-2 h-5 w-5" />
+                <span>Voltar</span>
+              </Button>
+              {!isEdit && activeTab === 'animal' ? (
+                <Button type="button" variant="outline" onClick={() => setActiveTab('consulta')}>
+                  <ChevronRightIcon className="mr-2 h-5 w-5" />
+                  <span>Continuar</span>
+                </Button>
+              ) : (
+                <Button type="submit" variant="success" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <SaveIcon className="mr-2 h-5 w-5" />
+                      <span>Salvar</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </CardFooter>
+          </form>
+        </FormProvider>
+      </Card>
+    </>
+  )
+}

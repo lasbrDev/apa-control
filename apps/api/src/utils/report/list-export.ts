@@ -1,0 +1,174 @@
+import { readFileSync } from 'node:fs'
+import { getRootFolder } from '@/utils/get-root-folder'
+import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
+import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
+import { maskCellPhone, maskCpfCnpj } from '@/utils/report/report-helpers'
+import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
+import type { FastifyReply } from 'fastify'
+
+type ExportType = 'csv' | 'xlsx' | 'pdf'
+
+function getApaControlLogoDataUrl() {
+  const logoPath = getRootFolder('../../administrativo/src/assets/img/logo.png')
+  const logoBuffer = readFileSync(logoPath)
+  return `data:image/png;base64,${logoBuffer.toString('base64')}`
+}
+
+function normalizeValue(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  if (value instanceof Date) return value.toLocaleDateString('pt-BR')
+  if (typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
+
+function formatMoney(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value)
+}
+
+function normalizeHeader(rawKey: string): string {
+  const dictionary: Record<string, string> = {
+    id: 'ID',
+    name: 'Nome',
+    title: 'Título',
+    description: 'Descrição',
+    status: 'Status',
+    cpf: 'CPF',
+    cnpj: 'CNPJ',
+    phone: 'Telefone',
+    email: 'Email',
+    value: 'Valor',
+    averageCost: 'Custo médio',
+    actualCost: 'Custo real',
+    fundraisingGoal: 'Meta de arrecadação',
+    transactionDate: 'Data da transação',
+    publicationDate: 'Data de publicação',
+    appointmentDate: 'Data da consulta',
+    occurrenceDate: 'Data da ocorrência',
+    procedureDate: 'Data do procedimento',
+    rescueDate: 'Data do resgate',
+    destinationDate: 'Data do destino',
+    adoptionDate: 'Data da adoção',
+    entryDate: 'Data de entrada',
+    createdAt: 'Criado em',
+    updatedAt: 'Atualizado em',
+    animalName: 'Animal',
+    employeeName: 'Responsável',
+    clinicName: 'Clínica',
+    campaignTitle: 'Campanha',
+    profileName: 'Perfil',
+    disabledAt: 'Desativado em',
+    requiresApproval: 'Requer aprovação',
+    active: 'Ativo',
+    urgency: 'Urgência',
+    consultationType: 'Tipo de consulta',
+    occurrenceTypeName: 'Tipo de ocorrência',
+    destinationTypeName: 'Tipo de destino',
+  }
+
+  if (dictionary[rawKey]) return dictionary[rawKey]
+
+  return rawKey
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, (c) => c.toUpperCase())
+}
+
+function toNumberIfPossible(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) return Number(value)
+  return null
+}
+
+function isDateLikeKey(key: string): boolean {
+  return /date|at$/i.test(key)
+}
+
+function formatValueByKey(key: string, value: unknown): string {
+  if (value === null || value === undefined) return ''
+
+  if (typeof value === 'boolean') return value ? 'Sim' : 'Nao'
+
+  const keyLower = key.toLowerCase()
+
+  if (/(cpf|cnpj|document)/i.test(keyLower)) {
+    return maskCpfCnpj(String(value))
+  }
+
+  if (/(phone|telefone|celular)/i.test(keyLower)) {
+    return maskCellPhone(String(value))
+  }
+
+  if (/(value|cost|goal|amount|price|valor|custo|meta|total)/i.test(keyLower)) {
+    const numeric = toNumberIfPossible(value)
+    if (numeric !== null) return formatMoney(numeric)
+  }
+
+  if (value instanceof Date) {
+    return value.toLocaleString('pt-BR')
+  }
+
+  if (typeof value === 'string' && isDateLikeKey(keyLower)) {
+    const parsed = new Date(value)
+    if (!Number.isNaN(parsed.getTime())) {
+      const hasTime = value.includes('T') || value.includes(':')
+      return hasTime ? parsed.toLocaleString('pt-BR') : parsed.toLocaleDateString('pt-BR')
+    }
+  }
+
+  return normalizeValue(value)
+}
+
+export async function exportListData(
+  reply: FastifyReply,
+  exportType: ExportType,
+  title: string,
+  filenameBase: string,
+  items: object[],
+) {
+  const rawHeaders = items.length
+    ? Object.keys(items[0]).filter((key) => !/^id$/i.test(key) && !/Id$/.test(key))
+    : ['semDados']
+  const headers = rawHeaders.map((header) => normalizeHeader(header))
+
+  const rows = items.map((item) =>
+    rawHeaders.reduce<Record<string, string>>((acc, rawHeader, index) => {
+      const record = item as unknown as Record<string, unknown>
+      acc[headers[index]] = formatValueByKey(rawHeader, record[rawHeader])
+      return acc
+    }, {}),
+  )
+
+  if (exportType === 'csv') {
+    const csv = await createCsvFromJson2Csv(rows)
+    reply.type('text/csv; charset=utf-8')
+    reply.header('Content-Disposition', `attachment; filename="${filenameBase}.csv"`)
+    return csv
+  }
+
+  if (exportType === 'xlsx') {
+    const xlsxBuffer = await createSimpleXlsxBuffer(title, rows)
+    reply.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    reply.header('Content-Disposition', `attachment; filename="${filenameBase}.xlsx"`)
+    return xlsxBuffer
+  }
+
+  const pdfTemplatePath = getRootFolder('layout/pdf/report-base.ejs')
+  const pdfRows = rows.map((row) => headers.map((header) => row[header] ?? ''))
+  const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
+    title,
+    logoDataUrl: getApaControlLogoDataUrl(),
+    generatedAt: new Date().toLocaleString('pt-BR'),
+    period: null,
+    headers,
+    rows: pdfRows,
+  })
+
+  reply.type('application/pdf')
+  reply.header('Content-Disposition', `attachment; filename="${filenameBase}.pdf"`)
+  return pdf
+}

@@ -3,7 +3,9 @@ export const AnimalHistoryType = {
   REGISTRATION: 'cadastro',
   CONSULTATION: 'consulta',
   PROCEDURE: 'procedimento',
+  OCCURRENCE: 'ocorrencia',
   FINAL_DESTINATION: 'destino_final',
+  ADOPTION: 'adocao',
 } as const
 
 export type AnimalHistoryTypeValue = (typeof AnimalHistoryType)[keyof typeof AnimalHistoryType]

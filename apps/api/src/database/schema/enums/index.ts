@@ -1,4 +1,5 @@
 export * from './adoption-status'
+export * from './animal-history-type'
 export * from './animal-status'
 export * from './appointment-status'
 export * from './campaign-status'

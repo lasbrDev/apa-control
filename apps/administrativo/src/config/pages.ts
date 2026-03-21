@@ -1,5 +1,5 @@
 import {
-  BarChart3Icon,
+  AlertTriangleIcon,
   CalendarHeartIcon,
   ClipboardListIcon,
   DogIcon,
@@ -35,6 +35,11 @@ export const pages: PageProps[] = [
         path: '/tipos-consultas',
         roles: ['AdminPanel', 'Registrations', 'AppointmentTypes'],
       },
+      {
+        title: 'Tipos de Ocorrência',
+        path: '/tipos-ocorrencia',
+        roles: ['AdminPanel', 'Registrations'],
+      },
       { title: 'Tipos de Campanha', path: '/tipos-campanhas', roles: ['AdminPanel', 'Registrations', 'CampaignTypes'] },
       {
         title: 'Tipos de Lançamento',
@@ -68,6 +73,7 @@ export const pages: PageProps[] = [
   { title: 'Adoções', path: '/adocoes', icon: HeartHandshakeIcon, roles: ['AdminPanel', 'Adoptions'] },
   { title: 'Adotantes', path: '/adotantes', icon: HeartIcon, roles: ['AdminPanel', 'Adopters'] },
   { title: 'Consultas', path: '/consultas', icon: CalendarHeartIcon, roles: ['AdminPanel', 'Appointments'] },
+  { title: 'Ocorrências', path: '/ocorrencias', icon: AlertTriangleIcon, roles: ['AdminPanel', 'Animals'] },
   { title: 'Anamnese', path: '/anamnese', icon: ClipboardListIcon, roles: ['AdminPanel', 'Anamnesis'] },
   {
     title: 'Procedimentos Clínicos',
@@ -92,5 +98,4 @@ export const pages: PageProps[] = [
     ],
     roles: ['AdminPanel', 'Financial', 'Expenses', 'Revenues'],
   },
-  { title: 'Relatórios', path: '/relatorios', icon: BarChart3Icon, roles: ['AdminPanel', 'Reports'] },
 ]

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."animal_history_type" ADD VALUE 'adocao';

@@ -3,8 +3,18 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LockIcon, PencilIcon, PlusIcon, SearchIcon, UnlockIcon, Users2Icon } from 'lucide-react'
+import {
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  LockIcon,
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+  UnlockIcon,
+  Users2Icon,
+} from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
@@ -15,11 +25,13 @@ import { ActionsList } from '../../components/list/ActionList'
 import { Pagination } from '../../components/list/Pagination'
 import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
+import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
 import { maskCpfCnpj } from '../../helpers/mask/cpf-cnpj'
 import { toQueryString } from '../../helpers/qs'
+import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
 import { useRefresh } from '../../hooks/refresh'
 import { api } from '../../service'
 
@@ -59,6 +71,7 @@ export const EmployeeList = () => {
   const { modal, token } = useApp()
   const refresh = useRefresh()
   const [fetching, setFetching] = useState(false)
+  const [downloading, setDownloading] = useState<ReportExportType | null>(null)
   const [items, setItems] = useState<EmployeeListValues[]>([])
   const [total, setTotal] = useState(0)
   const [profiles, setProfiles] = useState<AccessProfile[]>([])
@@ -140,6 +153,23 @@ export const EmployeeList = () => {
     setFetching(false)
   }
 
+  async function exportEmployees(exportType: ReportExportType) {
+    setDownloading(exportType)
+    try {
+      const values = getValues()
+      const response = await api.get(
+        `employee.list?${toQueryString({ ...values, page: 1, perPage: 100000, exportType })}`,
+        { headers: { Authorization: `Bearer ${token}` }, responseType: 'blob' },
+      )
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data])
+      downloadReportBlob(blob, 'funcionarios', exportType)
+    } catch (error) {
+      toast.error(errorMessageHandler(error))
+    } finally {
+      setDownloading(null)
+    }
+  }
+
   useEffect(() => {
     handleSubmit(listEmployees)()
   }, [refresh.ref])
@@ -173,6 +203,52 @@ export const EmployeeList = () => {
           </CardTitle>
 
           <CardToolbar>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-green-700 bg-green-200 text-green-900 hover:bg-green-300"
+              disabled={downloading === 'csv'}
+              onClick={() => exportEmployees('csv')}
+            >
+              {downloading === 'csv' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileSpreadsheetIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em CSV</span>
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              disabled={downloading === 'xlsx'}
+              onClick={() => exportEmployees('xlsx')}
+            >
+              {downloading === 'xlsx' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileSpreadsheetIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em Excel</span>
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              disabled={downloading === 'pdf'}
+              onClick={() => exportEmployees('pdf')}
+            >
+              {downloading === 'pdf' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileTextIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em PDF</span>
+                </>
+              )}
+            </Button>
             <Button variant="danger" asChild>
               <Link to="cadastro">
                 <PlusIcon className="mr-2 h-5 w-5" />

@@ -42,6 +42,7 @@ export const apiQueryStringSchema = z.object({
     .optional(),
   page: z.coerce.number().optional(),
   perPage: z.coerce.number().optional(),
+  exportType: z.enum(['csv', 'xlsx', 'pdf']).optional(),
 })
 
 export type ApiQuery = z.infer<typeof apiQuerySchema>

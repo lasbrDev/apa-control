@@ -2,6 +2,20 @@
 
 Sistema ERP para instituição de adoção de animais desenvolvido com React, Node.js e PostgreSQL.
 
+## ✅ Atualizações Recentes (mar/2026)
+
+- CRUD completo de **Consultas**, **Anamnese**, **Procedimentos Clínicos**, **Adoção**, **Destino Final**, **Ocorrências** e **Tipos de Ocorrência** (API + Administrativo).
+- Integração de histórico do animal com rastreabilidade (`oldValue`/`newValue`) nos fluxos clínicos e operacionais:
+  - `appointment.created|updated|deleted`
+  - `anamnesis.created|updated|deleted`
+  - `clinical-procedure.created|updated|deleted`
+  - `final-destination.created|updated|deleted`
+  - `occurrence.created|updated|deleted`
+- Relatórios de listagens padronizados em **CSV, Excel e PDF** (com filtros aplicados e sem paginação no export).
+- Padronização visual das listagens administrativas (toolbar, botões de exportação, paginação e loading em overlay).
+- Formulários com seleção de animal via componente de busca e organização por abas conforme padrão do projeto.
+- Em anamnese/procedimento, seleção de consulta com **modal de busca dedicado** (overlay global via portal), evitando conflito com sidebar/topbar.
+
 ## 📋 Pré-requisitos
 
 - **Node.js**: versão 20 ou superior
@@ -195,6 +209,7 @@ apa-control/
 - `pnpm start` - Executa o build de produção
 - `pnpm test` - Executa os testes
 - `pnpm test:coverage` - Executa testes com coverage
+- `pnpm test -- --run <arquivos>` - Executa subconjunto de testes (ex.: por caso de uso)
 
 ## 🧪 Testes
 

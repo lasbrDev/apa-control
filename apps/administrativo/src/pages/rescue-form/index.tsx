@@ -446,7 +446,7 @@ export const RescueForm = () => {
                 <TabsContent value="animal">
                   {!isEdit && (
                     <div className="mb-6">
-                      <Form.Label htmlFor="animalId">Buscar animal</Form.Label>
+                      <Form.Label htmlFor="animalId">Animal</Form.Label>
                       <Form.SearchableSelect
                         name="animalId"
                         searchOptions={searchAnimalOptions}

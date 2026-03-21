@@ -15,6 +15,7 @@ export interface FormSearchableSelectOption {
 
 export interface FormSearchableSelectProps {
   name: string
+  type?: 'number'
   searchOptions: (query: string) => Promise<FormSearchableSelectOption[]>
   minChars?: number
   debounceMs?: number
@@ -32,6 +33,7 @@ const DEFAULT_DEBOUNCE_MS = 300
 export function FormSearchableSelect({
   name,
   searchOptions,
+  type,
   minChars = DEFAULT_MIN_CHARS,
   debounceMs = DEFAULT_DEBOUNCE_MS,
   placeholder,
@@ -191,7 +193,13 @@ export function FormSearchableSelect({
                     className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-brand hover:text-white dark:hover:bg-brand/90"
                     onMouseDown={(e) => {
                       e.preventDefault()
-                      field.onChange(emptyOption.value)
+                      const value =
+                        type === 'number'
+                          ? emptyOption.value === ''
+                            ? null
+                            : Number(emptyOption.value)
+                          : emptyOption.value
+                      field.onChange(value)
                       setSelectedOption(null)
                       setOptions([])
                       setIsOpen(false)
@@ -210,7 +218,8 @@ export function FormSearchableSelect({
                     className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-brand hover:text-white dark:hover:bg-brand/90"
                     onMouseDown={(e) => {
                       e.preventDefault()
-                      field.onChange(item.value)
+                      const value = type === 'number' ? (item.value === '' ? null : Number(item.value)) : item.value
+                      field.onChange(value)
                       setSelectedOption(item)
                       setOptions([])
                       setIsOpen(false)

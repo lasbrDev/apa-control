@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Separator } from '@radix-ui/react-select'
-import { PencilIcon, PlusIcon, UserSquare2Icon, XIcon } from 'lucide-react'
+import { FileSpreadsheetIcon, FileTextIcon, PencilIcon, PlusIcon, UserSquare2Icon, XIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
@@ -14,10 +15,12 @@ import { Card, CardHeader, CardTitle, CardToolbar } from '../../components/card'
 import { ActionsList } from '../../components/list/ActionList'
 import { Pagination } from '../../components/list/Pagination'
 import { LoadingCard } from '../../components/loading-card'
+import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
+import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
 import { useRefresh } from '../../hooks/refresh'
 import { api } from '../../service'
 
@@ -38,6 +41,7 @@ export const ProfileList = () => {
   const { modal, token } = useApp()
   const refresh = useRefresh()
   const [fetching, setFetching] = useState(false)
+  const [downloading, setDownloading] = useState<ReportExportType | null>(null)
   const [items, setItems] = useState<ProfileListValues[]>([])
   const [total, setTotal] = useState(0)
 
@@ -99,6 +103,22 @@ export const ProfileList = () => {
     refresh.force()
   }
 
+  async function exportItems(exportType: ReportExportType) {
+    setDownloading(exportType)
+    try {
+      const values = getValues()
+      const response = await api.get(
+        `profile.list?${toQueryString({ ...values, page: 1, perPage: 100000, exportType })}`,
+        { headers: { Authorization: `Bearer ${token}` }, responseType: 'blob' },
+      )
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data])
+      downloadReportBlob(blob, 'perfis', exportType)
+    } catch (error) {
+      toast.error(errorMessageHandler(error))
+    } finally {
+      setDownloading(null)
+    }
+  }
   return (
     <>
       <Helmet>
@@ -112,6 +132,48 @@ export const ProfileList = () => {
           </CardTitle>
 
           <CardToolbar>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-green-700 bg-green-200 text-green-900 hover:bg-green-300"
+              disabled={downloading === 'csv'}
+              onClick={() => exportItems('csv')}
+            >
+              {downloading === 'csv' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileSpreadsheetIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em CSV</span>
+                </>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              disabled={downloading === 'xlsx'}
+              onClick={() => exportItems('xlsx')}
+            >
+              {downloading === 'xlsx' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileSpreadsheetIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em Excel</span>
+                </>
+              )}
+            </Button>
+            <Button type="button" variant="danger" disabled={downloading === 'pdf'} onClick={() => exportItems('pdf')}>
+              {downloading === 'pdf' ? (
+                <Spinner />
+              ) : (
+                <>
+                  <FileTextIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Baixar em PDF</span>
+                </>
+              )}
+            </Button>
+
             <Button variant="danger" asChild>
               <Link to="cadastro">
                 <PlusIcon className="mr-2 h-5 w-5" />
