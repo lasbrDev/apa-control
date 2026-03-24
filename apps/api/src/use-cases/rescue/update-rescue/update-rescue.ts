@@ -67,7 +67,7 @@ export class UpdateRescueUseCase {
       newValues.observations = nextObs
     }
 
-    const description = changed.length > 0 ? changed.join(' | ') : 'Nenhuma alteração relevante detectada'
+    const description = 'Dados de Resgate atualizados'
 
     await db.transaction(async (tx) => {
       await this.rescueRepository.update(

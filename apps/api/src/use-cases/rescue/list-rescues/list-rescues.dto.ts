@@ -1,6 +1,7 @@
 export interface ListRescuesData {
   locationFound?: string
   animalName?: string
+  animalId?: number
   rescueDateStart?: string
   rescueDateEnd?: string
   page?: number

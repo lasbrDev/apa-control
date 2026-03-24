@@ -19,6 +19,16 @@ export class CreateRescueUseCase {
       let animalId: number
       const isNewAnimal = data.animal != null
 
+      let hasExist = false
+
+      if (data.animalId) {
+        hasExist = await this.rescueRepository.findExistingRescue(data.animalId)
+      }
+
+      if (hasExist) {
+        throw new ApiError('Já existe um resgate registrado para este animal.', 400)
+      }
+
       if (data.animalId != null) {
         const animal = await this.animalRepository.findById(data.animalId)
         if (!animal) {

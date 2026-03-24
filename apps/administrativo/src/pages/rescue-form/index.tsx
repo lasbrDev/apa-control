@@ -6,6 +6,7 @@ import {
   CalendarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  DownloadIcon,
   EyeIcon,
   LifeBuoyIcon,
   MapPinIcon,
@@ -28,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
 import { toQueryString } from '../../helpers/qs'
+import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
 
 const speciesOptions = [
@@ -109,6 +111,7 @@ export const RescueForm = () => {
   const [activeTab, setActiveTab] = useState('animal')
   const [animalHistory, setAnimalHistory] = useState<AnimalHistoryItem[]>([])
   const [historyFetching, setHistoryFetching] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const rescueForm = useForm<RescueFormData>({
     resolver: zodResolver(rescueFormSchema),
@@ -201,6 +204,20 @@ export const RescueForm = () => {
       destino_final: 'Destino Final',
     }
     return map[type] ?? type
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!animalId || Number(animalId) <= 0) return
+    setIsDownloading(true)
+    try {
+      const config = { headers: { Authorization: `Bearer ${token}` }, responseType: 'blob' as const }
+      const res = await api.get(`animal-history.key/${animalId}?type=resgate&exportType=pdf`, config)
+      downloadReportBlob(res.data, `historico-resgate-${animalId}`, 'pdf')
+    } catch (err) {
+      toast.error('Erro ao baixar PDF')
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   const formatHistoryValue = (value: string, showDashWhenEmpty = true) => {
@@ -440,7 +457,7 @@ export const RescueForm = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="animal">Dados do Animal</TabsTrigger>
                   <TabsTrigger value="resgate">Dados do Resgate</TabsTrigger>
-                  <TabsTrigger value="history">Histórico do Animal</TabsTrigger>
+                  {isEdit && <TabsTrigger value="history">Histórico do Animal</TabsTrigger>}
                 </TabsList>
 
                 <TabsContent value="animal">
@@ -624,11 +641,32 @@ export const RescueForm = () => {
                 type="button"
                 variant="outline"
                 disabled={isSubmitting}
-                onClick={() => (!isEdit && activeTab !== 'animal' ? setActiveTab('animal') : pushTo(-1))}
+                onClick={() => {
+                  if (activeTab === 'history') {
+                    setActiveTab('resgate')
+                  } else if (!isEdit && activeTab === 'resgate') {
+                    setActiveTab('animal')
+                  } else {
+                    pushTo(-1)
+                  }
+                }}
               >
                 <ChevronLeftIcon className="mr-2 h-5 w-5" />
                 <span>Voltar</span>
               </Button>
+
+              {activeTab === 'history' && (
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="ml-2"
+                  disabled={isDownloading}
+                  onClick={handleDownloadPDF}
+                >
+                  {isDownloading ? <Spinner className="mr-2 h-5 w-5" /> : <DownloadIcon className="mr-2 h-5 w-5" />}
+                  <span>Baixar</span>
+                </Button>
+              )}
 
               {!isEdit && activeTab === 'animal' ? (
                 <Button
@@ -642,7 +680,7 @@ export const RescueForm = () => {
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>
                 </Button>
-              ) : (
+              ) : activeTab !== 'history' ? (
                 <Button type="submit" variant="success" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <Spinner />
@@ -653,7 +691,7 @@ export const RescueForm = () => {
                     </>
                   )}
                 </Button>
-              )}
+              ) : null}
             </CardFooter>
           </form>
         </FormProvider>

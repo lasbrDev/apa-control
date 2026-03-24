@@ -333,7 +333,7 @@ export const FinalDestinationForm = () => {
                     </div>
                   </div>
                   <div className="mb-6">
-                    <Form.Label htmlFor="proofFile">Comprovante</Form.Label>
+                    <Form.Label htmlFor="proofFile">Documento</Form.Label>
                     <Form.FileInput name="proofFile" />
                     <Form.ErrorMessage field="proofFile" />
                     {currentProof ? (
@@ -365,7 +365,14 @@ export const FinalDestinationForm = () => {
                 <span>Voltar</span>
               </Button>
               {!isEdit && activeTab === 'animal' ? (
-                <Button type="button" variant="outline" onClick={() => setActiveTab('destino')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab('destino')
+                  }}
+                >
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>
                 </Button>

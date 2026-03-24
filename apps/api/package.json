@@ -17,7 +17,8 @@
     "db:create-schema": "tsx src/database/create-drizzle-schema.ts",
     "db:migrate": "tsx src/database/run-migrations.ts",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "postinstall": "playwright install chromium --with-deps 2>/dev/null || playwright install chromium"
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",

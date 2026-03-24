@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { makeListAnimalsUseCase } from '@/use-cases/animal/list-animals/list-animals.factory'
 import { getRootFolder } from '@/utils/get-root-folder'
 import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
@@ -5,6 +6,16 @@ import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
 import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { listAnimalsSchema } from './list-animals.schema'
+
+function getApaControlLogoDataUrl() {
+  const logoPath = getRootFolder('../../administrativo/src/assets/img/logo.png')
+  const logoBuffer = readFileSync(logoPath)
+  return `data:image/png;base64,${logoBuffer.toString('base64')}`
+}
+
+function mapEnum(val: string | null | undefined, dict: Record<string, string>) {
+  return val && dict[val] ? dict[val] : (val ?? '')
+}
 
 export async function listAnimalsController(request: FastifyRequest, reply: FastifyReply) {
   const data = listAnimalsSchema.parse(request.query)
@@ -14,7 +25,16 @@ export async function listAnimalsController(request: FastifyRequest, reply: Fast
     const { exportType, ...filters } = data
     const [, items] = await listAnimalsUseCase.execute({ ...filters, page: undefined, perPage: undefined })
 
-    const rows = items.map((item) => ({
+    const formattedItems = items.map((item) => ({
+      ...item,
+      species: mapEnum(item.species, { canina: 'Cachorro', felina: 'Gato', outros: 'Outros' }),
+      size: mapEnum(item.size, { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' }),
+      sex: mapEnum(item.sex, { macho: 'Macho', femea: 'Fêmea' }),
+      healthCondition: mapEnum(item.healthCondition, { saudavel: 'Saudável', estavel: 'Estável', critica: 'Crítica' }),
+      status: mapEnum(item.status, { disponivel: 'Disponível', em_tratamento: 'Em Tratamento', adotado: 'Adotado' }),
+    }))
+
+    const rows = formattedItems.map((item) => ({
       Nome: item.name,
       Especie: item.species,
       Raca: item.breed ?? '',
@@ -42,7 +62,7 @@ export async function listAnimalsController(request: FastifyRequest, reply: Fast
 
     const pdfTemplatePath = getRootFolder('layout/pdf/report-base.ejs')
     const headers = ['Nome', 'Espécie', 'Raça', 'Porte', 'Sexo', 'Idade', 'Condição', 'Status', 'Entrada']
-    const pdfRows = items.map((item) => [
+    const pdfRows = formattedItems.map((item) => [
       item.name,
       item.species,
       item.breed ?? '',
@@ -56,6 +76,7 @@ export async function listAnimalsController(request: FastifyRequest, reply: Fast
 
     const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
       title: 'Relatório de Animais',
+      logoDataUrl: getApaControlLogoDataUrl(),
       generatedAt: new Date().toLocaleString('pt-BR'),
       period: null,
       headers,

@@ -7,6 +7,7 @@ export const getAnimalHistoryByIdSchema = z.object({
 
 export const getAnimalHistoryByIdQuerySchema = z
   .object({
+    exportType: z.enum(['pdf', 'csv', 'xlsx']).optional(),
     type: z.enum(AnimalHistoryTypeValues).optional(),
     types: z
       .string()

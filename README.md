@@ -104,6 +104,17 @@ Exemplo:
 pnpm drizzle-kit generate --name add_user_table
 ```
 
+### Playwright (para geração de PDFs)
+
+O Playwright é instalado automaticamente ao executar `pnpm install`. Caso precise reinstalar manualmente:
+
+```bash
+cd apps/api
+pnpm exec playwright install chromium
+```
+
+**Nota:** Em ambientes sem sudo, o comando tentará instalar sem dependências do sistema automaticamente.
+
 ## 🏃‍♂️ Executando a Aplicação
 
 ### Desenvolvimento

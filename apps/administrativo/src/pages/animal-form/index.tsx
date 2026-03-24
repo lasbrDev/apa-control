@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { CalendarIcon, ChevronLeftIcon, DogIcon, HeartIcon, SaveIcon } from 'lucide-react'
+import { CalendarIcon, ChevronLeftIcon, DogIcon, DownloadIcon, HeartIcon, SaveIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -20,6 +20,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
 
 const animalSchema = z.object({
@@ -89,6 +90,7 @@ export const AnimalForm = () => {
   const [activeTab, setActiveTab] = useState('animal')
   const [animalHistory, setAnimalHistory] = useState<AnimalHistoryItem[]>([])
   const [historyFetching, setHistoryFetching] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const isEdit = Boolean(params.id && params.id !== 'cadastro')
 
@@ -166,6 +168,21 @@ export const AnimalForm = () => {
       destino_final: 'Destino Final',
     }
     return map[type] ?? type
+  }
+
+  const handleDownloadPDF = async () => {
+    const parsedAnimalId = Number(params.id)
+    if (!parsedAnimalId || parsedAnimalId <= 0) return
+    setIsDownloading(true)
+    try {
+      const config = { headers: { Authorization: `Bearer ${token}` }, responseType: 'blob' as const }
+      const res = await api.get(`animal-history.key/${parsedAnimalId}?type=cadastro&exportType=pdf`, config)
+      downloadReportBlob(res.data, `historico-cadastro-${parsedAnimalId}`, 'pdf')
+    } catch (err) {
+      toast.error('Erro ao baixar PDF')
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   const formatHistoryValue = (value: string, showDashWhenEmpty = true) => {
@@ -263,9 +280,7 @@ export const AnimalForm = () => {
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="animal">Dados do Animal</TabsTrigger>
-                  <TabsTrigger value="history" disabled={!isEdit}>
-                    Histórico do Animal
-                  </TabsTrigger>
+                  {isEdit && <TabsTrigger value="history">Histórico do Animal</TabsTrigger>}
                 </TabsList>
 
                 <TabsContent value="animal">
@@ -404,12 +419,36 @@ export const AnimalForm = () => {
             </CardContent>
 
             <CardFooter>
-              <Button type="button" variant="outline" disabled={isSubmitting} onClick={() => pushTo(-1)}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => {
+                  if (activeTab === 'history') {
+                    setActiveTab('animal')
+                  } else {
+                    pushTo(-1)
+                  }
+                }}
+              >
                 <ChevronLeftIcon className="mr-2 h-5 w-5" />
                 <span>Voltar</span>
               </Button>
 
-              {activeTab === 'animal' && (
+              {activeTab === 'history' && (
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="ml-2"
+                  disabled={isDownloading}
+                  onClick={handleDownloadPDF}
+                >
+                  {isDownloading ? <Spinner className="mr-2 h-5 w-5" /> : <DownloadIcon className="mr-2 h-5 w-5" />}
+                  <span>Baixar</span>
+                </Button>
+              )}
+
+              {activeTab !== 'history' && (
                 <Button type="submit" variant="success" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <Spinner />

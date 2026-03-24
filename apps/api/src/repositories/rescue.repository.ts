@@ -3,7 +3,6 @@ import { animal, rescue } from '@/database/schema'
 import type { DrizzleTransaction } from '@/database/types'
 import type { Rescue } from '@/entities'
 import type { ListRescuesData, RescueWithDetails } from '@/use-cases/rescue/list-rescues/list-rescues.dto'
-import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
 import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
 
@@ -23,8 +22,12 @@ export class RescueRepository {
   }
 
   async list(data: ListRescuesData): Promise<[number, RescueWithDetails[]]> {
-    const { locationFound, animalName, rescueDateStart, rescueDateEnd } = data
+    const { locationFound, animalName, rescueDateStart, rescueDateEnd, animalId } = data
     const whereList: SQL[] = []
+
+    if (animalId) {
+      whereList.push(eq(rescue.animalId, animalId))
+    }
 
     if (locationFound) {
       whereList.push(ilike(rescue.locationFound, `%${locationFound}%`))
@@ -86,5 +89,10 @@ export class RescueRepository {
   async delete(id: number, dbTransaction: DrizzleTransaction | null = null) {
     const connection = dbTransaction ?? db
     await connection.delete(rescue).where(eq(rescue.id, id))
+  }
+
+  async findExistingRescue(animalId: number) {
+    const [existingRescue] = await db.select().from(rescue).where(eq(rescue.animalId, animalId)).limit(1)
+    return !!existingRescue
   }
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeftIcon, DogIcon, SearchIcon } from 'lucide-react'
+import { ArrowLeftIcon, DogIcon, DownloadIcon, SearchIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -12,9 +12,11 @@ import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/card'
 import { Form } from '../../components/form-hook'
 import { LoadingCard } from '../../components/loading-card'
+import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
 import { toQueryString } from '../../helpers/qs'
+import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
 
 interface AnimalHistoryItem {
@@ -64,6 +66,7 @@ export function AnimalHistoryPage() {
       employeeId: null,
     },
   })
+  const [isDownloading, setIsDownloading] = useState(false)
   const fetchHistory = useCallback(
     async (values: z.infer<typeof historyFilterSchema>) => {
       if (!params.id) return
@@ -90,6 +93,28 @@ export function AnimalHistoryPage() {
       modal.alert(errorMessageHandler(error))
     } finally {
       setFetching(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!params.id) return
+    setIsDownloading(true)
+    try {
+      const values = historyFilterForm.getValues()
+      const query = toQueryString({
+        types: values.historyTypes,
+        startDate: values.startDate || undefined,
+        endDate: values.endDate || undefined,
+        employeeId: values.employeeId || undefined,
+        exportType: 'pdf',
+      })
+      const config = { headers: { Authorization: `Bearer ${token}` }, responseType: 'blob' as const }
+      const res = await api.get(`animal-history.key/${params.id}?${query}`, config)
+      downloadReportBlob(res.data, `historico-animal-${params.id}`, 'pdf')
+    } catch (error) {
+      modal.alert('Erro ao baixar PDF')
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -213,6 +238,11 @@ export function AnimalHistoryPage() {
               <ArrowLeftIcon className="mr-2 h-5 w-5" />
               Voltar
             </Link>
+          </Button>
+
+          <Button type="button" variant="danger" className="ml-2" disabled={isDownloading} onClick={handleDownloadPDF}>
+            {isDownloading ? <Spinner className="mr-2 h-5 w-5" /> : <DownloadIcon className="mr-2 h-5 w-5" />}
+            <span>Baixar</span>
           </Button>
         </CardFooter>
       </Card>

@@ -17,15 +17,15 @@
   </head>
   <body>
     <div class="header">
-      <% if (logoDataUrl) { %>
+      <% if (locals.logoDataUrl) { %>
       <div class="brand">
-        <img src="<%= logoDataUrl %>" alt="APA Control" />
+        <img src="<%= locals.logoDataUrl %>" alt="APA Control" />
       </div>
       <% } %>
       <div class="title"><%= title %></div>
       <div class="meta">Gerado em: <%= generatedAt %></div>
-      <% if (period) { %>
-      <div class="meta">Período: <%= period %></div>
+      <% if (locals.period) { %>
+      <div class="meta">Período: <%= locals.period %></div>
       <% } %>
     </div>
 
