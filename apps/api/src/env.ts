@@ -6,7 +6,6 @@ config()
 const envSchema = z.object({
   PORT: z.string().transform(Number).optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  API_URL: z.string(),
   APP_SECRET: z.string(),
   APP_NAME: z.string(),
   APP_LOG_DIR: z.string().optional(),

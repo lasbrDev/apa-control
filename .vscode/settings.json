@@ -24,8 +24,5 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
 
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "editor.fontSize": 16,
-  "editor.fontVariations": false,
-  "editor.fontFamily": "'Mononoki Nerd Font','Droid Sans Mono', 'monospace', monospace"
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -1,0 +1,27 @@
+name: Reset Neon Development Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Nome do branch Neon para resetar (ex: preview/pr-123-feature-branch)'
+        required: true
+        type: string
+
+jobs:
+  reset_neon_branch:
+    name: Reset Neon Branch to Parent
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset Neon Branch
+        uses: neondatabase/reset-branch-action@v1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          parent: true
+          branch: ${{ inputs.branch_name }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Notify completion
+        run: |
+          echo "✅ Branch '${{ inputs.branch_name }}' foi resetado para o estado do branch pai"
+          echo "O branch agora contém os mesmos dados do branch de produção"

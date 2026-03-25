@@ -7,9 +7,11 @@ import { createDrizzleSchema } from './create-drizzle-schema'
 
 config()
 
+const connectionString = process.env.DATABASE_URL!.replace('-pooler', '')
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL!,
-  ssl: process.env.DATABASE_URL?.includes('sslmode=require') || process.env.NODE_ENV === 'production',
+  connectionString,
+  ssl: connectionString.includes('sslmode=require') || process.env.NODE_ENV === 'production',
   max: 1,
 })
 
@@ -17,6 +19,9 @@ async function runMigrations() {
   try {
     console.log('🔄 Criando schema drizzle...')
     await createDrizzleSchema(pool)
+
+    console.log('🔄 Configurando search_path...')
+    await pool.query('SET search_path TO public')
 
     console.log('🔄 Executando migrations...')
     const db = drizzle(pool)

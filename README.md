@@ -1,6 +1,19 @@
 # APA Control
 
-Sistema ERP para instituição de adoção de animais desenvolvido com React, Node.js e PostgreSQL.
+Sistema de Controle da Associação dos Protetores de Animais. Centraliza informações, organiza processos internos e oferece suporte à tomada de decisões por meio de relatórios e análises.
+
+## 📦 Módulos Implementados
+
+- **Resgate**: Cadastro detalhado do animal, histórico de eventos e rastreabilidade
+- **Consultas**: Agendamento em clínica ou domiciliar, integrado ao histórico clínico
+- **Anamnese**: Registro de diagnóstico e encaminhamento a procedimentos
+- **Procedimentos Clínicos**: Vacinas, medicações, exames e cirurgias
+- **Adoção**: Cadastro de adotante e registro da adoção
+- **Destino Final**: Registro de saídas definitivas (óbito, transferência, etc.)
+- **Ocorrências**: Classificação de eventos relevantes do animal
+- **Postagens**: Gerenciamento de conteúdo público (animais para adoção, campanhas)
+- **Financeiro**: Controle de receitas e despesas
+- **Relatórios**: Exportação em CSV, Excel e PDF
 
 ## ✅ Atualizações Recentes (mar/2026)
 
@@ -20,8 +33,9 @@ Sistema ERP para instituição de adoção de animais desenvolvido com React, No
 
 - **Node.js**: versão 20 ou superior
 - **pnpm**: versão 10.13.1 ou superior
-- **PostgreSQL**: banco de dados para armazenamento
+- **PostgreSQL**: banco de dados para armazenamento (local ou [Neon](https://neon.tech))
 - **Git**: para controle de versão
+- **GitHub**: para integração com Neon e workflows automatizados (opcional)
 
 ## 🚀 Instalação
 
@@ -192,10 +206,12 @@ apa-control/
 
 - **Framework**: Fastify
 - **Banco de Dados**: PostgreSQL + Drizzle ORM
-- **Autenticação**: JWT
+- **Autenticação**: JWT + bcrypt
 - **Validação**: Zod
 - **Logs**: Winston
 - **Email**: Nodemailer
+- **PDFs**: Playwright
+- **Exports**: CSV (csv-stringify), Excel (exceljs)
 
 ## 🛠️ Scripts Disponíveis
 
@@ -240,16 +256,65 @@ pnpm test
 ### Banco de Dados
 
 - **ORM**: Drizzle ORM
-- **Migrações**: Drizzle Kit
+- **Migrações**: Drizzle Kit (`pnpm db:generate`, `pnpm db:migrate`)
 - **Schema**: Definido em `apps/api/src/database/schema/`
 
-### Contribuição
+### Controle de Acesso
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+- **Perfis**: Administrador e Atendente (configuráveis)
+- **Permissões**: Por módulo/roles, permitindo customização sem alterar código
+- **Autenticação**: JWT com refresh token
+
+## 🚀 Integração com Neon Database (Opcional)
+
+O projeto está configurado para usar o **Neon** - um PostgreSQL serverless com database branching.
+
+### Setup Rápido
+
+1. Crie conta em [https://neon.tech](https://neon.tech)
+2. Crie projeto e copie a Connection String
+3. Atualize `apps/api/.env`:
+   ```env
+   DATABASE_URL=postgresql://user:password@ep-xyz.region.aws.neon.tech/neondb?sslmode=require
+   ```
+
+### Migrar do PostgreSQL Local
+
+```bash
+# 1. Criar tabelas no Neon
+cd apps/api
+pnpm db:migrate
+
+# 2. Exportar dados do local
+pg_dump -h localhost -U postgres -d apacontrol --data-only --column-inserts --no-owner --disable-triggers -f data_only.sql
+
+# 3. Importar no Neon
+psql "YOUR_NEON_CONNECTION_STRING" -f data_only.sql
+
+# 4. Testar
+pnpm dev
+```
+
+### Integração GitHub
+
+1. No Neon Console → **Integrations** → **GitHub** → **Add**
+2. Autorize o repositório
+3. Workflows em [.github/workflows/](.github/workflows/) criarão branches de banco automaticamente para cada PR
+
+### Comandos Úteis
+
+**Limpar e recriar banco:**
+```bash
+psql "YOUR_NEON_CONNECTION_STRING" -c "DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS drizzle CASCADE; CREATE SCHEMA public;"
+cd apps/api && pnpm db:migrate
+```
+
+**Importante:** Sempre dropar `drizzle` junto com `public`, senão as migrations não são aplicadas.
+
+**Verificar tabelas:**
+```bash
+psql "YOUR_NEON_CONNECTION_STRING" -c "\dt"
+```
 
 ## 🐛 Troubleshooting
 
@@ -273,10 +338,33 @@ pnpm reinstall
 - Frontend: altere a porta no `vite.config.ts`
 - Backend: altere a variável `PORT` no `.env`
 
+## 📋 Arquitetura e Decisões
+
+**Histórico do Animal:**
+- Rastreabilidade completa com `oldValue`/`newValue`
+- Logs separados por tipo via enum (`resgate`, `cadastro`, `consulta`, `procedimento`, `destino_final`, `ocorrencia`)
+- Visualização contextual por tipo de evento
+
+**Uploads:**
+- Comprovantes de destino final salvos em `apps/api/uploads/final-destination`
+- Preparado para migração futura para S3/storage externo
+
+**Campanha:**
+- Tratada como cabeçalho (dados gerais)
+- Receitas/despesas vinculadas opcionalmente à campanha
+
+**Formulários:**
+- Anamnese e procedimentos com modal de busca de consulta (overlay global via portal)
+- Resgate com abordagem híbrida (animal novo ou existente)
+
+**Pendências futuras:**
+- Formulário de adoção configurável (template + respostas)
+- Página pública para consumo de dados (API dedicada)
+
 ## 📄 Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a Licença MIT.
 
-## 🤝 Suporte
+## 📚 Documentação Adicional
 
-Para suporte e dúvidas, entre em contato através dos issues do repositório.
+- [REQUIREMENTS.md](REQUIREMENTS.md) - Requisitos funcionais, escopo e decisões de implementação
