@@ -8,5 +8,5 @@ export const createPostSchema = z.object({
   type: z.enum(PostTypeValues),
   publicationDate: z.string().min(1, 'Data de publicação é obrigatória'),
   status: z.enum(PostStatusValues),
-  relatedAnimals: z.string().optional().nullable(),
+  relatedAnimals: z.string().nullish(),
 })

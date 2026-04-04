@@ -18,7 +18,6 @@ describe('Get access profile by id', () => {
     const module = await ModuleFactory.create()
     const profile = await AccessProfileFactory.create()
 
-    // Create permissions for the profile
     const token = getAuthToken({ roles: ['AdminPanel', 'AccessProfiles'] })
     await app.inject({
       method: 'PUT',

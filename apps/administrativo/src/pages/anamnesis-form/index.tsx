@@ -23,11 +23,11 @@ const schema = z.object({
   id: z.number().nullish(),
   appointmentId: z.number({ message: RequiredMessage }).int().positive(),
   symptomsPresented: z.string().min(1, RequiredMessage),
-  dietaryHistory: z.string().optional().nullable(),
-  behavioralHistory: z.string().optional().nullable(),
-  requestedExams: z.string().optional().nullable(),
-  presumptiveDiagnosis: z.string().optional().nullable(),
-  observations: z.string().optional().nullable(),
+  dietaryHistory: z.string().nullish(),
+  behavioralHistory: z.string().nullish(),
+  requestedExams: z.string().nullish(),
+  presumptiveDiagnosis: z.string().nullish(),
+  observations: z.string().nullish(),
 })
 type Data = z.infer<typeof schema>
 

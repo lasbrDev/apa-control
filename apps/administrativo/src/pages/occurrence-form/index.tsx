@@ -26,18 +26,6 @@ interface AnimalOption {
   id: number
   name: string
 }
-interface AnimalPreview {
-  name: string
-  species: string
-  breed: string
-  size: string
-  sex: string
-  age: string
-  healthCondition: string
-  entryDate: string
-  observations: string
-  status: string
-}
 const speciesOptions = [
   { value: 'canina', label: 'Cachorro' },
   { value: 'felina', label: 'Gato' },
@@ -67,9 +55,19 @@ const schema = z.object({
   id: z.number().nullish(),
   animalId: z.number({ message: RequiredMessage }).int().positive(),
   occurrenceTypeId: z.number({ message: RequiredMessage }).int().positive(),
-  occurrenceDate: z.string().min(1, RequiredMessage),
+  occurrenceDate: z.string({ message: RequiredMessage }).min(1, RequiredMessage),
   description: z.string().min(1, RequiredMessage),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
+  animalNamePreview: z.string().nullish(),
+  speciesPreview: z.string().nullish(),
+  breedPreview: z.string().nullish(),
+  sizePreview: z.string().nullish(),
+  sexPreview: z.string().nullish(),
+  agePreview: z.string().nullish(),
+  healthConditionPreview: z.string().nullish(),
+  entryDatePreview: z.string().nullish(),
+  statusPreview: z.string().nullish(),
+  animalObservationsPreview: z.string().nullish(),
 })
 type Data = z.infer<typeof schema>
 
@@ -80,8 +78,6 @@ export const OccurrenceForm = () => {
   const isEdit = Boolean(params.id)
   const [fetching, setFetching] = useState(false)
   const [activeTab, setActiveTab] = useState<'animal' | 'ocorrencia'>('animal')
-  const [animalDisplayLabel, setAnimalDisplayLabel] = useState('')
-  const [animalPreview, setAnimalPreview] = useState<AnimalPreview | null>(null)
   const [typeOptions, setTypeOptions] = useState<SelectOption[]>([])
   const searchAnimalOptions = useCallback(
     async (query: string): Promise<{ value: string; label: string }[]> => {
@@ -94,17 +90,46 @@ export const OccurrenceForm = () => {
     [token],
   )
 
-  const form = useForm<Data>({ resolver: zodResolver(schema), defaultValues: { observations: '' } })
+  const form = useForm<Data>({ resolver: zodResolver(schema), mode: 'onSubmit', defaultValues: { observations: '' } })
   const {
     handleSubmit,
     reset,
+    setValue,
+    setFocus,
     formState: { isSubmitting },
   } = form
   const animalId = form.watch('animalId')
+  const animalNamePreview = form.watch('animalNamePreview')
+
+  const animalTabFields: Array<keyof Data> = ['animalId']
+  const occurrenciaTabFields: Array<keyof Data> = ['occurrenceTypeId', 'occurrenceDate', 'description']
+
+  const onSubmitError: Parameters<typeof handleSubmit>[1] = (errors) => {
+    if (!errors) return
+    const firstAnimalError = animalTabFields.find((f) => Boolean(errors[f]))
+    const firstOccurrenceError = occurrenciaTabFields.find((f) => Boolean(errors[f]))
+    if (firstAnimalError) {
+      setActiveTab('animal')
+      setTimeout(() => setFocus(firstAnimalError), 0)
+      return
+    }
+    if (firstOccurrenceError) {
+      setActiveTab('ocorrencia')
+      setTimeout(() => setFocus(firstOccurrenceError), 0)
+    }
+  }
 
   async function submit(values: Data) {
     try {
-      await api[params.id ? 'put' : 'post'](params.id ? 'occurrence.update' : 'occurrence.add', values, {
+      const payload = {
+        id: values.id,
+        animalId: values.animalId,
+        occurrenceTypeId: values.occurrenceTypeId,
+        occurrenceDate: values.occurrenceDate,
+        description: values.description,
+        observations: values.observations,
+      }
+      await api[params.id ? 'put' : 'post'](params.id ? 'occurrence.update' : 'occurrence.add', payload, {
         headers: { Authorization: `Bearer ${token}` },
       })
       toast.success(`Ocorrência ${params.id ? 'atualizada' : 'registrada'} com sucesso!`)
@@ -129,7 +154,6 @@ export const OccurrenceForm = () => {
         )
         if (keyResponse.data) {
           const key = keyResponse.data
-          setAnimalDisplayLabel(key.animalName ?? '')
           const date = new Date(key.occurrenceDate)
           const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
           reset({
@@ -139,6 +163,7 @@ export const OccurrenceForm = () => {
             occurrenceDate: local,
             description: key.description,
             observations: key.observations ?? '',
+            animalNamePreview: key.animalName ?? '',
           })
         }
       })
@@ -148,27 +173,45 @@ export const OccurrenceForm = () => {
 
   useEffect(() => {
     if (!animalId || Number(animalId) <= 0) {
-      setAnimalPreview(null)
+      setValue('animalNamePreview', '')
+      setValue('speciesPreview', '')
+      setValue('breedPreview', '')
+      setValue('sizePreview', '')
+      setValue('sexPreview', '')
+      setValue('agePreview', '')
+      setValue('healthConditionPreview', '')
+      setValue('entryDatePreview', '')
+      setValue('statusPreview', '')
+      setValue('animalObservationsPreview', '')
       return
     }
     api
       .get(`animal.key/${animalId}`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ data }) =>
-        setAnimalPreview({
-          name: data.name ?? '',
-          species: data.species ?? '',
-          breed: data.breed ?? '',
-          size: data.size ?? '',
-          sex: data.sex ?? '',
-          age: String(data.age ?? ''),
-          healthCondition: data.healthCondition ?? '',
-          entryDate: data.entryDate?.split('T')[0] ?? '',
-          observations: data.observations ?? '',
-          status: data.status ?? '',
-        }),
-      )
-      .catch(() => setAnimalPreview(null))
-  }, [animalId, token])
+      .then(({ data }) => {
+        setValue('animalNamePreview', data.name ?? '')
+        setValue('speciesPreview', data.species ?? '')
+        setValue('breedPreview', data.breed ?? '')
+        setValue('sizePreview', data.size ?? '')
+        setValue('sexPreview', data.sex ?? '')
+        setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
+        setValue('healthConditionPreview', data.healthCondition ?? '')
+        setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
+        setValue('statusPreview', data.status ?? '')
+        setValue('animalObservationsPreview', data.observations ?? '')
+      })
+      .catch(() => {
+        setValue('animalNamePreview', '')
+        setValue('speciesPreview', '')
+        setValue('breedPreview', '')
+        setValue('sizePreview', '')
+        setValue('sexPreview', '')
+        setValue('agePreview', '')
+        setValue('healthConditionPreview', '')
+        setValue('entryDatePreview', '')
+        setValue('statusPreview', '')
+        setValue('animalObservationsPreview', '')
+      })
+  }, [animalId, token, setValue])
 
   if (fetching) return <LoadingCard />
 
@@ -185,7 +228,7 @@ export const OccurrenceForm = () => {
           </CardTitle>
         </CardHeader>
         <FormProvider {...form}>
-          <form autoComplete="off" onSubmit={handleSubmit(submit)}>
+          <form autoComplete="off" onSubmit={handleSubmit(submit, onSubmitError)}>
             <CardContent>
               <Tabs
                 value={activeTab}
@@ -205,59 +248,44 @@ export const OccurrenceForm = () => {
                       searchOptions={searchAnimalOptions}
                       minChars={3}
                       debounceMs={300}
-                      displayLabel={animalDisplayLabel || undefined}
+                      displayLabel={animalNamePreview || undefined}
                     />
                     <Form.ErrorMessage field="animalId" />
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
                       <Form.Label htmlFor="animalNamePreview">Nome</Form.Label>
-                      <Form.Input name="animalNamePreview" value={animalPreview?.name ?? ''} disabled />
+                      <Form.Input name="animalNamePreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="speciesPreview">Espécie</Form.Label>
-                      <Form.Select
-                        name="speciesPreview"
-                        options={speciesOptions}
-                        disabled
-                        value={animalPreview?.species ?? ''}
-                      />
+                      <Form.Select name="speciesPreview" options={speciesOptions} disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="breedPreview">Raça</Form.Label>
-                      <Form.Input name="breedPreview" value={animalPreview?.breed ?? ''} disabled />
+                      <Form.Input name="breedPreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="sizePreview">Porte</Form.Label>
-                      <Form.Select
-                        name="sizePreview"
-                        options={sizeOptions}
-                        disabled
-                        value={animalPreview?.size ?? ''}
-                      />
+                      <Form.Select name="sizePreview" options={sizeOptions} disabled />
                     </div>
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
                       <Form.Label htmlFor="sexPreview">Sexo</Form.Label>
-                      <Form.Select name="sexPreview" options={sexOptions} disabled value={animalPreview?.sex ?? ''} />
+                      <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade (anos)</Form.Label>
-                      <Form.Input name="agePreview" value={animalPreview?.age ?? ''} disabled />
+                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="healthConditionPreview">Condição de saúde</Form.Label>
-                      <Form.Select
-                        name="healthConditionPreview"
-                        options={healthConditionOptions}
-                        disabled
-                        value={animalPreview?.healthCondition ?? ''}
-                      />
+                      <Form.Select name="healthConditionPreview" options={healthConditionOptions} disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" value={animalPreview?.entryDate ?? ''} disabled />
+                      <Form.Input name="entryDatePreview" type="date" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="statusPreview">Status</Form.Label>
@@ -266,18 +294,12 @@ export const OccurrenceForm = () => {
                         options={animalStatusOptions}
                         disabled
                         className="bg-gray-100 dark:bg-gray-800"
-                        value={animalPreview?.status ?? ''}
                       />
                     </div>
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
-                    <Form.TextArea
-                      name="animalObservationsPreview"
-                      rows={2}
-                      disabled
-                      value={animalPreview?.observations ?? ''}
-                    />
+                    <Form.TextArea name="animalObservationsPreview" rows={2} disabled />
                   </div>
                 </TabsContent>
                 <TabsContent value="ocorrencia">
@@ -317,7 +339,14 @@ export const OccurrenceForm = () => {
                 <span>Voltar</span>
               </Button>
               {!isEdit && activeTab === 'animal' ? (
-                <Button type="button" variant="outline" onClick={() => setActiveTab('ocorrencia')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab('ocorrencia')
+                  }}
+                >
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>
                 </Button>

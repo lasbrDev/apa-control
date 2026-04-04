@@ -43,7 +43,6 @@ export class CreateExpenseUseCase {
         employeeId,
         description: data.description,
         value: new Decimal(data.value),
-        transactionDate: data.transactionDate,
         proof: data.proof ?? null,
         observations: data.observations ?? null,
         status: data.status,

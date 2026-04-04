@@ -5,5 +5,5 @@ export const createOccurrenceSchema = z.object({
   occurrenceTypeId: z.coerce.number().int().positive('Tipo de ocorrência é obrigatório'),
   occurrenceDate: z.string().min(1, 'Data/hora da ocorrência é obrigatória'),
   description: z.string().min(1, 'Descrição é obrigatória'),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
 })

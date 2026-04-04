@@ -14,5 +14,5 @@ export const createAppointmentSchema = z.object({
   appointmentDate: z.string().min(1, 'Data/hora da consulta é obrigatória'),
   consultationType: z.enum(ConsultationTypeValues),
   status: z.enum(AppointmentStatusValues).optional(),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
 })

@@ -12,8 +12,7 @@ export const createRevenueSchema = z.object({
   animalId: optionalId,
   description: z.string().min(1, 'Descrição é obrigatória').max(200),
   value: z.coerce.number().nonnegative('Valor deve ser maior ou igual a zero'),
-  transactionDate: z.string().min(1, 'Data é obrigatória'),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
   status: z.enum(TransactionStatusValues),
-  proof: z.string().optional().nullable(),
+  proof: z.string().nullish(),
 })

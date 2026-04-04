@@ -30,7 +30,6 @@ describe('Update transaction-type', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify the update
     const getResponse = await app.inject({
       method: 'GET',
       url: `/transaction-type.key/${transactionType.id}`,

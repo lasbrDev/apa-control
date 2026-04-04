@@ -25,7 +25,6 @@ describe('Remove appointment-type', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify it was removed
     const getResponse = await app.inject({
       method: 'GET',
       url: `/appointment-type.key/${appointmentType.id}`,

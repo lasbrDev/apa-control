@@ -16,6 +16,7 @@ export class CreateAnimalUseCase {
       const [animal] = await this.animalRepository.create(
         new Animal({
           ...data,
+          birthYear: data.birthYear ?? null,
           createdAt: new Date(),
         }),
         tx,
@@ -36,7 +37,7 @@ export class CreateAnimalUseCase {
             breed: data.breed ?? null,
             size: data.size,
             sex: data.sex,
-            age: data.age,
+            birthYear: data.birthYear ?? null,
             healthCondition: data.healthCondition,
             entryDate: data.entryDate,
             observations: data.observations ?? null,

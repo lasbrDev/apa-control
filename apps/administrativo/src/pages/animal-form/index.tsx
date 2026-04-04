@@ -30,11 +30,12 @@ const animalSchema = z.object({
   breed: z.string().nullish(),
   size: z.string({ error: RequiredMessage }),
   sex: z.string({ error: RequiredMessage }),
-  age: z
-    .number({ error: RequiredMessage })
-    .int('A idade deve ser um número inteiro.')
-    .min(0, 'A idade deve ser maior ou igual a 0.')
-    .max(50, 'A idade deve ser menor ou igual a 50.'),
+  birthYear: z
+    .number()
+    .int()
+    .min(1900, 'Ano inválido.')
+    .max(new Date().getFullYear(), 'Ano não pode ser no futuro.')
+    .nullish(),
   healthCondition: z.string({ error: RequiredMessage }),
   entryDate: z.string({ error: RequiredMessage }),
   observations: z.string().nullish(),
@@ -195,7 +196,7 @@ export const AnimalForm = () => {
         breed: 'Raça',
         size: 'Porte',
         sex: 'Sexo',
-        age: 'Idade',
+        birthYear: 'Ano de Nascimento',
         healthCondition: 'Condição de Saúde',
         entryDate: 'Data de Entrada',
         observations: 'Observações',
@@ -323,9 +324,15 @@ export const AnimalForm = () => {
                     </div>
 
                     <div>
-                      <Form.Label htmlFor="age">Idade Aproximada (anos)</Form.Label>
-                      <Form.Input name="age" type="number" min="0" max="50" />
-                      <Form.ErrorMessage field="age" />
+                      <Form.Label htmlFor="birthYear">Nascimento</Form.Label>
+                      <Form.Input
+                        name="birthYear"
+                        type="number"
+                        min="1900"
+                        max={new Date().getFullYear()}
+                        placeholder="Ex: 2021"
+                      />
+                      <Form.ErrorMessage field="birthYear" />
                     </div>
 
                     <div>

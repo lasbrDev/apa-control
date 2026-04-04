@@ -6,6 +6,6 @@ export const updateRescueSchema = z.object({
   locationFound: z.string().min(1, 'Local encontrado é obrigatório').max(200),
   circumstances: z.string().min(1, 'Circunstâncias são obrigatórias'),
   foundConditions: z.string().min(1, 'Condições em que foi encontrado é obrigatório'),
-  immediateProcedures: z.string().optional().nullable(),
-  observations: z.string().optional().nullable(),
+  immediateProcedures: z.string().nullish(),
+  observations: z.string().nullish(),
 })

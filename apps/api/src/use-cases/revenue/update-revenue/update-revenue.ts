@@ -46,7 +46,6 @@ export class UpdateRevenueUseCase {
       animalId: data.animalId ?? null,
       description: data.description,
       value: new Decimal(data.value),
-      transactionDate: data.transactionDate,
       proof,
       observations: data.observations ?? null,
       status: data.status,

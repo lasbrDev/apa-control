@@ -5,7 +5,7 @@ export interface CreateAnimalData {
   breed?: string | null
   size: string
   sex: string
-  age: number
+  birthYear?: number | null
   healthCondition: string
   entryDate: string
   observations?: string | null

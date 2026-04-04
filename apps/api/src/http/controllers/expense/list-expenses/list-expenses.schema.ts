@@ -10,16 +10,16 @@ export const listExpensesSchema = apiQueryStringSchema
     animalId: z.coerce.number().int().positive().optional(),
     employeeId: z.coerce.number().int().positive().optional(),
     status: z.enum(TransactionStatusValues).optional(),
-    transactionDateStart: z.string().optional(),
-    transactionDateEnd: z.string().optional(),
+    createdAtStart: z.string().optional(),
+    createdAtEnd: z.string().optional(),
   })
   .refine(
     (data) => {
-      if (!data.transactionDateStart || !data.transactionDateEnd) return true
-      return new Date(data.transactionDateStart) <= new Date(data.transactionDateEnd)
+      if (!data.createdAtStart || !data.createdAtEnd) return true
+      return new Date(data.createdAtStart) <= new Date(data.createdAtEnd)
     },
     {
       message: 'A data inicial deve ser menor ou igual à data final.',
-      path: ['transactionDateEnd'],
+      path: ['createdAtEnd'],
     },
   )

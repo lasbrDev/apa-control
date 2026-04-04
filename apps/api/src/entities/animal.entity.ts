@@ -5,7 +5,7 @@ export class Animal {
   breed?: string | null
   size: string
   sex: string
-  age: number
+  birthYear: number | null
   healthCondition: string
   entryDate: string
   observations?: string | null
@@ -20,7 +20,7 @@ export class Animal {
     this.breed = props.breed
     this.size = props.size
     this.sex = props.sex
-    this.age = props.age
+    this.birthYear = props.birthYear
     this.healthCondition = props.healthCondition
     this.entryDate = props.entryDate
     this.observations = props.observations

@@ -15,5 +15,5 @@ export const updateAdoptionSchema = z.object({
     z.union([z.coerce.number().int().nonnegative(), z.null()]).optional(),
   ),
   status: z.enum(AdoptionStatusValues),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
 })

@@ -21,7 +21,7 @@ interface OccurrenceTypeFormProps {
 const schema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1, RequiredMessage),
-  description: z.string().optional().nullable(),
+  description: z.string().nullish(),
   active: z.boolean(),
 })
 type Data = z.infer<typeof schema>

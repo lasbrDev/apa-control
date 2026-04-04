@@ -8,7 +8,7 @@ export const animal = pgTable('animal', {
   breed: varchar({ length: 50 }),
   size: sizeEnum().notNull(),
   sex: sexEnum().notNull(),
-  age: integer().notNull(),
+  birthYear: integer(),
   healthCondition: healthConditionEnum().notNull(),
   entryDate: date().notNull(),
   observations: text(),

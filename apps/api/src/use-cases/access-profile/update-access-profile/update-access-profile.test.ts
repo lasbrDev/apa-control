@@ -33,7 +33,6 @@ describe('Update access profile', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify the update
     const getResponse = await app.inject({
       method: 'GET',
       url: `/profile.key/${profile.id}`,

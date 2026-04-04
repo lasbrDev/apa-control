@@ -281,7 +281,7 @@ function formatHistoryValue(value: string, showDashWhenEmpty = true) {
       breed: 'Raça',
       size: 'Porte',
       sex: 'Sexo',
-      age: 'Idade',
+      birthYear: 'Ano de Nascimento',
       healthCondition: 'Condição de Saúde',
       entryDate: 'Data de Entrada',
       observations: 'Observações',

@@ -38,7 +38,7 @@ function formatHistoryValue(value: string | null) {
       breed: 'Raça',
       size: 'Porte',
       sex: 'Sexo',
-      age: 'Idade',
+      birthYear: 'Ano de Nascimento',
       healthCondition: 'Condição de Saúde',
       entryDate: 'Data de Entrada',
       observations: 'Observações',
@@ -157,7 +157,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
         breed: animal.breed,
         size: mapEnum(animal.size, { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' }),
         sex: mapEnum(animal.sex, { macho: 'Macho', femea: 'Fêmea' }),
-        age: animal.age,
+        birthYear: animal.birthYear,
         healthCondition: mapEnum(animal.healthCondition, {
           saudavel: 'Saudável',
           estavel: 'Estável',

@@ -9,14 +9,12 @@ import { removePostController } from './remove-post/remove-post.controller'
 import { updatePostController } from './update-post/update-post.controller'
 
 export async function postRoutes(app: FastifyInstance) {
-  // Admin CRUD (gerenciamento)
   app.post('/post.add', authorize('AdminPanel', 'Posts'), createPostController)
   app.put('/post.update', authorize('AdminPanel', 'Posts'), updatePostController)
   app.get('/post.list', authorize('AdminPanel', 'Posts'), listPostsController)
   app.get('/post.key/:id', authorize('AdminPanel', 'Posts'), getPostByIdController)
   app.delete('/post.delete/:id', authorize('AdminPanel', 'Posts'), removePostController)
 
-  // Public endpoints (página pública)
   app.get('/post.public.list', publicListPostsController)
   app.get('/post.public.key/:id', publicGetPostController)
 }

@@ -25,7 +25,6 @@ describe('Remove procedure-type', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify it was removed
     const getResponse = await app.inject({
       method: 'GET',
       url: `/procedure-type.key/${procedureType.id}`,

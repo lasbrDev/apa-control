@@ -30,7 +30,6 @@ describe('Update appointment-type', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify the update
     const getResponse = await app.inject({
       method: 'GET',
       url: `/appointment-type.key/${appointmentType.id}`,

@@ -112,14 +112,14 @@ export class DashboardRepository {
         .from(financialTransaction)
         .innerJoin(transactionType, eq(financialTransaction.transactionTypeId, transactionType.id))
         .where(
-          sql`${transactionType.category} = 'receita' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.transactionDate}) = ${year}`,
+          sql`${transactionType.category} = 'receita' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.createdAt}) = ${year}`,
         ),
       db
         .select({ total: sum(financialTransaction.value) })
         .from(financialTransaction)
         .innerJoin(transactionType, eq(financialTransaction.transactionTypeId, transactionType.id))
         .where(
-          sql`${transactionType.category} = 'despesa' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.transactionDate}) = ${year}`,
+          sql`${transactionType.category} = 'despesa' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.createdAt}) = ${year}`,
         ),
     ])
 
@@ -136,14 +136,14 @@ export class DashboardRepository {
           .from(financialTransaction)
           .innerJoin(transactionType, eq(financialTransaction.transactionTypeId, transactionType.id))
           .where(
-            sql`${transactionType.category} = 'receita' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.transactionDate}) = ${year} AND EXTRACT(MONTH FROM ${financialTransaction.transactionDate}) = ${month.number}`,
+            sql`${transactionType.category} = 'receita' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.createdAt}) = ${year} AND EXTRACT(MONTH FROM ${financialTransaction.createdAt}) = ${month.number}`,
           ),
         db
           .select({ total: sum(financialTransaction.value) })
           .from(financialTransaction)
           .innerJoin(transactionType, eq(financialTransaction.transactionTypeId, transactionType.id))
           .where(
-            sql`${transactionType.category} = 'despesa' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.transactionDate}) = ${year} AND EXTRACT(MONTH FROM ${financialTransaction.transactionDate}) = ${month.number}`,
+            sql`${transactionType.category} = 'despesa' AND ${financialTransaction.status} = 'confirmado' AND EXTRACT(YEAR FROM ${financialTransaction.createdAt}) = ${year} AND EXTRACT(MONTH FROM ${financialTransaction.createdAt}) = ${month.number}`,
           ),
       ])
 

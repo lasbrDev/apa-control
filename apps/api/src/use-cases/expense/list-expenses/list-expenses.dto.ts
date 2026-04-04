@@ -7,8 +7,8 @@ export interface ListExpensesData {
   animalId?: number
   employeeId?: number
   status?: string
-  transactionDateStart?: string
-  transactionDateEnd?: string
+  createdAtStart?: string
+  createdAtEnd?: string
   page?: number
   perPage?: number
   sort?: Array<{ name: string; order: string }>
@@ -23,7 +23,6 @@ export type ExpenseWithDetails = {
   employeeId: number
   description: string
   value: Decimal
-  transactionDate: string
   proof: string | null
   observations: string | null
   status: string

@@ -1,5 +1,4 @@
 'use client'
-// Listbox/option custom para dropdown searchable; useSemanticElements desativada em overrides no biome.json
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
@@ -123,7 +122,7 @@ export function FormSearchableSelect({
         const isNumericValue = /^\d+$/.test(valueStr)
         const displayValue =
           isEmptyOption && emptyOption
-            ? emptyOption.label
+            ? ''
             : selectedOption && String(selectedOption.value) === valueStr
               ? selectedOption.label
               : displayLabel && isNumericValue

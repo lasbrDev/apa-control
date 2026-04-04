@@ -30,7 +30,7 @@ interface ExpenseListValues {
   transactionTypeId: number
   description: string
   value: number
-  transactionDate: string
+  createdAt: string
   status: string
   transactionTypeName?: string
   campaignTitle?: string | null
@@ -60,17 +60,17 @@ const expenseFilterSchema = z
     campaignId: z.number().nullish(),
     animalId: z.number().nullish(),
     status: z.string().nullish(),
-    transactionDateStart: z.string().optional(),
-    transactionDateEnd: z.string().optional(),
+    createdAtStart: z.string().optional(),
+    createdAtEnd: z.string().optional(),
   })
   .refine(
     (data) => {
-      if (!data.transactionDateStart || !data.transactionDateEnd) return true
-      return new Date(data.transactionDateStart) <= new Date(data.transactionDateEnd)
+      if (!data.createdAtStart || !data.createdAtEnd) return true
+      return new Date(data.createdAtStart) <= new Date(data.createdAtEnd)
     },
     {
       message: 'A data inicial deve ser menor ou igual à data final.',
-      path: ['transactionDateEnd'],
+      path: ['createdAtEnd'],
     },
   )
 
@@ -93,15 +93,15 @@ export const ExpenseList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,transactionTypeId,description,value,transactionDate,status,transactionTypeName,campaignTitle,animalName,employeeName',
-      sort: '-transactionDate',
+        'id,transactionTypeId,description,value,createdAt,status,transactionTypeName,campaignTitle,animalName,employeeName',
+      sort: '-createdAt',
       description: '',
       transactionTypeId: null,
       campaignId: null,
       animalId: null,
       status: null,
-      transactionDateStart: '',
-      transactionDateEnd: '',
+      createdAtStart: '',
+      createdAtEnd: '',
     },
   })
 
@@ -312,14 +312,14 @@ export const ExpenseList = () => {
                   <Form.ErrorMessage field="animalId" />
                 </div>
                 <div>
-                  <Form.Label htmlFor="transactionDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="transactionDateStart" />
-                  <Form.ErrorMessage field="transactionDateStart" />
+                  <Form.Label htmlFor="createdAtStart">Data inicial</Form.Label>
+                  <Form.Input type="date" name="createdAtStart" />
+                  <Form.ErrorMessage field="createdAtStart" />
                 </div>
                 <div>
-                  <Form.Label htmlFor="transactionDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="transactionDateEnd" />
-                  <Form.ErrorMessage field="transactionDateEnd" />
+                  <Form.Label htmlFor="createdAtEnd">Data final</Form.Label>
+                  <Form.Input type="date" name="createdAtEnd" />
+                  <Form.ErrorMessage field="createdAtEnd" />
                 </div>
               </div>
 
@@ -364,7 +364,7 @@ export const ExpenseList = () => {
                         Number(item.value),
                       )}
                     </TableCell>
-                    <TableCell>{new Date(item.transactionDate).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell className="max-w-[140px] truncate" title={item.campaignTitle ?? undefined}>
                       {item.campaignTitle ?? '—'}
                     </TableCell>

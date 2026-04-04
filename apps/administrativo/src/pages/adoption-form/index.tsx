@@ -39,18 +39,6 @@ interface AdopterOption {
   id: number
   name: string
 }
-interface AnimalPreview {
-  name: string
-  species: string
-  breed: string
-  size: string
-  sex: string
-  age: string
-  healthCondition: string
-  entryDate: string
-  observations: string
-  status: string
-}
 const speciesOptions = [
   { value: 'canina', label: 'Cachorro' },
   { value: 'felina', label: 'Gato' },
@@ -102,7 +90,17 @@ const adoptionSchema = z.object({
     return Math.floor(n)
   }),
   status: z.enum(['processando', 'concluida', 'cancelada']),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
+  animalNamePreview: z.string().nullish(),
+  speciesPreview: z.string().nullish(),
+  breedPreview: z.string().nullish(),
+  sizePreview: z.string().nullish(),
+  sexPreview: z.string().nullish(),
+  agePreview: z.string().nullish(),
+  healthConditionPreview: z.string().nullish(),
+  entryDatePreview: z.string().nullish(),
+  statusPreview: z.string().nullish(),
+  animalObservationsPreview: z.string().nullish(),
 })
 
 type AdoptionFormData = z.infer<typeof adoptionSchema>
@@ -114,7 +112,6 @@ export const AdoptionForm = () => {
   const [fetching, setFetching] = useState(false)
   const [activeTab, setActiveTab] = useState<'animal' | 'adotante' | 'adocao'>('animal')
   const [animalReadOnlyLabel, setAnimalReadOnlyLabel] = useState('')
-  const [animalPreview, setAnimalPreview] = useState<AnimalPreview | null>(null)
   const [adopterDisplayLabel, setAdopterDisplayLabel] = useState('')
   const searchAnimalOptions = useCallback(
     async (query: string): Promise<{ value: string; label: string }[]> => {
@@ -161,9 +158,11 @@ export const AdoptionForm = () => {
   const {
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = adoptionForm
   const animalId = adoptionForm.watch('animalId')
+  const animalNamePreview = adoptionForm.watch('animalNamePreview')
   const adopterId = adoptionForm.watch('adopterId')
   const parsedAdopterId = Number(adopterId)
   const isExistingAdopter = Number.isFinite(parsedAdopterId) && parsedAdopterId > 0
@@ -288,27 +287,45 @@ export const AdoptionForm = () => {
 
   useEffect(() => {
     if (!animalId || Number(animalId) <= 0) {
-      setAnimalPreview(null)
+      setValue('animalNamePreview', '')
+      setValue('speciesPreview', '')
+      setValue('breedPreview', '')
+      setValue('sizePreview', '')
+      setValue('sexPreview', '')
+      setValue('agePreview', '')
+      setValue('healthConditionPreview', '')
+      setValue('entryDatePreview', '')
+      setValue('statusPreview', '')
+      setValue('animalObservationsPreview', '')
       return
     }
     api
       .get(`animal.key/${animalId}`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ data }) =>
-        setAnimalPreview({
-          name: data.name ?? '',
-          species: data.species ?? '',
-          breed: data.breed ?? '',
-          size: data.size ?? '',
-          sex: data.sex ?? '',
-          age: String(data.age ?? ''),
-          healthCondition: data.healthCondition ?? '',
-          entryDate: data.entryDate?.split('T')[0] ?? '',
-          observations: data.observations ?? '',
-          status: data.status ?? '',
-        }),
-      )
-      .catch(() => setAnimalPreview(null))
-  }, [animalId, token])
+      .then(({ data }) => {
+        setValue('animalNamePreview', data.name ?? '')
+        setValue('speciesPreview', data.species ?? '')
+        setValue('breedPreview', data.breed ?? '')
+        setValue('sizePreview', data.size ?? '')
+        setValue('sexPreview', data.sex ?? '')
+        setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
+        setValue('healthConditionPreview', data.healthCondition ?? '')
+        setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
+        setValue('statusPreview', data.status ?? '')
+        setValue('animalObservationsPreview', data.observations ?? '')
+      })
+      .catch(() => {
+        setValue('animalNamePreview', '')
+        setValue('speciesPreview', '')
+        setValue('breedPreview', '')
+        setValue('sizePreview', '')
+        setValue('sexPreview', '')
+        setValue('agePreview', '')
+        setValue('healthConditionPreview', '')
+        setValue('entryDatePreview', '')
+        setValue('statusPreview', '')
+        setValue('animalObservationsPreview', '')
+      })
+  }, [animalId, token, setValue])
 
   useEffect(() => {
     if (!adopterId || Number(adopterId) <= 0) return
@@ -375,6 +392,7 @@ export const AdoptionForm = () => {
                         searchOptions={searchAnimalOptions}
                         minChars={3}
                         debounceMs={300}
+                        displayLabel={animalNamePreview || undefined}
                       />
                       <Form.ErrorMessage field="animalId" />
                     </div>
@@ -382,52 +400,37 @@ export const AdoptionForm = () => {
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
                       <Form.Label htmlFor="animalNamePreview">Nome</Form.Label>
-                      <Form.Input name="animalNamePreview" value={animalPreview?.name ?? ''} disabled />
+                      <Form.Input name="animalNamePreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="speciesPreview">Espécie</Form.Label>
-                      <Form.Select
-                        name="speciesPreview"
-                        options={speciesOptions}
-                        disabled
-                        value={animalPreview?.species ?? ''}
-                      />
+                      <Form.Select name="speciesPreview" options={speciesOptions} disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="breedPreview">Raça</Form.Label>
-                      <Form.Input name="breedPreview" value={animalPreview?.breed ?? ''} disabled />
+                      <Form.Input name="breedPreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="sizePreview">Porte</Form.Label>
-                      <Form.Select
-                        name="sizePreview"
-                        options={sizeOptions}
-                        disabled
-                        value={animalPreview?.size ?? ''}
-                      />
+                      <Form.Select name="sizePreview" options={sizeOptions} disabled />
                     </div>
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
                       <Form.Label htmlFor="sexPreview">Sexo</Form.Label>
-                      <Form.Select name="sexPreview" options={sexOptions} disabled value={animalPreview?.sex ?? ''} />
+                      <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade (anos)</Form.Label>
-                      <Form.Input name="agePreview" value={animalPreview?.age ?? ''} disabled />
+                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="healthConditionPreview">Condição de saúde</Form.Label>
-                      <Form.Select
-                        name="healthConditionPreview"
-                        options={healthConditionOptions}
-                        disabled
-                        value={animalPreview?.healthCondition ?? ''}
-                      />
+                      <Form.Select name="healthConditionPreview" options={healthConditionOptions} disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" value={animalPreview?.entryDate ?? ''} disabled />
+                      <Form.Input name="entryDatePreview" type="date" disabled />
                     </div>
                     <div>
                       <Form.Label htmlFor="statusPreview">Status</Form.Label>
@@ -436,18 +439,12 @@ export const AdoptionForm = () => {
                         options={animalStatusOptions}
                         disabled
                         className="bg-gray-100 dark:bg-gray-800"
-                        value={animalPreview?.status ?? ''}
                       />
                     </div>
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
-                    <Form.TextArea
-                      name="animalObservationsPreview"
-                      rows={2}
-                      disabled
-                      value={animalPreview?.observations ?? ''}
-                    />
+                    <Form.TextArea name="animalObservationsPreview" rows={2} disabled />
                   </div>
                 </TabsContent>
                 <TabsContent value="adotante">

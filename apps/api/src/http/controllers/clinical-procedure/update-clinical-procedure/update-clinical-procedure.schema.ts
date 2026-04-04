@@ -14,6 +14,6 @@ export const updateClinicalProcedureSchema = z.object({
   procedureDate: z.string().min(1, 'Data/hora do procedimento é obrigatória'),
   description: z.string().min(1, 'Descrição é obrigatória'),
   actualCost: z.coerce.number().nonnegative('Custo deve ser maior ou igual a zero'),
-  observations: z.string().optional().nullable(),
+  observations: z.string().nullish(),
   status: z.enum(ProcedureStatusValues),
 })

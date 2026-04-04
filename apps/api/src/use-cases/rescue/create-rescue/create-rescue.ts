@@ -39,6 +39,7 @@ export class CreateRescueUseCase {
         const [animalRow] = await this.animalRepository.create(
           new Animal({
             ...data.animal!,
+            birthYear: data.animal!.birthYear ?? null,
             status: 'disponivel',
             createdAt: new Date(),
           }),
@@ -61,7 +62,7 @@ export class CreateRescueUseCase {
               breed: data.animal.breed ?? null,
               size: data.animal.size,
               sex: data.animal.sex,
-              age: data.animal.age,
+              birthYear: data.animal.birthYear ?? null,
               healthCondition: data.animal.healthCondition,
               entryDate: data.animal.entryDate,
               observations: data.animal.observations ?? null,

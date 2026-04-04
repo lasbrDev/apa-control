@@ -7,11 +7,11 @@ import type { ExpenseWithDetails, ListExpensesData } from '@/use-cases/expense/l
 import type { ListRevenuesData, RevenueWithDetails } from '@/use-cases/revenue/list-revenues/list-revenues.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
-import { type SQL, and, eq, gte, ilike, lte } from 'drizzle-orm'
+import { type SQL, and, eq, ilike, sql } from 'drizzle-orm'
 
 const transactionListQuerifySettings: QueryStringSettings = {
   table: financialTransaction,
-  initialOrderBy: financialTransaction.transactionDate,
+  initialOrderBy: financialTransaction.createdAt,
   includes: [
     [transactionType, eq(transactionType.id, financialTransaction.transactionTypeId), { innerJoin: true }],
     [campaign, eq(campaign.id, financialTransaction.campaignId)],
@@ -44,16 +44,8 @@ export class FinancialTransactionRepository {
     data: ListExpensesData,
     category: (typeof TransactionCategory)[keyof typeof TransactionCategory],
   ): Promise<[number, ExpenseWithDetails[]]> {
-    const {
-      description,
-      transactionTypeId,
-      campaignId,
-      animalId,
-      employeeId,
-      status,
-      transactionDateStart,
-      transactionDateEnd,
-    } = data
+    const { description, transactionTypeId, campaignId, animalId, employeeId, status, createdAtStart, createdAtEnd } =
+      data
     const whereList: SQL[] = [eq(transactionType.category, category)]
 
     if (description) whereList.push(ilike(financialTransaction.description, `%${description}%`))
@@ -62,8 +54,8 @@ export class FinancialTransactionRepository {
     if (animalId) whereList.push(eq(financialTransaction.animalId, animalId))
     if (employeeId) whereList.push(eq(financialTransaction.employeeId, employeeId))
     if (status) whereList.push(eq(financialTransaction.status, status))
-    if (transactionDateStart) whereList.push(gte(financialTransaction.transactionDate, transactionDateStart))
-    if (transactionDateEnd) whereList.push(lte(financialTransaction.transactionDate, transactionDateEnd))
+    if (createdAtStart) whereList.push(sql`${financialTransaction.createdAt}::date >= ${createdAtStart}`)
+    if (createdAtEnd) whereList.push(sql`${financialTransaction.createdAt}::date <= ${createdAtEnd}`)
 
     const [sqlQuery, countQuery] = querifyString<ExpenseWithDetails>(data, whereList, transactionListQuerifySettings)
     const items = await sqlQuery
@@ -93,7 +85,6 @@ export class FinancialTransactionRepository {
         employeeId: financialTransaction.employeeId,
         description: financialTransaction.description,
         value: financialTransaction.value,
-        transactionDate: financialTransaction.transactionDate,
         proof: financialTransaction.proof,
         observations: financialTransaction.observations,
         status: financialTransaction.status,

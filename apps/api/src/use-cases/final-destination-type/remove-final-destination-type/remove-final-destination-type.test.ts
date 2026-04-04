@@ -25,7 +25,6 @@ describe('Remove final-destination-type', () => {
 
     expect(response.statusCode).toBe(204)
 
-    // Verify it was removed
     const getResponse = await app.inject({
       method: 'GET',
       url: `/final-destination-type.key/${finalDestinationType.id}`,

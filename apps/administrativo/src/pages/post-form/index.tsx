@@ -42,7 +42,7 @@ const postSchema = z.object({
   type: z.enum(['adocao', 'campanha', 'comunicado']),
   publicationDate: z.string().min(1, RequiredMessage),
   status: z.enum(['rascunho', 'publicado', 'arquivado']),
-  relatedAnimals: z.string().optional().nullable(),
+  relatedAnimals: z.string().nullish(),
 })
 
 type PostFormData = z.infer<typeof postSchema>

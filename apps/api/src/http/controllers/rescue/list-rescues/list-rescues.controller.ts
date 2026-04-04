@@ -9,7 +9,8 @@ export async function listRescuesController(request: FastifyRequest, reply: Fast
   const [count, items] = await listRescuesUseCase.execute(data)
 
   if (data.exportType) {
-    return exportListData(reply, data.exportType, 'Resgates', 'resgates', items)
+    const exportItems = items.map(({ animalName, ...rest }) => ({ animalName, ...rest }))
+    return exportListData(reply, data.exportType, 'Resgates', 'resgates', exportItems)
   }
 
   reply.header('X-Total-Count', count)

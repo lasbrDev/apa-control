@@ -37,7 +37,11 @@ CardTitle.displayName = 'CardTitle'
 
 const CardToolbar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('mt-6 flex flex-col gap-3 sm:mt-0 sm:flex-row sm:gap-2', className)} {...props} />
+    <div
+      ref={ref}
+      className={cn('mt-6 flex flex-col gap-3 sm:mt-0 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-2', className)}
+      {...props}
+    />
   ),
 )
 

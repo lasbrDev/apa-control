@@ -31,7 +31,6 @@ export const Logo = ({ className, isLogin }: LogoProps) => {
     if (isLogin) {
       return isDark ? logoDark : logo
     }
-    // Usa logoDark para o nav também quando estiver em dark mode
     return isDark ? logoDark : logoNav
   }
 

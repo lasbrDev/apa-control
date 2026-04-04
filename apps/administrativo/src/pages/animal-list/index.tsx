@@ -41,7 +41,7 @@ interface AnimalListValues {
   breed: string | null
   size: string
   sex: string
-  age: number
+  birthYear: number | null
   healthCondition: string
   entryDate: string
   observations: string | null
@@ -84,7 +84,7 @@ export const AnimalList = () => {
     resolver: zodResolver(animalFilterSchema),
     defaultValues: {
       page: 1,
-      fields: 'id,name,species,breed,size,sex,age,healthCondition,entryDate,status',
+      fields: 'id,name,species,breed,size,sex,birthYear,healthCondition,entryDate,status',
       sort: 'name',
     },
   })
@@ -287,7 +287,7 @@ export const AnimalList = () => {
                   <TableHead>Nome</TableHead>
                   <TableHead>Espécie</TableHead>
                   <TableHead>Raça</TableHead>
-                  <TableHead>Idade</TableHead>
+                  <TableHead>Idade Aprox.</TableHead>
                   <TableHead>Condição</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />
@@ -300,7 +300,7 @@ export const AnimalList = () => {
                     <TableCell>{formatName(item.name)}</TableCell>
                     <TableCell>{formatSpecies(item.species)}</TableCell>
                     <TableCell>{item.breed}</TableCell>
-                    <TableCell>{item.age} anos</TableCell>
+                    <TableCell>{item.birthYear ? `${new Date().getFullYear() - item.birthYear} anos` : ''}</TableCell>
                     <TableCell>{formatHealthCondition(item.healthCondition)}</TableCell>
                     <TableCell>{formatStatus(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">

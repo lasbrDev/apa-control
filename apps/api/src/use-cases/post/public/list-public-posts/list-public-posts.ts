@@ -9,7 +9,6 @@ function parseRelatedAnimalIds(value: string | null | undefined): number[] {
   const trimmed = value.trim()
   if (!trimmed) return []
 
-  // Try JSON array first: "[1,2]" or "[\"1\",\"2\"]"
   if (trimmed.startsWith('[')) {
     try {
       const parsed = JSON.parse(trimmed) as unknown
@@ -17,11 +16,10 @@ function parseRelatedAnimalIds(value: string | null | undefined): number[] {
         return parsed.map((x) => Number(x)).filter((n) => Number.isFinite(n))
       }
     } catch {
-      // fallback below
+      // intentional no-op
     }
   }
 
-  // Fallback: extract digits from "1,2,3" or similar
   const matches = trimmed.match(/\d+/g)
   if (!matches) return []
   return matches.map((m) => Number(m)).filter((n) => Number.isFinite(n))
@@ -33,7 +31,6 @@ export class ListPublicPostsUseCase {
   async execute(data: ListPublicPostsData): Promise<[number, PostWithDetails[]]> {
     const { type, animalId, publicationDateStart, publicationDateEnd, page, perPage, sort, fields } = data
 
-    // Fetch all published posts; pagination (if any) is applied after optional animal filtering.
     const [, allPublished] = await this.postRepository.list({
       status: PostStatus.PUBLISHED,
       type,

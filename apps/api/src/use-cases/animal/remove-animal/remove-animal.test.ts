@@ -36,7 +36,6 @@ describe('Remove animal', () => {
 
     expect(response.statusCode).toBe(200)
 
-    // Verify it was removed
     const getResponse = await app.inject({
       method: 'GET',
       url: `/animal.key/${animal.id}`,

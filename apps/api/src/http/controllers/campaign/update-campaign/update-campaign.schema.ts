@@ -11,7 +11,7 @@ export const updateCampaignSchema = z
     endDate: z.string().min(1, 'Data final é obrigatória'),
     fundraisingGoal: z.number().nonnegative('Meta de arrecadação deve ser maior ou igual a zero'),
     status: z.enum(CampaignStatusValues),
-    observations: z.string().optional().nullable(),
+    observations: z.string().nullish(),
   })
   .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
     message: 'A data inicial deve ser menor ou igual à data final.',

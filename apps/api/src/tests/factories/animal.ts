@@ -18,7 +18,9 @@ const AnimalFactory = {
     breed: faker.helpers.maybe(() => faker.animal.dog(), { probability: 0.7 }) ?? null,
     size: faker.helpers.arrayElement(SizeValues),
     sex: faker.helpers.arrayElement(SexValues),
-    age: faker.number.int({ min: 0, max: 20 }),
+    birthYear:
+      faker.helpers.maybe(() => faker.number.int({ min: 2000, max: new Date().getFullYear() }), { probability: 0.8 }) ??
+      null,
     healthCondition: faker.helpers.arrayElement(HealthConditionValues),
     entryDate: faker.date.past({ years: 1 }).toISOString().split('T')[0],
     observations: faker.helpers.maybe(() => faker.lorem.paragraph(), { probability: 0.5 }) ?? null,
@@ -32,7 +34,9 @@ const AnimalFactory = {
     breed: faker.helpers.maybe(() => faker.animal.dog(), { probability: 0.7 }) ?? null,
     size: faker.helpers.arrayElement(SizeValues),
     sex: faker.helpers.arrayElement(SexValues),
-    age: faker.number.int({ min: 0, max: 20 }),
+    birthYear:
+      faker.helpers.maybe(() => faker.number.int({ min: 2000, max: new Date().getFullYear() }), { probability: 0.8 }) ??
+      null,
     healthCondition: faker.helpers.arrayElement(HealthConditionValues),
     entryDate: faker.date.past({ years: 1 }).toISOString().split('T')[0],
     observations: faker.helpers.maybe(() => faker.lorem.paragraph(), { probability: 0.5 }) ?? null,

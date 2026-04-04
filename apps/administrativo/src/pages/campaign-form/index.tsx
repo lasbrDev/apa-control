@@ -39,7 +39,7 @@ const campaignSchema = z
     endDate: z.string().min(1, RequiredMessage),
     fundraisingGoal: z.number({ error: RequiredMessage }).nonnegative(RequiredMessage),
     status: z.enum(['ativa', 'concluida', 'cancelada']),
-    observations: z.string().optional().nullable(),
+    observations: z.string().nullish(),
   })
   .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
     message: 'A data inicial deve ser menor ou igual à data final.',

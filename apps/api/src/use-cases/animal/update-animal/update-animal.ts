@@ -26,7 +26,7 @@ export class UpdateAnimalUseCase {
       breed: 'Raça',
       size: 'Porte',
       sex: 'Sexo',
-      age: 'Idade',
+      birthYear: 'Ano de Nascimento',
       healthCondition: 'Condição de saúde',
       entryDate: 'Data de entrada',
       observations: 'Observações',

@@ -1,4 +1,4 @@
-import { date, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { decimalJs } from '../decimal-type'
 import { animal } from './animal'
 import { campaign } from './campaign'
@@ -18,7 +18,6 @@ export const financialTransaction = pgTable('financial_transaction', {
     .references(() => employee.id),
   description: varchar({ length: 200 }).notNull(),
   value: decimalJs({ precision: 13, scale: 2 }).notNull(),
-  transactionDate: date().notNull(),
   proof: varchar({ length: 255 }),
   observations: text(),
   status: transactionStatusEnum().notNull(),

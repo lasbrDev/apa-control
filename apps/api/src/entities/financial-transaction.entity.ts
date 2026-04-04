@@ -8,7 +8,6 @@ export class FinancialTransaction {
   employeeId: number
   description: string
   value: Decimal
-  transactionDate: string
   proof?: string | null
   observations?: string | null
   status: string
@@ -22,7 +21,6 @@ export class FinancialTransaction {
     this.employeeId = props.employeeId
     this.description = props.description
     this.value = props.value
-    this.transactionDate = props.transactionDate
     this.proof = props.proof
     this.observations = props.observations
     this.status = props.status
