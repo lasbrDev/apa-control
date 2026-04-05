@@ -132,6 +132,18 @@ export class FinancialTransactionRepository {
     await connection.delete(financialTransaction).where(eq(financialTransaction.id, id))
   }
 
+  async findByIds(ids: number[]) {
+    return db
+      .select({
+        id: financialTransaction.id,
+        animalId: financialTransaction.animalId,
+        description: financialTransaction.description,
+        employeeId: financialTransaction.employeeId,
+      })
+      .from(financialTransaction)
+      .where(inArray(financialTransaction.id, ids))
+  }
+
   async cancelByIds(ids: number[]) {
     await db.update(financialTransaction).set({ status: 'cancelado' }).where(inArray(financialTransaction.id, ids))
   }

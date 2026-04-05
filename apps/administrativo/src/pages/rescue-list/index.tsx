@@ -263,7 +263,7 @@ export const RescueList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>
-                      {item.rescueDate ? new Date(item.rescueDate).toLocaleDateString('pt-BR') : '-'}
+                      {item.rescueDate ? new Date(item.rescueDate).toLocaleDateString('pt-BR') : ''}
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate" title={item.locationFound}>
                       {item.locationFound}

@@ -23,8 +23,8 @@ interface AnimalHistoryItem {
   id: number
   type: string
   description: string
-  oldValue: string
-  newValue: string
+  oldValue: string | null
+  newValue: string | null
   createdAt: string
   employeeName: string | null
 }
@@ -41,6 +41,8 @@ const historyTypeOptions = [
   { value: 'procedimento', label: 'Procedimento' },
   { value: 'ocorrencia', label: 'Ocorrência' },
   { value: 'destino_final', label: 'Destino Final' },
+  { value: 'despesa', label: 'Despesa' },
+  { value: 'receita', label: 'Receita' },
 ]
 
 const historyFilterSchema = z.object({
@@ -212,18 +214,18 @@ export function AnimalHistoryPage() {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.createdAt ? formatDateNoComma(item.createdAt) : '-'}</TableCell>
+                    <TableCell>{item.createdAt ? formatDateNoComma(item.createdAt) : ''}</TableCell>
                     <TableCell>{formatHistoryType(item.type)}</TableCell>
                     <TableCell className="max-w-[260px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>
-                    <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.oldValue, false)}>
-                      {formatHistoryValue(item.oldValue, false)}
+                    <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.oldValue)}>
+                      {formatHistoryValue(item.oldValue)}
                     </TableCell>
                     <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.newValue)}>
                       {formatHistoryValue(item.newValue)}
                     </TableCell>
-                    <TableCell>{item.employeeName ?? '-'}</TableCell>
+                    <TableCell>{item.employeeName ?? ''}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -252,7 +254,7 @@ export function AnimalHistoryPage() {
 
 function formatDateNoComma(value: string) {
   const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return '-'
+  if (Number.isNaN(d.getTime())) return ''
 
   const date = d.toLocaleDateString('pt-BR')
   const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -267,12 +269,14 @@ function formatHistoryType(type: string) {
     procedimento: 'Procedimento',
     ocorrencia: 'Ocorrência',
     destino_final: 'Destino Final',
+    despesa: 'Despesa',
+    receita: 'Receita',
   }
   return map[type] ?? type
 }
 
-function formatHistoryValue(value: string, showDashWhenEmpty = true) {
-  if (!value) return showDashWhenEmpty ? '-' : ''
+function formatHistoryValue(value: string | null) {
+  if (!value) return ''
   try {
     const parsed = JSON.parse(value) as unknown
     const fieldLabelMap: Record<string, string> = {

@@ -8,8 +8,8 @@ export class AnimalHistory {
   type: AnimalHistoryTypeValue
   action: string
   description: string
-  oldValue: string
-  newValue: string
+  oldValue: string | null
+  newValue: string | null
   createdAt: Date
 
   constructor(props: Omit<AnimalHistory, 'id'>, id?: number) {

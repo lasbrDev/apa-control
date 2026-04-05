@@ -15,8 +15,8 @@ export type AnimalHistoryWithDetails = {
   type: AnimalHistoryTypeValue
   action: string
   description: string
-  oldValue: string
-  newValue: string
+  oldValue: string | null
+  newValue: string | null
   createdAt: Date
   employeeId: number
   employeeName: string | null

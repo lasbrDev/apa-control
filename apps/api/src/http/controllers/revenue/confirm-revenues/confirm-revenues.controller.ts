@@ -4,7 +4,8 @@ import { confirmRevenuesSchema } from './confirm-revenues.schema'
 
 export async function confirmRevenuesController(request: FastifyRequest, reply: FastifyReply) {
   const data = confirmRevenuesSchema.parse(request.body)
+  const employeeId = request.user.id
   const confirmRevenuesUseCase = makeConfirmRevenuesUseCase()
-  await confirmRevenuesUseCase.execute(data)
+  await confirmRevenuesUseCase.execute(data, employeeId)
   reply.status(204).send()
 }

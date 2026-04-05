@@ -270,8 +270,8 @@ export const OccurrenceList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.animalName ?? '-'}</TableCell>
-                    <TableCell>{item.occurrenceTypeName ?? '-'}</TableCell>
+                    <TableCell>{item.animalName ?? ''}</TableCell>
+                    <TableCell>{item.occurrenceTypeName ?? ''}</TableCell>
                     <TableCell>{new Date(item.occurrenceDate).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="max-w-[400px] truncate" title={item.description}>
                       {item.description}

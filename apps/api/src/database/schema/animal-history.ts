@@ -16,7 +16,7 @@ export const animalHistory = pgTable('animal_history', {
   type: animalHistoryTypeEnum().notNull(),
   action: varchar({ length: 100 }).notNull(),
   description: text().notNull(),
-  oldValue: text().notNull(),
-  newValue: text().notNull(),
+  oldValue: text(),
+  newValue: text(),
   createdAt: timestamp().notNull(),
 })

@@ -222,8 +222,8 @@ export const RescueForm = () => {
     }
   }
 
-  const formatHistoryValue = (value: string, showDashWhenEmpty = true) => {
-    if (!value) return showDashWhenEmpty ? '-' : ''
+  const formatHistoryValue = (value: string) => {
+    if (!value) return ''
     try {
       const parsed = JSON.parse(value) as unknown
       const fieldLabelMap: Record<string, string> = {
@@ -287,7 +287,7 @@ export const RescueForm = () => {
 
   const formatDateNoComma = (value: string) => {
     const d = new Date(value)
-    if (Number.isNaN(d.getTime())) return '-'
+    if (Number.isNaN(d.getTime())) return ''
 
     const date = d.toLocaleDateString('pt-BR')
     const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -574,21 +574,18 @@ export const RescueForm = () => {
                         <TableBody>
                           {animalHistory.map((item) => (
                             <TableRow key={item.id}>
-                              <TableCell>{item.createdAt ? formatDateNoComma(item.createdAt) : '-'}</TableCell>
+                              <TableCell>{item.createdAt ? formatDateNoComma(item.createdAt) : ''}</TableCell>
                               <TableCell>{formatAnimalHistoryType(item.type)}</TableCell>
                               <TableCell className="max-w-[260px] truncate" title={item.description}>
                                 {item.description}
                               </TableCell>
-                              <TableCell
-                                className="max-w-[260px] truncate"
-                                title={formatHistoryValue(item.oldValue, false)}
-                              >
-                                {formatHistoryValue(item.oldValue, false)}
+                              <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.oldValue)}>
+                                {formatHistoryValue(item.oldValue)}
                               </TableCell>
                               <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.newValue)}>
                                 {formatHistoryValue(item.newValue)}
                               </TableCell>
-                              <TableCell>{item.employeeName ?? '-'}</TableCell>
+                              <TableCell>{item.employeeName ?? ''}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

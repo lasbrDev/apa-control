@@ -33,7 +33,7 @@ export class UpdateAnimalUseCase {
       status: 'Status',
     }
 
-    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '-' : String(value))
+    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '' : String(value))
 
     const changedData = Object.entries(data).reduce((acc, [key, value]) => {
       const shouldIgnoreKey = key === 'id' || key === 'employeeId'

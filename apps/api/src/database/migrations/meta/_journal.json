@@ -78,6 +78,13 @@
       "when": 1775400051495,
       "tag": "0010_animal-status-refactor",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1775415985507,
+      "tag": "0011_animal-history-values-nullable",
+      "breakpoints": true
     }
   ]
 }

@@ -78,7 +78,7 @@ export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentS
   if (!open) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-4xl rounded-lg border bg-white shadow-xl dark:bg-gray-900">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h3 className="font-semibold text-lg">Selecionar consulta</h3>
@@ -150,16 +150,16 @@ export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentS
               </TableHeader>
               <TableBody>
                 {items.map((item) => {
-                  const label = `#${item.id} - ${item.animalName ?? 'Animal'} (${item.appointmentDate ? new Date(item.appointmentDate).toLocaleDateString('pt-BR') : '-'})`
+                  const label = `#${item.id} - ${item.animalName ?? 'Animal'} (${item.appointmentDate ? new Date(item.appointmentDate).toLocaleDateString('pt-BR') : ''})`
                   return (
                     <TableRow key={item.id}>
                       <TableCell>#{item.id}</TableCell>
-                      <TableCell>{item.animalName ?? '-'}</TableCell>
-                      <TableCell>{item.appointmentTypeName ?? '-'}</TableCell>
+                      <TableCell>{item.animalName ?? ''}</TableCell>
+                      <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
                       <TableCell>
-                        {item.appointmentDate ? new Date(item.appointmentDate).toLocaleString('pt-BR') : '-'}
+                        {item.appointmentDate ? new Date(item.appointmentDate).toLocaleString('pt-BR') : ''}
                       </TableCell>
-                      <TableCell>{item.status ? (statusLabel[item.status] ?? item.status) : '-'}</TableCell>
+                      <TableCell>{item.status ? (statusLabel[item.status] ?? item.status) : ''}</TableCell>
                       <TableCell className="w-[1%] whitespace-nowrap">
                         <Button type="button" variant="success" onClick={() => onSelect({ id: item.id, label })}>
                           <CalendarIcon className="mr-2 h-4 w-4" />

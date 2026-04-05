@@ -339,8 +339,8 @@ export const AppointmentList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.animalName ?? '-'}</TableCell>
-                    <TableCell>{item.appointmentTypeName ?? '-'}</TableCell>
+                    <TableCell>{item.animalName ?? ''}</TableCell>
+                    <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
                     <TableCell>{new Date(item.appointmentDate).toLocaleString('pt-BR')}</TableCell>
                     <TableCell>{item.status}</TableCell>
                     <TableCell>

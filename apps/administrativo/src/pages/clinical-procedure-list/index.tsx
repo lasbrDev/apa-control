@@ -298,8 +298,8 @@ export const ClinicalProcedureList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.animalName ?? '-'}</TableCell>
-                    <TableCell>{item.procedureTypeName ?? '-'}</TableCell>
+                    <TableCell>{item.animalName ?? ''}</TableCell>
+                    <TableCell>{item.procedureTypeName ?? ''}</TableCell>
                     <TableCell>{new Date(item.procedureDate).toLocaleString('pt-BR')}</TableCell>
                     <TableCell>
                       {Number(item.actualCost).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

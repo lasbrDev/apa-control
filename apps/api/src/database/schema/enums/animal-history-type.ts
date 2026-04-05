@@ -6,6 +6,8 @@ export const AnimalHistoryType = {
   OCCURRENCE: 'ocorrencia',
   FINAL_DESTINATION: 'destino_final',
   ADOPTION: 'adocao',
+  EXPENSE: 'despesa',
+  REVENUE: 'receita',
 } as const
 
 export type AnimalHistoryTypeValue = (typeof AnimalHistoryType)[keyof typeof AnimalHistoryType]

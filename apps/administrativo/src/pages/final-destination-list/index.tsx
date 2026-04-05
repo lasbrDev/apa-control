@@ -321,7 +321,7 @@ export const FinalDestinationList = () => {
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>{item.destinationTypeName ?? `#${item.destinationTypeId}`}</TableCell>
                     <TableCell>
-                      {item.destinationDate ? new Date(item.destinationDate).toLocaleDateString('pt-BR') : '-'}
+                      {item.destinationDate ? new Date(item.destinationDate).toLocaleDateString('pt-BR') : ''}
                     </TableCell>
                     <TableCell className="max-w-[220px] truncate" title={item.reason}>
                       {item.reason}

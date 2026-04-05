@@ -258,7 +258,7 @@ export const AnamnesisList = () => {
                 {items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>#{item.appointmentId}</TableCell>
-                    <TableCell>{item.animalName ?? '-'}</TableCell>
+                    <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell className="max-w-[320px] truncate">{item.symptomsPresented}</TableCell>
                     <TableCell>
                       <ActionsList

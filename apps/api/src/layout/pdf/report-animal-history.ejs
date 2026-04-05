@@ -42,7 +42,7 @@
         <div class="info-item"><strong>Raça:</strong> <%= locals.animal.breed || 'Não definida' %></div>
         <div class="info-item"><strong>Porte:</strong> <%= locals.animal.size %></div>
         <div class="info-item"><strong>Sexo:</strong> <%= locals.animal.sex %></div>
-        <div class="info-item"><strong>Ano de Nasc.:</strong> <%= locals.animal.birthYear || '-' %></div>
+        <div class="info-item"><strong>Ano de Nasc.:</strong> <%= locals.animal.birthYear || '' %></div>
         <div class="info-item"><strong>Condição de Saúde:</strong> <%= locals.animal.healthCondition %></div>
         <div class="info-item"><strong>Status:</strong> <%= locals.animal.status %></div>
         <div class="info-item"><strong>Entrada:</strong> <%= locals.animal.entryDate %></div>
@@ -55,11 +55,11 @@
       <h3>Dados do Resgate</h3>
       <div class="info-grid">
         <div class="info-item"><strong>Data do Resgate:</strong> <%= locals.rescue.rescueDate %></div>
-        <div class="info-item" style="grid-column: span 2;"><strong>Local Encontrado:</strong> <%= locals.rescue.locationFound || '-' %></div>
-        <div class="info-item" style="grid-column: span 3;"><strong>Circunstâncias:</strong> <%= locals.rescue.circumstances || '-' %></div>
-        <div class="info-item" style="grid-column: span 3;"><strong>Condições Encontradas:</strong> <%= locals.rescue.foundConditions || '-' %></div>
-        <div class="info-item" style="grid-column: span 3;"><strong>Procedimentos Imediatos:</strong> <%= locals.rescue.immediateProcedures || '-' %></div>
-        <div class="info-item" style="grid-column: span 3;"><strong>Observações do Resgate:</strong> <%= locals.rescue.observations || '-' %></div>
+        <div class="info-item" style="grid-column: span 2;"><strong>Local Encontrado:</strong> <%= locals.rescue.locationFound || '' %></div>
+        <div class="info-item" style="grid-column: span 3;"><strong>Circunstâncias:</strong> <%= locals.rescue.circumstances || '' %></div>
+        <div class="info-item" style="grid-column: span 3;"><strong>Condições Encontradas:</strong> <%= locals.rescue.foundConditions || '' %></div>
+        <div class="info-item" style="grid-column: span 3;"><strong>Procedimentos Imediatos:</strong> <%= locals.rescue.immediateProcedures || '' %></div>
+        <div class="info-item" style="grid-column: span 3;"><strong>Observações do Resgate:</strong> <%= locals.rescue.observations || '' %></div>
       </div>
     </div>
     <% } %>

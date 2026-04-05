@@ -24,12 +24,14 @@ function formatHistoryType(type: string) {
     procedimento: 'Procedimento',
     ocorrencia: 'Ocorrência',
     destino_final: 'Destino Final',
+    despesa: 'Despesa',
+    receita: 'Receita',
   }
   return map[type] ?? type
 }
 
 function formatHistoryValue(value: string | null) {
-  if (!value) return '-'
+  if (!value) return ''
   try {
     const parsed = JSON.parse(value) as unknown
     const fieldLabelMap: Record<string, string> = {
@@ -107,12 +109,12 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const animal = await getAnimalByIdUseCase.execute({ id })
 
     const rows = result.map((item) => ({
-      Data: item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-',
+      Data: item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
       Tipo: formatHistoryType(item.type),
       Descrição: item.description,
       'Valor Antigo': formatHistoryValue(item.oldValue),
       'Valor Novo': formatHistoryValue(item.newValue),
-      Por: item.employeeName ?? '-',
+      Por: item.employeeName ?? '',
     }))
 
     if (exportType === 'csv') {
@@ -139,12 +141,12 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const pdfTemplatePath = getRootFolder('layout/pdf/report-animal-history.ejs')
     const headers = ['Data', 'Tipo', 'Descrição', 'Valor Antigo', 'Valor Novo', 'Por']
     const pdfRows = result.map((item) => [
-      item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-',
+      item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
       formatHistoryType(item.type),
       item.description,
       formatHistoryValue(item.oldValue),
       formatHistoryValue(item.newValue),
-      item.employeeName ?? '-',
+      item.employeeName ?? '',
     ])
 
     const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
@@ -168,11 +170,11 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
           ativo: 'Ativo',
           inativo: 'Inativo',
         }),
-        entryDate: animal.entryDate ? new Date(animal.entryDate).toLocaleDateString('pt-BR') : '-',
+        entryDate: animal.entryDate ? new Date(animal.entryDate).toLocaleDateString('pt-BR') : '',
       },
       rescue: rescue
         ? {
-            rescueDate: rescue.rescueDate ? new Date(rescue.rescueDate).toLocaleDateString('pt-BR') : '-',
+            rescueDate: rescue.rescueDate ? new Date(rescue.rescueDate).toLocaleDateString('pt-BR') : '',
             locationFound: rescue.locationFound,
             circumstances: rescue.circumstances,
             foundConditions: rescue.foundConditions,

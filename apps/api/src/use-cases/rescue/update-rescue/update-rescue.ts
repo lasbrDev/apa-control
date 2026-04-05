@@ -20,7 +20,7 @@ export class UpdateRescueUseCase {
     }
 
     const toDateLabel = (value: Date | string) => (value instanceof Date ? value.toISOString().split('T')[0] : value)
-    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '-' : String(value))
+    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '' : String(value))
     const changed: string[] = []
     const oldValues: Record<string, unknown> = {}
     const newValues: Record<string, unknown> = {}
