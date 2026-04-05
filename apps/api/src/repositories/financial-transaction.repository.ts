@@ -7,7 +7,7 @@ import type { ExpenseWithDetails, ListExpensesData } from '@/use-cases/expense/l
 import type { ListRevenuesData, RevenueWithDetails } from '@/use-cases/revenue/list-revenues/list-revenues.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
-import { type SQL, and, eq, ilike, sql } from 'drizzle-orm'
+import { type SQL, and, eq, ilike, inArray, sql } from 'drizzle-orm'
 
 const transactionListQuerifySettings: QueryStringSettings = {
   table: financialTransaction,
@@ -88,6 +88,7 @@ export class FinancialTransactionRepository {
         proof: financialTransaction.proof,
         observations: financialTransaction.observations,
         status: financialTransaction.status,
+        paymentDate: financialTransaction.paymentDate,
         createdAt: financialTransaction.createdAt,
         transactionTypeName: transactionType.name,
         campaignTitle: campaign.title,
@@ -129,5 +130,20 @@ export class FinancialTransactionRepository {
   async delete(id: number, dbTransaction: DrizzleTransaction | null = null) {
     const connection = dbTransaction ?? db
     await connection.delete(financialTransaction).where(eq(financialTransaction.id, id))
+  }
+
+  async cancelByIds(ids: number[]) {
+    await db.update(financialTransaction).set({ status: 'cancelado' }).where(inArray(financialTransaction.id, ids))
+  }
+
+  async confirmPaymentByIds(ids: number[]) {
+    await db
+      .update(financialTransaction)
+      .set({ status: 'confirmado', paymentDate: sql`now()` })
+      .where(inArray(financialTransaction.id, ids))
+  }
+
+  async confirmRevenuesByIds(ids: number[]) {
+    await db.update(financialTransaction).set({ status: 'confirmado' }).where(inArray(financialTransaction.id, ids))
   }
 }

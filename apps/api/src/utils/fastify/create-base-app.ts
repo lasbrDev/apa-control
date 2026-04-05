@@ -1,7 +1,9 @@
+import { join } from 'node:path'
 import cookies from '@fastify/cookie'
 import cors from '@fastify/cors'
 import formBody from '@fastify/formbody'
 import multiPart from '@fastify/multipart'
+import staticFiles from '@fastify/static'
 import { Decimal } from 'decimal.js'
 import fastify from 'fastify'
 
@@ -25,6 +27,11 @@ export function createBaseApp() {
 
   app.setErrorHandler(exceptionHandler)
   app.setNotFoundHandler(notFoundHandler)
+  app.register(staticFiles, {
+    root: join(process.cwd(), 'uploads'),
+    prefix: '/uploads/',
+    decorateReply: false,
+  })
   app.register(cors, {
     origin: true,
     exposedHeaders: ['X-Total-Count'],

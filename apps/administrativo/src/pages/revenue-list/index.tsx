@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CircleDollarSignIcon,
+  DownloadIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
   PencilIcon,
@@ -17,6 +18,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
+import { Badge } from '../../components/badge'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardToolbar } from '../../components/card'
 import { Form } from '../../components/form-hook'
@@ -26,6 +28,7 @@ import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
+import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
@@ -40,6 +43,7 @@ interface RevenueListValues {
   value: number
   createdAt: string
   status: string
+  proof?: string | null
   transactionTypeName?: string
   campaignTitle?: string | null
   animalName?: string | null
@@ -94,6 +98,11 @@ export const RevenueList = () => {
   const [transactionTypeOptions, setTransactionTypeOptions] = useState<SelectOption[]>([])
   const [campaignOptions, setCampaignOptions] = useState<SelectOption[]>([])
   const [animalOptions, setAnimalOptions] = useState<SelectOption[]>([])
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [batchLoading, setBatchLoading] = useState(false)
+
+  const selectableItems = items.filter((item) => item.status === 'pendente')
+  const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selectedIds.includes(item.id))
 
   const revenueFilterForm = useForm<RevenueFilterData>({
     resolver: zodResolver(revenueFilterSchema),
@@ -101,7 +110,7 @@ export const RevenueList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,transactionTypeId,description,value,createdAt,status,transactionTypeName,campaignTitle,animalName,employeeName',
+        'id,transactionTypeId,description,value,createdAt,status,proof,transactionTypeName,campaignTitle,animalName,employeeName',
       sort: '-createdAt',
       description: '',
       transactionTypeId: null,
@@ -117,6 +126,18 @@ export const RevenueList = () => {
   const page = getValues('page')
   const perPage = getValues('perPage')
   const pages = Math.ceil(total / perPage) || 1
+
+  useEffect(() => {
+    setSelectedIds([])
+  }, [items])
+
+  function handleSelectAll(checked: boolean) {
+    setSelectedIds(checked ? selectableItems.map((i) => i.id) : [])
+  }
+
+  function handleSelectItem(id: number, checked: boolean) {
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)))
+  }
 
   const removeRevenue = useCallback(
     (values: RevenueListValues) => {
@@ -138,6 +159,54 @@ export const RevenueList = () => {
     },
     [token, modal, refresh],
   )
+
+  function cancelBatch() {
+    modal.confirm({
+      title: 'Registrar cancelamento',
+      message: `Deseja cancelar ${selectedIds.length} receita(s) selecionada(s)?`,
+      confirmText: 'Cancelar receitas',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading(true)
+        try {
+          await api.post('revenue.cancel', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
+          toast.success(`${selectedIds.length} receita(s) cancelada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          toast.error(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(false)
+        }
+      },
+    })
+  }
+
+  function confirmRevenueBatch() {
+    modal.confirm({
+      title: 'Confirmar recebimento',
+      message: `Deseja confirmar o recebimento de ${selectedIds.length} receita(s) selecionada(s)?`,
+      confirmText: 'Confirmar recebimento',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading(true)
+        try {
+          await api.post(
+            'revenue.confirmRevenue',
+            { ids: selectedIds },
+            { headers: { Authorization: `Bearer ${token}` } },
+          )
+          toast.success(`${selectedIds.length} receita(s) confirmada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          toast.error(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(false)
+        }
+      },
+    })
+  }
 
   async function listRevenues(values: RevenueFilterData) {
     setFetching(true)
@@ -331,7 +400,24 @@ export const RevenueList = () => {
                 </div>
               </div>
 
-              <CardFooter className="mt-6 p-0">
+              <CardFooter className="mt-6 flex-wrap items-center gap-3 p-0">
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={selectedIds.length === 0 || batchLoading}
+                  onClick={cancelBatch}
+                >
+                  {batchLoading ? <Spinner /> : <span>Registrar Cancelamento</span>}
+                </Button>
+                <Button
+                  type="button"
+                  variant="success"
+                  disabled={selectedIds.length === 0 || batchLoading}
+                  onClick={confirmRevenueBatch}
+                >
+                  {batchLoading ? <Spinner /> : <span>Confirmar Recebimento</span>}
+                </Button>
+
                 <Button type="submit">
                   <SearchIcon className="mr-2 h-5 w-5 shrink-0" />
                   <span>Consultar</span>
@@ -348,12 +434,18 @@ export const RevenueList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[1%]">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                  </TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Data</TableHead>
-                  <TableHead>Campanha</TableHead>
-                  <TableHead>Animal</TableHead>
                   <TableHead>Registrado por</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />
@@ -363,6 +455,16 @@ export const RevenueList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell className="w-[1%]">
+                      {item.status === 'pendente' ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(item.id)}
+                          onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                          className="h-4 w-4 cursor-pointer"
+                        />
+                      ) : null}
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>
@@ -373,20 +475,20 @@ export const RevenueList = () => {
                       )}
                     </TableCell>
                     <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell className="max-w-[140px] truncate" title={item.campaignTitle ?? undefined}>
-                      {item.campaignTitle ?? '—'}
-                    </TableCell>
-                    <TableCell className="max-w-[120px] truncate" title={item.animalName ?? undefined}>
-                      {item.animalName ?? '—'}
-                    </TableCell>
-                    <TableCell>{item.employeeName ?? '—'}</TableCell>
-                    <TableCell>{formatRevenueStatus(item.status)}</TableCell>
+                    <TableCell>{item.employeeName ?? ''}</TableCell>
+                    <TableCell>{revenueStatusBadge(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"
                         values={item}
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: ':id' },
+                          {
+                            icon: DownloadIcon,
+                            title: 'Baixar comprovante',
+                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            hideWhen: (item) => !item.proof,
+                          },
                           { icon: XIcon, title: 'Remover', action: removeRevenue },
                         ]}
                       />
@@ -403,6 +505,9 @@ export const RevenueList = () => {
 
           <div className="flex flex-wrap items-center justify-between gap-6 p-6">
             <span className="text-sm dark:text-gray-300">{itemCountMessage('receitas', page, pages, total)}</span>
+            {selectedIds.length > 0 && (
+              <span className="text-sm dark:text-gray-300">{selectedIds.length} item(s) selecionado(s).</span>
+            )}
             <Pagination current={page} total={pages} changePage={changePage} />
           </div>
         </div>
@@ -411,11 +516,13 @@ export const RevenueList = () => {
   )
 }
 
-function formatRevenueStatus(status: string) {
-  const map: Record<string, string> = {
-    pendente: 'Pendente',
-    confirmado: 'Confirmado',
-    cancelado: 'Cancelado',
+function revenueStatusBadge(status: string) {
+  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'danger' }> = {
+    pendente: { label: 'Pendente', variant: 'warning' },
+    confirmado: { label: 'Confirmado', variant: 'success' },
+    cancelado: { label: 'Cancelado', variant: 'danger' },
   }
-  return map[status] ?? status
+  const config = map[status]
+  if (!config) return <Badge variant="outline">{status}</Badge>
+  return <Badge variant={config.variant}>{config.label}</Badge>
 }

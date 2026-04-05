@@ -50,6 +50,7 @@ function normalizeHeader(rawKey: string): string {
     rescueDate: 'Data do resgate',
     destinationDate: 'Data do destino',
     adoptionDate: 'Data da adoção',
+    paymentDate: 'Data de pagamento',
     entryDate: 'Data de entrada',
     startDate: 'Data de início',
     endDate: 'Data de término',
