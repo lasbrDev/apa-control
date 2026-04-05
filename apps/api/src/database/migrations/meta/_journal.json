@@ -85,6 +85,13 @@
       "when": 1775415985507,
       "tag": "0011_animal-history-values-nullable",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1775418310956,
+      "tag": "0012_remove-posts",
+      "breakpoints": true
     }
   ]
 }

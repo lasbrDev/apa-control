@@ -41,8 +41,6 @@ import { NotFound } from './pages/not-found'
 import { OccurrenceForm } from './pages/occurrence-form'
 import { OccurrenceList } from './pages/occurrence-list'
 import { OccurrenceTypeList } from './pages/occurrence-type-list'
-import { PostForm } from './pages/post-form'
-import { PostList } from './pages/post-list'
 import { ProcedureTypeList } from './pages/procedure-type-list'
 import { ProfileForm } from './pages/profile-form'
 import { ProfileList } from './pages/profile-list'
@@ -130,9 +128,6 @@ ReactDOM.createRoot(rootElement!).render(
               <Route path="financeiro/receitas" element={<RevenueList />} />
               <Route path="financeiro/receitas/cadastro" element={<RevenueForm />} />
               <Route path="financeiro/receitas/:id" element={<RevenueForm />} />
-              <Route path="publicacoes" element={<PostList />} />
-              <Route path="publicacoes/cadastro" element={<PostForm />} />
-              <Route path="publicacoes/:id" element={<PostForm />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

@@ -9,7 +9,6 @@ import {
   HospitalIcon,
   LifeBuoyIcon,
   MegaphoneIcon,
-  NewspaperIcon,
   PlusCircleIcon,
   SyringeIcon,
   UserCogIcon,
@@ -88,7 +87,6 @@ export const pages: PageProps[] = [
     icon: FlagIcon,
     roles: ['AdminPanel', 'FinalDestinations'],
   },
-  { title: 'Publicações', path: '/publicacoes', icon: NewspaperIcon, roles: ['AdminPanel', 'Posts'] },
   {
     title: 'Financeiro',
     icon: WalletIcon,

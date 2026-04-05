@@ -21,7 +21,6 @@ import { finalDestinationRoutes } from './http/controllers/final-destination/rou
 import { healthRoutes } from './http/controllers/health/routes'
 import { occurrenceTypeRoutes } from './http/controllers/occurrence-type/routes'
 import { occurrenceRoutes } from './http/controllers/occurrence/routes'
-import { postRoutes } from './http/controllers/post/routes'
 import { procedureTypeRoutes } from './http/controllers/procedure-type/routes'
 import { rescueRoutes } from './http/controllers/rescue/routes'
 import { revenueRoutes } from './http/controllers/revenue/routes'
@@ -50,7 +49,6 @@ app.register(finalDestinationRoutes)
 app.register(transactionTypeRoutes)
 app.register(expenseRoutes)
 app.register(revenueRoutes)
-app.register(postRoutes)
 app.register(veterinaryClinicRoutes)
 app.register(adopterRoutes)
 app.register(adoptionRoutes)
