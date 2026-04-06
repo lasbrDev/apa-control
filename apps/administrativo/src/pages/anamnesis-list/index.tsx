@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ClipboardListIcon,
+  DownloadIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
   PencilIcon,
@@ -26,6 +27,7 @@ import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
+import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
@@ -40,6 +42,7 @@ interface Item {
   appointmentDate?: string | null
   employeeName?: string | null
   symptomsPresented: string
+  proof?: string | null
 }
 
 const schema = z
@@ -82,7 +85,7 @@ export const AnamnesisList = () => {
     defaultValues: {
       page: 1,
       perPage: 10,
-      fields: 'id,animalName,appointmentDate,employeeName,symptomsPresented',
+      fields: 'id,animalName,appointmentDate,employeeName,symptomsPresented,proof',
       sort: '-createdAt',
       animalName: '',
       createdDateStart: toDateInput(monthAgo),
@@ -266,6 +269,12 @@ export const AnamnesisList = () => {
                         primaryKey="id"
                         actions={[
                           { title: 'Editar', icon: PencilIcon, action: '/anamnese/:id' },
+                          {
+                            title: 'Baixar arquivo',
+                            icon: DownloadIcon,
+                            action: (i) => window.open(`${appConfig.API_URL}${i.proof}`, '_blank'),
+                            hideWhen: (i) => !i.proof,
+                          },
                           { title: 'Remover', icon: XIcon, action: () => removeItem(item) },
                         ]}
                       />

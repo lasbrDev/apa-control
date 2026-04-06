@@ -13,12 +13,13 @@ export interface ListAnamnesesData {
 export interface AnamnesisWithDetails {
   id: number
   appointmentId: number
-  symptomsPresented: string
+  symptomsPresented: string | null
   dietaryHistory: string | null
   behavioralHistory: string | null
   requestedExams: string | null
   presumptiveDiagnosis: string | null
   observations: string | null
+  proof: string | null
   createdAt: Date
   animalName?: string | null
   appointmentDate?: Date | null

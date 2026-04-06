@@ -1,12 +1,13 @@
 export class Anamnesis {
   id?: number
   appointmentId: number
-  symptomsPresented: string
+  symptomsPresented?: string | null
   dietaryHistory?: string | null
   behavioralHistory?: string | null
   requestedExams?: string | null
   presumptiveDiagnosis?: string | null
   observations?: string | null
+  proof?: string | null
   createdAt: Date
 
   constructor(props: Omit<Anamnesis, 'id'>, id?: number) {
@@ -18,6 +19,7 @@ export class Anamnesis {
     this.requestedExams = props.requestedExams
     this.presumptiveDiagnosis = props.presumptiveDiagnosis
     this.observations = props.observations
+    this.proof = props.proof
     this.createdAt = props.createdAt
   }
 }

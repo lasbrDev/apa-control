@@ -22,12 +22,14 @@ import { api } from '../../service'
 const schema = z.object({
   id: z.number().nullish(),
   appointmentId: z.number({ message: RequiredMessage }).int().positive(),
-  symptomsPresented: z.string().min(1, RequiredMessage),
+  symptomsPresented: z.string().nullish(),
   dietaryHistory: z.string().nullish(),
   behavioralHistory: z.string().nullish(),
   requestedExams: z.string().nullish(),
   presumptiveDiagnosis: z.string().nullish(),
   observations: z.string().nullish(),
+  proofFile: z.any().nullish(),
+  currentProof: z.string().nullish(),
 })
 type Data = z.infer<typeof schema>
 
@@ -38,7 +40,10 @@ export const AnamnesisForm = () => {
   const [fetching, setFetching] = useState(false)
   const [openAppointmentModal, setOpenAppointmentModal] = useState(false)
   const [appointmentDisplayLabel, setAppointmentDisplayLabel] = useState('')
-  const form = useForm<Data>({ resolver: zodResolver(schema), defaultValues: { observations: '' } })
+  const form = useForm<Data>({
+    resolver: zodResolver(schema),
+    defaultValues: { observations: '', proofFile: null, currentProof: '' },
+  })
   const {
     handleSubmit,
     reset,
@@ -47,11 +52,22 @@ export const AnamnesisForm = () => {
     formState: { isSubmitting },
   } = form
   const appointmentId = watch('appointmentId')
+  const currentProof = watch('currentProof')
 
   async function submit(values: Data) {
     try {
-      await api[params.id ? 'put' : 'post'](params.id ? 'anamnesis.update' : 'anamnesis.add', values, {
-        headers: { Authorization: `Bearer ${token}` },
+      const formData = new FormData()
+      const { proofFile, currentProof: _currentProof, ...fields } = values
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== null && value !== undefined) formData.append(key, String(value))
+      }
+
+      if (values.currentProof) formData.append('proof', values.currentProof)
+      if (proofFile?.length) formData.append('proofFile', proofFile[0])
+
+      await api[params.id ? 'put' : 'post'](params.id ? 'anamnesis.update' : 'anamnesis.add', formData, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
       })
       toast.success(`Anamnese ${params.id ? 'atualizada' : 'registrada'} com sucesso!`)
       pushTo(-1)
@@ -76,6 +92,8 @@ export const AnamnesisForm = () => {
             requestedExams: key.requestedExams ?? '',
             presumptiveDiagnosis: key.presumptiveDiagnosis ?? '',
             observations: key.observations ?? '',
+            proofFile: null,
+            currentProof: key.proof ?? '',
           })
           try {
             const { data: appointment } = await api.get(`appointment.key/${key.appointmentId}`, config)
@@ -108,22 +126,32 @@ export const AnamnesisForm = () => {
         <FormProvider {...form}>
           <form autoComplete="off" onSubmit={handleSubmit(submit)}>
             <CardContent>
-              <div className="mb-6">
-                <Form.Label htmlFor="appointmentIdDisplay">Consulta</Form.Label>
-                <div className="flex gap-2">
-                  <Form.Input
-                    id="appointmentIdDisplay"
-                    name="appointmentIdDisplay"
-                    value={appointmentDisplayLabel || (appointmentId ? `#${appointmentId}` : '')}
-                    disabled
-                    placeholder="Nenhuma consulta selecionada"
-                  />
-                  <Button type="button" variant="outline" onClick={() => setOpenAppointmentModal(true)}>
-                    <SearchIcon className="mr-2 h-4 w-4" />
-                    Buscar
-                  </Button>
+              <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                <div>
+                  <Form.Label htmlFor="appointmentIdDisplay">Consulta</Form.Label>
+                  <div className="flex gap-2">
+                    <Form.Input
+                      id="appointmentIdDisplay"
+                      name="appointmentIdDisplay"
+                      value={appointmentDisplayLabel || (appointmentId ? `#${appointmentId}` : '')}
+                      disabled
+                      placeholder="Nenhuma consulta selecionada"
+                    />
+                    <Button type="button" variant="outline" onClick={() => setOpenAppointmentModal(true)}>
+                      <SearchIcon className="mr-2 h-4 w-4" />
+                      Buscar
+                    </Button>
+                  </div>
+                  <Form.ErrorMessage field="appointmentId" />
                 </div>
-                <Form.ErrorMessage field="appointmentId" />
+                <div>
+                  <Form.Label htmlFor="proofFile">Arquivo</Form.Label>
+                  <Form.FileInput name="proofFile" />
+                  <Form.ErrorMessage field="proofFile" />
+                  {currentProof && (
+                    <span className="mt-2 block text-muted-foreground text-xs">Arquivo atual: {currentProof}</span>
+                  )}
+                </div>
               </div>
               <div className="mb-6">
                 <Form.Label htmlFor="symptomsPresented">Sintomas apresentados</Form.Label>

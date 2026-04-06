@@ -270,8 +270,8 @@ export const Home = () => {
                       <XAxis dataKey="month" stroke="#6b7280" className="dark:stroke-gray-400" />
                       <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
                       <Tooltip
-                        formatter={(value: number) =>
-                          new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+                        formatter={(value) =>
+                          new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value))
                         }
                         contentStyle={tooltipStyle}
                       />

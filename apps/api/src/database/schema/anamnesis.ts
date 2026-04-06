@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { appointment } from './appointment'
 
 export const anamnesis = pgTable('anamnesis', {
@@ -7,11 +7,12 @@ export const anamnesis = pgTable('anamnesis', {
     .notNull()
     .unique()
     .references(() => appointment.id),
-  symptomsPresented: text().notNull(),
+  symptomsPresented: text(),
   dietaryHistory: text(),
   behavioralHistory: text(),
   requestedExams: text(),
   presumptiveDiagnosis: text(),
   observations: text(),
+  proof: varchar({ length: 255 }),
   createdAt: timestamp().notNull(),
 })

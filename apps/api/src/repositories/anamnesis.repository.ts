@@ -77,6 +77,7 @@ export class AnamnesisRepository {
         requestedExams: anamnesis.requestedExams,
         presumptiveDiagnosis: anamnesis.presumptiveDiagnosis,
         observations: anamnesis.observations,
+        proof: anamnesis.proof,
         createdAt: anamnesis.createdAt,
         animalName: animal.name,
         appointmentDate: appointment.appointmentDate,

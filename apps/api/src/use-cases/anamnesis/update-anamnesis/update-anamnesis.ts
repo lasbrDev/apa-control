@@ -28,21 +28,23 @@ export class UpdateAnamnesisUseCase {
 
     const oldValues = {
       appointmentId: existing.appointmentId,
-      symptomsPresented: existing.symptomsPresented,
+      symptomsPresented: existing.symptomsPresented ?? null,
       dietaryHistory: existing.dietaryHistory ?? null,
       behavioralHistory: existing.behavioralHistory ?? null,
       requestedExams: existing.requestedExams ?? null,
       presumptiveDiagnosis: existing.presumptiveDiagnosis ?? null,
       observations: existing.observations ?? null,
+      proof: existing.proof ?? null,
     }
     const newValues = {
       appointmentId: data.appointmentId,
-      symptomsPresented: data.symptomsPresented,
+      symptomsPresented: data.symptomsPresented ?? null,
       dietaryHistory: data.dietaryHistory ?? null,
       behavioralHistory: data.behavioralHistory ?? null,
       requestedExams: data.requestedExams ?? null,
       presumptiveDiagnosis: data.presumptiveDiagnosis ?? null,
       observations: data.observations ?? null,
+      proof: data.proof ?? null,
     }
 
     await db.transaction(async (tx) => {
@@ -50,12 +52,13 @@ export class UpdateAnamnesisUseCase {
         data.id,
         {
           appointmentId: data.appointmentId,
-          symptomsPresented: data.symptomsPresented,
+          symptomsPresented: data.symptomsPresented ?? null,
           dietaryHistory: data.dietaryHistory ?? null,
           behavioralHistory: data.behavioralHistory ?? null,
           requestedExams: data.requestedExams ?? null,
           presumptiveDiagnosis: data.presumptiveDiagnosis ?? null,
           observations: data.observations ?? null,
+          proof: data.proof ?? null,
         },
         tx,
       )

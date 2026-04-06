@@ -113,6 +113,13 @@
       "when": 1775435612807,
       "tag": "0015_adoption-remove-term-signed-add-proof",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1775513157010,
+      "tag": "0016_add-anamnesis-proof",
+      "breakpoints": true
     }
   ]
 }

@@ -27,12 +27,13 @@ export class CreateAnamnesisUseCase {
       const [result] = await this.anamnesisRepository.create(
         new Anamnesis({
           appointmentId: data.appointmentId,
-          symptomsPresented: data.symptomsPresented,
+          symptomsPresented: data.symptomsPresented ?? null,
           dietaryHistory: data.dietaryHistory ?? null,
           behavioralHistory: data.behavioralHistory ?? null,
           requestedExams: data.requestedExams ?? null,
           presumptiveDiagnosis: data.presumptiveDiagnosis ?? null,
           observations: data.observations ?? null,
+          proof: data.proof ?? null,
           createdAt: new Date(),
         }),
         tx,
