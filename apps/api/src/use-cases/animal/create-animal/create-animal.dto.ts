@@ -9,5 +9,4 @@ export interface CreateAnimalData {
   healthCondition: string
   entryDate: string
   observations?: string | null
-  status: string
 }

@@ -24,7 +24,6 @@ const AnimalFactory = {
     healthCondition: faker.helpers.arrayElement(HealthConditionValues),
     entryDate: faker.date.past({ years: 1 }).toISOString().split('T')[0],
     observations: faker.helpers.maybe(() => faker.lorem.paragraph(), { probability: 0.5 }) ?? null,
-    status: faker.helpers.arrayElement(AnimalStatusValues),
     ...props,
   }),
 

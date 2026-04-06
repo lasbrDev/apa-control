@@ -55,12 +55,6 @@ const healthConditionOptions = [
   { value: 'critica', label: 'Crítica' },
 ]
 
-const statusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
-
 const rescueFormSchema = z.object({
   id: z.number().nullish(),
   animalId: z.union([z.number(), z.string()]).optional(),
@@ -78,7 +72,6 @@ const rescueFormSchema = z.object({
   healthCondition: z.string({ error: RequiredMessage }),
   entryDate: z.string({ error: RequiredMessage }),
   observations: z.string().nullish(),
-  status: z.string({ error: RequiredMessage }),
   rescueDate: z.string({ error: RequiredMessage }),
   locationFound: z.string().min(1, 'Local encontrado é obrigatório.').max(200),
   circumstances: z.string().min(1, 'Circunstâncias são obrigatórias.'),
@@ -119,7 +112,6 @@ export const RescueForm = () => {
     mode: 'onSubmit',
     defaultValues: {
       animalId: '',
-      status: 'pendente',
       entryDate: new Date().toISOString().split('T')[0],
       rescueDate: new Date().toISOString().split('T')[0],
     },
@@ -172,7 +164,6 @@ export const RescueForm = () => {
           setValue('healthCondition', data.healthCondition)
           setValue('entryDate', data.entryDate?.split('T')[0] ?? '')
           setValue('observations', data.observations ?? '')
-          setValue('status', data.status)
         })
         .catch(() => toast.error('Não foi possível carregar os dados do animal.'))
     }
@@ -316,7 +307,6 @@ export const RescueForm = () => {
           healthCondition: 'saudavel',
           entryDate: '',
           observations: null,
-          status: 'pendente',
           rescueDate: data.rescueDate?.split('T')[0] ?? '',
           locationFound: data.locationFound,
           circumstances: data.circumstances,
@@ -381,7 +371,6 @@ export const RescueForm = () => {
                 healthCondition: values.healthCondition,
                 entryDate: values.entryDate,
                 observations: values.observations ?? null,
-                status: values.status,
               },
               ...rescuePayload,
             },
@@ -407,7 +396,6 @@ export const RescueForm = () => {
     'healthCondition',
     'entryDate',
     'observations',
-    'status',
   ]
 
   const rescueTabFields: Array<keyof RescueFormData> = [
@@ -529,16 +517,6 @@ export const RescueForm = () => {
                       <Form.Label htmlFor="entryDate">Data de entrada</Form.Label>
                       <Form.Input name="entryDate" type="date" disabled={disableAnimalFields} />
                       <Form.ErrorMessage field="entryDate" />
-                    </div>
-                    <div>
-                      <Form.Label htmlFor="status">Status</Form.Label>
-                      <Form.Select
-                        name="status"
-                        options={statusOptions}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-800"
-                      />
-                      <Form.ErrorMessage field="status" />
                     </div>
                   </div>
                   <div className="mb-6">

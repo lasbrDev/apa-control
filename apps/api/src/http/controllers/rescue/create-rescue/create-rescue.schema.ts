@@ -10,7 +10,6 @@ const createAnimalPartSchema = z.object({
   healthCondition: z.string().min(1, 'Condição de saúde é obrigatória'),
   entryDate: z.string().min(1, 'Data de entrada é obrigatória'),
   observations: z.string().nullish(),
-  status: z.string().min(1, 'Status é obrigatório'),
 })
 
 export const createRescueSchema = z

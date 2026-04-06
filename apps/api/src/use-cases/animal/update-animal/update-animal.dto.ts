@@ -10,5 +10,4 @@ export interface UpdateAnimalData {
   healthCondition: string
   entryDate: string
   observations?: string | null
-  status: string
 }

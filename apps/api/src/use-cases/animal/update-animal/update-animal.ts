@@ -30,7 +30,6 @@ export class UpdateAnimalUseCase {
       healthCondition: 'Condição de saúde',
       entryDate: 'Data de entrada',
       observations: 'Observações',
-      status: 'Status',
     }
 
     const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '' : String(value))
