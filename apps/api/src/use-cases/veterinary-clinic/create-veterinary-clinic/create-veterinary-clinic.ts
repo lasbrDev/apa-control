@@ -20,7 +20,7 @@ export class CreateVeterinaryClinicUseCase {
       address: data.address,
       responsible: data.responsible,
       specialties: data.specialties,
-      active: data.active,
+      active: true,
       registrationDate: new Date(),
     })
 

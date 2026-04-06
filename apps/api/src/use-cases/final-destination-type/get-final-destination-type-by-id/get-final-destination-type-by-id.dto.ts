@@ -7,6 +7,5 @@ export interface GetFinalDestinationTypeByIdDTO {
   id: number
   name: string
   description: string | null
-  requiresApproval: boolean
   active: boolean
 }

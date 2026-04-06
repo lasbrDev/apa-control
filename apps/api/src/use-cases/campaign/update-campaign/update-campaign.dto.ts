@@ -1,5 +1,3 @@
-import type { CampaignStatusValue } from '@/database/schema/enums/campaign-status'
-
 export interface UpdateCampaignData {
   id: number
   campaignTypeId: number
@@ -7,7 +5,6 @@ export interface UpdateCampaignData {
   description: string
   startDate: string
   endDate: string
-  fundraisingGoal: number
-  status: CampaignStatusValue
+  fundraisingGoal?: number | null
   observations?: string | null
 }

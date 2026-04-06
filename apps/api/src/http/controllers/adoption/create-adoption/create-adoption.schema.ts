@@ -5,15 +5,11 @@ export const createAdoptionSchema = z.object({
   animalId: z.number().int().positive('Animal é obrigatório'),
   adopterId: z.number().int().positive('Adotante é obrigatório'),
   adoptionDate: z.string().min(1, 'Data da adoção é obrigatória'),
-  termSigned: z.preprocess((val) => {
-    if (val === 'true' || val === true) return true
-    if (val === 'false' || val === false) return false
-    return val
-  }, z.boolean()),
   adaptationPeriod: z.preprocess(
     (v) => (v === '' || v === null || v === undefined ? null : v),
     z.union([z.coerce.number().int().nonnegative(), z.null()]).optional(),
   ),
   status: z.enum(AdoptionStatusValues),
   observations: z.string().nullish(),
+  proof: z.string().nullish(),
 })

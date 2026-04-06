@@ -47,12 +47,6 @@ const healthConditionOptions = [
   { value: 'estavel', label: 'Estável' },
   { value: 'critica', label: 'Crítica' },
 ]
-const animalStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
-
 const schema = z.object({
   id: z.number().nullish(),
   animalId: z.number({ message: RequiredMessage }).int().positive(),
@@ -70,7 +64,6 @@ const schema = z.object({
   agePreview: z.string().nullish(),
   healthConditionPreview: z.string().nullish(),
   entryDatePreview: z.string().nullish(),
-  statusPreview: z.string().nullish(),
   animalObservationsPreview: z.string().nullish(),
 })
 type Data = z.infer<typeof schema>
@@ -115,6 +108,7 @@ export const AppointmentForm = () => {
     handleSubmit,
     reset,
     setValue,
+    setFocus,
     formState: { isSubmitting },
   } = form
   const animalId = form.watch('animalId')
@@ -193,7 +187,7 @@ export const AppointmentForm = () => {
       setValue('agePreview', '')
       setValue('healthConditionPreview', '')
       setValue('entryDatePreview', '')
-      setValue('statusPreview', '')
+
       setValue('animalObservationsPreview', '')
       return
     }
@@ -208,7 +202,7 @@ export const AppointmentForm = () => {
         setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
         setValue('healthConditionPreview', data.healthCondition ?? '')
         setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
-        setValue('statusPreview', data.status ?? '')
+
         setValue('animalObservationsPreview', data.observations ?? '')
       })
       .catch(() => {
@@ -220,10 +214,32 @@ export const AppointmentForm = () => {
         setValue('agePreview', '')
         setValue('healthConditionPreview', '')
         setValue('entryDatePreview', '')
-        setValue('statusPreview', '')
+
         setValue('animalObservationsPreview', '')
       })
   }, [animalId, token, setValue])
+
+  const animalTabFields: Array<keyof Data> = ['animalId']
+  const consultaTabFields: Array<keyof Data> = [
+    'appointmentTypeId',
+    'appointmentDate',
+    'consultationType',
+    'status',
+    'observations',
+  ]
+
+  const onSubmitError: Parameters<typeof handleSubmit>[1] = (errors) => {
+    if (!errors) return
+    if (animalTabFields.find((f) => Boolean(errors[f]))) {
+      setActiveTab('animal')
+      setTimeout(() => setFocus(animalTabFields.find((f) => Boolean(errors[f]))!), 0)
+      return
+    }
+    if (consultaTabFields.find((f) => Boolean(errors[f]))) {
+      setActiveTab('consulta')
+      setTimeout(() => setFocus(consultaTabFields.find((f) => Boolean(errors[f]))!), 0)
+    }
+  }
 
   if (fetching) return <LoadingCard />
 
@@ -240,7 +256,7 @@ export const AppointmentForm = () => {
           </CardTitle>
         </CardHeader>
         <FormProvider {...form}>
-          <form autoComplete="off" onSubmit={handleSubmit(submit)}>
+          <form autoComplete="off" onSubmit={handleSubmit(submit, onSubmitError)}>
             <CardContent>
               <Tabs
                 value={activeTab}
@@ -263,7 +279,6 @@ export const AppointmentForm = () => {
                       debounceMs={300}
                       displayLabel={animalNamePreview || undefined}
                     />
-                    <Form.ErrorMessage field="animalId" />
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
@@ -300,15 +315,6 @@ export const AppointmentForm = () => {
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
                       <Form.Input name="entryDatePreview" type="date" disabled />
                     </div>
-                    <div>
-                      <Form.Label htmlFor="statusPreview">Status</Form.Label>
-                      <Form.Select
-                        name="statusPreview"
-                        options={animalStatusOptions}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-800"
-                      />
-                    </div>
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
@@ -331,7 +337,7 @@ export const AppointmentForm = () => {
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2">
                     <div>
-                      <Form.Label htmlFor="clinicId">Clínica (opcional)</Form.Label>
+                      <Form.Label htmlFor="clinicId">Clínica</Form.Label>
                       <Form.Select
                         name="clinicId"
                         type="number"
@@ -373,7 +379,14 @@ export const AppointmentForm = () => {
                 <span>Voltar</span>
               </Button>
               {!isEdit && activeTab === 'animal' ? (
-                <Button type="button" variant="outline" onClick={() => setActiveTab('consulta')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab('consulta')
+                  }}
+                >
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>
                 </Button>

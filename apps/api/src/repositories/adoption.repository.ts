@@ -5,7 +5,7 @@ import type { Adoption } from '@/entities'
 import type { AdoptionWithDetails, ListAdoptionsData } from '@/use-cases/adoption/list-adoptions/list-adoptions.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
-import { type SQL, and, eq, gte, ilike, lte, ne } from 'drizzle-orm'
+import { type SQL, and, eq, gte, ilike, inArray, lte, ne } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
   table: adoption,
@@ -67,10 +67,10 @@ export class AdoptionRepository {
         adopterId: adoption.adopterId,
         employeeId: adoption.employeeId,
         adoptionDate: adoption.adoptionDate,
-        termSigned: adoption.termSigned,
         adaptationPeriod: adoption.adaptationPeriod,
         status: adoption.status,
         observations: adoption.observations,
+        proof: adoption.proof,
         createdAt: adoption.createdAt,
         updatedAt: adoption.updatedAt,
         animalName: animal.name,
@@ -104,5 +104,17 @@ export class AdoptionRepository {
   async delete(id: number, dbTransaction: DrizzleTransaction | null = null) {
     const connection = dbTransaction ?? db
     await connection.delete(adoption).where(eq(adoption.id, id))
+  }
+
+  async findByIds(ids: number[]) {
+    return db.select().from(adoption).where(inArray(adoption.id, ids))
+  }
+
+  async cancelByIds(ids: number[]) {
+    await db.update(adoption).set({ status: 'cancelada', updatedAt: new Date() }).where(inArray(adoption.id, ids))
+  }
+
+  async confirmByIds(ids: number[]) {
+    await db.update(adoption).set({ status: 'concluida', updatedAt: new Date() }).where(inArray(adoption.id, ids))
   }
 }

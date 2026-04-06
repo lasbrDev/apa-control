@@ -23,7 +23,6 @@ export class UpdateVeterinaryClinicUseCase {
       address: data.address,
       responsible: data.responsible,
       specialties: data.specialties,
-      active: data.active,
     })
   }
 }

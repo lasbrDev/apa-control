@@ -58,12 +58,6 @@ const healthConditionOptions = [
   { value: 'estavel', label: 'Estável' },
   { value: 'critica', label: 'Crítica' },
 ]
-const animalStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
-
 const adoptionStatusOptions = [
   { value: 'processando', label: 'Processando' },
   { value: 'concluida', label: 'Concluída' },
@@ -82,7 +76,6 @@ const adoptionSchema = z.object({
   adopterFamilyIncome: z.number().optional(),
   adopterAnimalExperience: z.boolean().optional(),
   adoptionDate: z.string().min(1, RequiredMessage),
-  termSigned: z.boolean(),
   adaptationPeriod: z.any().transform((v): number | null => {
     if (v === '' || v === null || v === undefined) return null
     const n = typeof v === 'number' ? v : Number(v)
@@ -91,6 +84,8 @@ const adoptionSchema = z.object({
   }),
   status: z.enum(['processando', 'concluida', 'cancelada']),
   observations: z.string().nullish(),
+  proof: z.string().nullish(),
+  proofFile: z.any().nullish(),
   animalNamePreview: z.string().nullish(),
   speciesPreview: z.string().nullish(),
   breedPreview: z.string().nullish(),
@@ -99,7 +94,6 @@ const adoptionSchema = z.object({
   agePreview: z.string().nullish(),
   healthConditionPreview: z.string().nullish(),
   entryDatePreview: z.string().nullish(),
-  statusPreview: z.string().nullish(),
   animalObservationsPreview: z.string().nullish(),
 })
 
@@ -111,6 +105,7 @@ export const AdoptionForm = () => {
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [activeTab, setActiveTab] = useState<'animal' | 'adotante' | 'adocao'>('animal')
+  const [currentProof, setCurrentProof] = useState('')
   const [animalReadOnlyLabel, setAnimalReadOnlyLabel] = useState('')
   const [adopterDisplayLabel, setAdopterDisplayLabel] = useState('')
   const searchAnimalOptions = useCallback(
@@ -137,9 +132,10 @@ export const AdoptionForm = () => {
   const adoptionForm = useForm<AdoptionFormData>({
     resolver: zodResolver(adoptionSchema),
     defaultValues: {
-      termSigned: false,
       status: 'processando',
       observations: '',
+      proof: '',
+      proofFile: null,
       animalId: null,
       adopterId: '',
       adopterName: '',
@@ -157,6 +153,7 @@ export const AdoptionForm = () => {
     handleSubmit,
     reset,
     setValue,
+    setFocus,
     formState: { isSubmitting },
   } = adoptionForm
   const animalId = adoptionForm.watch('animalId')
@@ -213,34 +210,28 @@ export const AdoptionForm = () => {
         finalAdopterId = data.id
       }
 
+      const formData = new FormData()
       if (params.id) {
-        await api.put(
-          'adoption.update',
-          {
-            id: values.id,
-            adopterId: finalAdopterId,
-            adoptionDate: values.adoptionDate,
-            termSigned: values.termSigned,
-            adaptationPeriod: values.adaptationPeriod ?? null,
-            status: values.status,
-            observations: values.observations ?? null,
-          },
-          { headers: { Authorization: `Bearer ${token}` } },
-        )
+        formData.append('id', String(values.id))
+        formData.append('adopterId', String(finalAdopterId))
+        formData.append('adoptionDate', values.adoptionDate)
+        if (values.adaptationPeriod != null) formData.append('adaptationPeriod', String(values.adaptationPeriod))
+        formData.append('status', values.status)
+        if (values.observations) formData.append('observations', values.observations)
+        if (currentProof) formData.append('proof', currentProof)
+        if (values.proofFile?.length) formData.append('proofFile', values.proofFile[0])
+
+        await api.put('adoption.update', formData, { headers: { Authorization: `Bearer ${token}` } })
       } else {
-        await api.post(
-          'adoption.add',
-          {
-            animalId: values.animalId,
-            adopterId: finalAdopterId,
-            adoptionDate: values.adoptionDate,
-            termSigned: values.termSigned,
-            adaptationPeriod: values.adaptationPeriod ?? null,
-            status: values.status,
-            observations: values.observations ?? null,
-          },
-          { headers: { Authorization: `Bearer ${token}` } },
-        )
+        formData.append('animalId', String(values.animalId))
+        formData.append('adopterId', String(finalAdopterId))
+        formData.append('adoptionDate', values.adoptionDate)
+        if (values.adaptationPeriod != null) formData.append('adaptationPeriod', String(values.adaptationPeriod))
+        formData.append('status', values.status)
+        if (values.observations) formData.append('observations', values.observations)
+        if (values.proofFile?.length) formData.append('proofFile', values.proofFile[0])
+
+        await api.post('adoption.add', formData, { headers: { Authorization: `Bearer ${token}` } })
       }
 
       toast.success(`Adoção ${params.id ? 'atualizada' : 'registrada'} com sucesso!`)
@@ -264,7 +255,7 @@ export const AdoptionForm = () => {
               : new Date(key.adoptionDate).toISOString().split('T')[0]
 
           setAnimalReadOnlyLabel(key.animalName ? `${key.animalName} (#${key.animalId})` : `Animal #${key.animalId}`)
-
+          setCurrentProof(key.proof ?? '')
           setAdopterDisplayLabel(key.adopterName ?? '')
           reset({
             id: key.id,
@@ -272,10 +263,10 @@ export const AdoptionForm = () => {
             adopterId: key.adopterId,
             adopterName: key.adopterName ?? '',
             adoptionDate,
-            termSigned: key.termSigned,
             adaptationPeriod: key.adaptationPeriod ?? null,
             status: key.status,
             observations: key.observations ?? '',
+            proof: key.proof ?? '',
           })
         }
       })
@@ -293,7 +284,7 @@ export const AdoptionForm = () => {
       setValue('agePreview', '')
       setValue('healthConditionPreview', '')
       setValue('entryDatePreview', '')
-      setValue('statusPreview', '')
+
       setValue('animalObservationsPreview', '')
       return
     }
@@ -308,7 +299,7 @@ export const AdoptionForm = () => {
         setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
         setValue('healthConditionPreview', data.healthCondition ?? '')
         setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
-        setValue('statusPreview', data.status ?? '')
+
         setValue('animalObservationsPreview', data.observations ?? '')
       })
       .catch(() => {
@@ -320,7 +311,7 @@ export const AdoptionForm = () => {
         setValue('agePreview', '')
         setValue('healthConditionPreview', '')
         setValue('entryDatePreview', '')
-        setValue('statusPreview', '')
+
         setValue('animalObservationsPreview', '')
       })
   }, [animalId, token, setValue])
@@ -342,6 +333,37 @@ export const AdoptionForm = () => {
       .catch(() => undefined)
   }, [adopterId, token, adoptionForm])
 
+  const animalTabFields: Array<keyof AdoptionFormData> = ['animalId']
+  const adotanteTabFields: Array<keyof AdoptionFormData> = [
+    'adopterId',
+    'adopterName',
+    'adopterCpf',
+    'adopterEmail',
+    'adopterPhone',
+    'adopterAddress',
+    'adopterFamilyIncome',
+    'adopterAnimalExperience',
+  ]
+  const adocaoTabFields: Array<keyof AdoptionFormData> = ['adoptionDate', 'adaptationPeriod', 'status', 'observations']
+
+  const onSubmitError: Parameters<typeof handleSubmit>[1] = (errors) => {
+    if (!errors) return
+    if (animalTabFields.find((f) => Boolean(errors[f]))) {
+      setActiveTab('animal')
+      setTimeout(() => setFocus(animalTabFields.find((f) => Boolean(errors[f]))!), 0)
+      return
+    }
+    if (adotanteTabFields.find((f) => Boolean(errors[f]))) {
+      setActiveTab('adotante')
+      setTimeout(() => setFocus(adotanteTabFields.find((f) => Boolean(errors[f]))!), 0)
+      return
+    }
+    if (adocaoTabFields.find((f) => Boolean(errors[f]))) {
+      setActiveTab('adocao')
+      setTimeout(() => setFocus(adocaoTabFields.find((f) => Boolean(errors[f]))!), 0)
+    }
+  }
+
   if (fetching) return <LoadingCard />
 
   return (
@@ -358,7 +380,7 @@ export const AdoptionForm = () => {
         </CardHeader>
 
         <FormProvider {...adoptionForm}>
-          <form autoComplete="off" onSubmit={handleSubmit(saveAdoption)}>
+          <form autoComplete="off" onSubmit={handleSubmit(saveAdoption, onSubmitError)}>
             <CardContent>
               <Tabs
                 value={activeTab}
@@ -392,7 +414,6 @@ export const AdoptionForm = () => {
                         debounceMs={300}
                         displayLabel={animalNamePreview || undefined}
                       />
-                      <Form.ErrorMessage field="animalId" />
                     </div>
                   )}
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
@@ -430,15 +451,6 @@ export const AdoptionForm = () => {
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
                       <Form.Input name="entryDatePreview" type="date" disabled />
                     </div>
-                    <div>
-                      <Form.Label htmlFor="statusPreview">Status</Form.Label>
-                      <Form.Select
-                        name="statusPreview"
-                        options={animalStatusOptions}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-800"
-                      />
-                    </div>
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
@@ -456,7 +468,6 @@ export const AdoptionForm = () => {
                       debounceMs={300}
                       displayLabel={adopterDisplayLabel || undefined}
                     />
-                    <Form.ErrorMessage field="adopterId" />
                   </div>
 
                   <h4 className="mb-6 font-semibold leading-none tracking-tight dark:text-gray-200">Dados Pessoais</h4>
@@ -519,9 +530,6 @@ export const AdoptionForm = () => {
                 </TabsContent>
                 <TabsContent value="adocao">
                   <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <div className="lg:col-span-2" />
-                  </div>
-                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
                     <div>
                       <Form.Label htmlFor="adoptionDate">Data da adoção</Form.Label>
                       <Form.Input type="date" name="adoptionDate" />
@@ -533,18 +541,18 @@ export const AdoptionForm = () => {
                       <Form.ErrorMessage field="status" />
                     </div>
                   </div>
-                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <div className="flex items-center gap-3 pt-6">
-                      <Form.Switch name="termSigned" />
-                      <Form.Label htmlFor="termSigned" className="mb-0 cursor-pointer">
-                        Termo de adoção assinado
-                      </Form.Label>
-                    </div>
-                    <div>
-                      <Form.Label htmlFor="adaptationPeriod">Período de adaptação (dias)</Form.Label>
-                      <Form.Input name="adaptationPeriod" type="number" min={0} step={1} placeholder="Opcional" />
-                      <Form.ErrorMessage field="adaptationPeriod" />
-                    </div>
+                  <div className="mb-6">
+                    <Form.Label htmlFor="adaptationPeriod">Período de adaptação (dias)</Form.Label>
+                    <Form.Input name="adaptationPeriod" type="number" min={0} step={1} placeholder="Opcional" />
+                    <Form.ErrorMessage field="adaptationPeriod" />
+                  </div>
+                  <div className="mb-6">
+                    <Form.Label htmlFor="proofFile">Comprovante</Form.Label>
+                    <Form.FileInput name="proofFile" />
+                    <Form.ErrorMessage field="proofFile" />
+                    {currentProof ? (
+                      <span className="mt-2 block text-muted-foreground text-xs">Arquivo atual: {currentProof}</span>
+                    ) : null}
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="observations">Observações</Form.Label>
@@ -573,7 +581,10 @@ export const AdoptionForm = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setActiveTab(activeTab === 'animal' ? 'adotante' : 'adocao')}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab(activeTab === 'animal' ? 'adotante' : 'adocao')
+                  }}
                 >
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>

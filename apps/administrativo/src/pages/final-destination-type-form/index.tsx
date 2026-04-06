@@ -25,7 +25,6 @@ const finalDestinationTypeSchema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1, RequiredMessage),
   description: z.string().min(1, RequiredMessage),
-  requiresApproval: z.coerce.boolean(),
   active: z.coerce.boolean(),
 })
 
@@ -39,7 +38,7 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
 
   const finalDestinationTypeForm = useForm({
     resolver: zodResolver(finalDestinationTypeSchema),
-    defaultValues: { requiresApproval: false, active: true },
+    defaultValues: { active: true },
   })
 
   const {
@@ -80,7 +79,7 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
         .catch((err) => toast.error(errorMessageHandler(err)))
         .finally(() => setFetching(false))
     } else if (show) {
-      reset({ requiresApproval: false, active: true })
+      reset({ active: true })
       setDisplayName('')
     }
   }, [id, show])
@@ -115,13 +114,6 @@ export const FinalDestinationTypeForm = ({ show, refresh, id }: FinalDestination
           </div>
 
           <div className="mb-6 grid gap-4 lg:grid-cols-2">
-            <div className="mb-6 flex items-center space-x-2">
-              <Form.Switch name="requiresApproval" />
-              <Form.Label htmlFor="requiresApproval" className="mb-0 leading-normal">
-                Requer Aprovação?
-              </Form.Label>
-            </div>
-
             <div className="mb-6 flex items-center space-x-2">
               <Form.Switch name="active" />
               <Form.Label htmlFor="active" className="mb-0 leading-normal">

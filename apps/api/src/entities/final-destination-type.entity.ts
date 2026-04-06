@@ -2,7 +2,6 @@ export class FinalDestinationType {
   id?: number
   name: string
   description?: string | null
-  requiresApproval: boolean
   active: boolean
   createdAt: Date
 
@@ -10,7 +9,6 @@ export class FinalDestinationType {
     this.id = id
     this.name = props.name
     this.description = props.description
-    this.requiresApproval = props.requiresApproval
     this.active = props.active
     this.createdAt = props.createdAt
   }

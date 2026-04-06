@@ -17,10 +17,10 @@ export type AdoptionWithDetails = {
   adopterId: number
   employeeId: number
   adoptionDate: string
-  termSigned: boolean
   adaptationPeriod: number | null
   status: string
   observations: string | null
+  proof: string | null
   createdAt: Date
   updatedAt: Date | null
   animalName?: string | null

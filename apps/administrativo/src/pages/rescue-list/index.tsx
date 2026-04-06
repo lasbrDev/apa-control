@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { EyeIcon, FileSpreadsheetIcon, FileTextIcon, LifeBuoyIcon, PlusIcon, SearchIcon } from 'lucide-react'
+import { EyeIcon, FileSpreadsheetIcon, FileTextIcon, LifeBuoyIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -92,6 +92,25 @@ export const RescueList = () => {
   const page = getValues('page')
   const perPage = getValues('perPage')
   const pages = Math.ceil(total / perPage) || 1
+
+  const removeItem = useCallback(
+    (item: RescueListValues) => {
+      modal.confirm({
+        title: 'Remover resgate',
+        message: `Deseja remover o resgate de ${item.animalName ?? `#${item.animalId}`}?`,
+        confirmText: 'Remover',
+        callback: (confirmed) => {
+          if (confirmed) {
+            api
+              .delete(`rescue.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
+              .then(refresh.force)
+              .catch((error) => modal.alert(errorMessageHandler(error)))
+          }
+        },
+      })
+    },
+    [modal, refresh, token],
+  )
 
   async function listRescues(values: RescueFilterData) {
     setFetching(true)
@@ -275,7 +294,10 @@ export const RescueList = () => {
                       <ActionsList
                         primaryKey="id"
                         values={item}
-                        actions={[{ icon: EyeIcon, title: 'Visualizar', action: ':id' }]}
+                        actions={[
+                          { icon: EyeIcon, title: 'Visualizar', action: ':id' },
+                          { icon: XIcon, title: 'Remover', action: () => removeItem(item) },
+                        ]}
                       />
                     </TableCell>
                   </TableRow>

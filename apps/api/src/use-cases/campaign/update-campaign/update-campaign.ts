@@ -30,8 +30,7 @@ export class UpdateCampaignUseCase {
       description: data.description,
       startDate: data.startDate,
       endDate: data.endDate,
-      fundraisingGoal: new Decimal(data.fundraisingGoal),
-      status: data.status,
+      fundraisingGoal: data.fundraisingGoal != null ? new Decimal(data.fundraisingGoal) : null,
       observations: data.observations ?? null,
       updatedAt: new Date(),
     })

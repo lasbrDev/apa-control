@@ -8,9 +8,11 @@ import {
   CheckIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
+  LockIcon,
   PencilIcon,
   PlusIcon,
   SearchIcon,
+  UnlockIcon,
   XIcon,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
@@ -63,6 +65,9 @@ const activeOptions = [
   { value: 'false', label: 'Inativas' },
 ]
 
+const isDisabled = (values: VeterinaryClinicListValues): boolean => !values.active
+const isNotDisabled = (values: VeterinaryClinicListValues): boolean => values.active
+
 export const VeterinaryClinicList = () => {
   const { modal, token } = useApp()
   const refresh = useRefresh()
@@ -97,6 +102,52 @@ export const VeterinaryClinicList = () => {
               .delete(`veterinary-clinic.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
+              .then(refresh.force)
+              .catch((err) => modal.alert(errorMessageHandler(err)))
+          }
+        },
+      })
+    },
+    [token],
+  )
+
+  const disableVeterinaryClinic = useCallback(
+    (values: VeterinaryClinicListValues) => {
+      modal.confirm({
+        title: `Desabilitar ${values.name}`,
+        message: `Deseja desabilitar ${values.name}?`,
+        confirmText: 'Desabilitar',
+        callback: (confirmed) => {
+          if (confirmed) {
+            api
+              .post(
+                'veterinary-clinic.disable',
+                { id: values.id, disabled: true },
+                { headers: { Authorization: `Bearer ${token}` } },
+              )
+              .then(refresh.force)
+              .catch((err) => modal.alert(errorMessageHandler(err)))
+          }
+        },
+      })
+    },
+    [token],
+  )
+
+  const enableVeterinaryClinic = useCallback(
+    (values: VeterinaryClinicListValues) => {
+      modal.confirm({
+        title: `Habilitar ${values.name}`,
+        message: `Deseja habilitar ${values.name}?`,
+        confirmText: 'Habilitar',
+        callback: (confirmed) => {
+          if (confirmed) {
+            api
+              .post(
+                'veterinary-clinic.disable',
+                { id: values.id, disabled: false },
+                { headers: { Authorization: `Bearer ${token}` } },
+              )
               .then(refresh.force)
               .catch((err) => modal.alert(errorMessageHandler(err)))
           }
@@ -300,6 +351,18 @@ export const VeterinaryClinicList = () => {
                         values={item}
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: (item) => navigate(`${item.id}`) },
+                          {
+                            icon: LockIcon,
+                            title: 'Desabilitar',
+                            hideWhen: isDisabled,
+                            action: disableVeterinaryClinic,
+                          },
+                          {
+                            icon: UnlockIcon,
+                            title: 'Habilitar',
+                            hideWhen: isNotDisabled,
+                            action: enableVeterinaryClinic,
+                          },
                           { icon: XIcon, title: 'Remover', action: removeVeterinaryClinic },
                         ]}
                       />

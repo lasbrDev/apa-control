@@ -13,7 +13,6 @@ export async function createCampaignController(request: FastifyRequest, reply: F
     startDate: body.startDate,
     endDate: body.endDate,
     fundraisingGoal: body.fundraisingGoal,
-    status: body.status,
     observations: body.observations ?? null,
   })
 

@@ -30,10 +30,10 @@ export class UpdateAdoptionUseCase {
         {
           adopterId: data.adopterId,
           adoptionDate: data.adoptionDate,
-          termSigned: data.termSigned,
           adaptationPeriod: data.adaptationPeriod ?? null,
           status: data.status,
           observations: data.observations ?? null,
+          proof: data.proof ?? null,
         },
         tx,
       )

@@ -1,4 +1,3 @@
-import { CampaignStatusValues } from '@/database/schema/enums/campaign-status'
 import { z } from 'zod'
 
 export const createCampaignSchema = z
@@ -8,8 +7,7 @@ export const createCampaignSchema = z
     description: z.string().min(1, 'Descrição é obrigatória'),
     startDate: z.string().min(1, 'Data inicial é obrigatória'),
     endDate: z.string().min(1, 'Data final é obrigatória'),
-    fundraisingGoal: z.number().nonnegative('Meta de arrecadação deve ser maior ou igual a zero'),
-    status: z.enum(CampaignStatusValues),
+    fundraisingGoal: z.number().nonnegative('Meta de arrecadação deve ser maior ou igual a zero').nullish(),
     observations: z.string().nullish(),
   })
   .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {

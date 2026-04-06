@@ -47,12 +47,6 @@ const healthConditionOptions = [
   { value: 'estavel', label: 'Estável' },
   { value: 'critica', label: 'Crítica' },
 ]
-const animalStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
-
 const finalDestinationSchema = z.object({
   id: z.number().nullish(),
   animalId: z.number({ message: RequiredMessage }).int().positive(),
@@ -70,7 +64,6 @@ const finalDestinationSchema = z.object({
   agePreview: z.string().nullish(),
   healthConditionPreview: z.string().nullish(),
   entryDatePreview: z.string().nullish(),
-  statusPreview: z.string().nullish(),
   animalObservationsPreview: z.string().nullish(),
 })
 
@@ -192,7 +185,7 @@ export const FinalDestinationForm = () => {
       setValue('agePreview', '')
       setValue('healthConditionPreview', '')
       setValue('entryDatePreview', '')
-      setValue('statusPreview', '')
+
       setValue('animalObservationsPreview', '')
       return
     }
@@ -207,7 +200,7 @@ export const FinalDestinationForm = () => {
         setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
         setValue('healthConditionPreview', data.healthCondition ?? '')
         setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
-        setValue('statusPreview', data.status ?? '')
+
         setValue('animalObservationsPreview', data.observations ?? '')
       })
       .catch(() => {
@@ -219,7 +212,7 @@ export const FinalDestinationForm = () => {
         setValue('agePreview', '')
         setValue('healthConditionPreview', '')
         setValue('entryDatePreview', '')
-        setValue('statusPreview', '')
+
         setValue('animalObservationsPreview', '')
       })
   }, [animalId, token, setValue])
@@ -262,7 +255,6 @@ export const FinalDestinationForm = () => {
                       debounceMs={300}
                       displayLabel={animalNamePreview || undefined}
                     />
-                    <Form.ErrorMessage field="animalId" />
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
@@ -298,15 +290,6 @@ export const FinalDestinationForm = () => {
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
                       <Form.Input name="entryDatePreview" type="date" disabled />
-                    </div>
-                    <div>
-                      <Form.Label htmlFor="statusPreview">Status</Form.Label>
-                      <Form.Select
-                        name="statusPreview"
-                        options={animalStatusOptions}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-800"
-                      />
                     </div>
                   </div>
                   <div className="mb-6">

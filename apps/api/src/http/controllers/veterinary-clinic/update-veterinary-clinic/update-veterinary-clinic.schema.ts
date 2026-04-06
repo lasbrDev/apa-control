@@ -14,5 +14,4 @@ export const updateVeterinaryClinicSchema = z.object({
     .trim()
     .max(100, 'O responsável deve ter no máximo 100 caracteres.'),
   specialties: z.string().nullable().optional(),
-  active: z.coerce.boolean({ error: 'O status é obrigatório.' }),
 })

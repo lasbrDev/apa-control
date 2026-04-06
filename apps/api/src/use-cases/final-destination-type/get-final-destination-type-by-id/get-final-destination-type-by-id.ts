@@ -19,7 +19,6 @@ export class GetFinalDestinationTypeByIdUseCase {
       id: finalDestinationType.id,
       name: finalDestinationType.name,
       description: finalDestinationType.description,
-      requiresApproval: finalDestinationType.requiresApproval,
       active: finalDestinationType.active,
     }
   }

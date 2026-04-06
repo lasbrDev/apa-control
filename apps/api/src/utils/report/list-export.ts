@@ -63,7 +63,6 @@ function normalizeHeader(rawKey: string): string {
     campaignTypeName: 'Tipo de campanha',
     profileName: 'Perfil',
     disabledAt: 'Desativado em',
-    requiresApproval: 'Requer aprovação',
     active: 'Ativo',
     urgency: 'Urgência',
     consultationType: 'Tipo de consulta',

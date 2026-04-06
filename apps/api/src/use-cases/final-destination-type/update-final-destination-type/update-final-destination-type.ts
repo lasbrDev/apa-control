@@ -19,7 +19,6 @@ export class UpdateFinalDestinationTypeUseCase {
     await this.finalDestinationTypeRepository.update(data.id, {
       name: data.name,
       description: data.description,
-      requiresApproval: data.requiresApproval,
       active: data.active,
     })
   }

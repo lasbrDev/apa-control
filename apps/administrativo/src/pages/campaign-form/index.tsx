@@ -23,12 +23,6 @@ interface SelectOption {
   label: string
 }
 
-const campaignStatusOptions = [
-  { value: 'ativa', label: 'Ativa' },
-  { value: 'concluida', label: 'Concluída' },
-  { value: 'cancelada', label: 'Cancelada' },
-]
-
 const campaignSchema = z
   .object({
     id: z.number().nullish(),
@@ -37,8 +31,7 @@ const campaignSchema = z
     description: z.string().min(1, RequiredMessage),
     startDate: z.string().min(1, RequiredMessage),
     endDate: z.string().min(1, RequiredMessage),
-    fundraisingGoal: z.number({ error: RequiredMessage }).nonnegative(RequiredMessage),
-    status: z.enum(['ativa', 'concluida', 'cancelada']),
+    fundraisingGoal: z.number().nonnegative(RequiredMessage).nullish(),
     observations: z.string().nullish(),
   })
   .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
@@ -58,7 +51,6 @@ export const CampaignForm = () => {
   const campaignForm = useForm<CampaignData>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
-      status: 'ativa',
       observations: '',
     },
   })
@@ -105,8 +97,7 @@ export const CampaignForm = () => {
             description: key.description,
             startDate: typeof key.startDate === 'string' ? key.startDate.split('T')[0] : '',
             endDate: typeof key.endDate === 'string' ? key.endDate.split('T')[0] : '',
-            fundraisingGoal: Number(key.fundraisingGoal),
-            status: key.status,
+            fundraisingGoal: key.fundraisingGoal != null ? Number(key.fundraisingGoal) : null,
             observations: key.observations ?? '',
           })
         }
@@ -133,18 +124,10 @@ export const CampaignForm = () => {
         <FormProvider {...campaignForm}>
           <form autoComplete="off" onSubmit={handleSubmit(addOrUpdateCampaign)}>
             <CardContent>
-              <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                <div>
-                  <Form.Label htmlFor="campaignTypeId">Tipo de campanha</Form.Label>
-                  <Form.Select name="campaignTypeId" type="number" options={campaignTypeOptions} />
-                  <Form.ErrorMessage field="campaignTypeId" />
-                </div>
-
-                <div>
-                  <Form.Label htmlFor="status">Status</Form.Label>
-                  <Form.Select name="status" options={campaignStatusOptions} />
-                  <Form.ErrorMessage field="status" />
-                </div>
+              <div className="mb-6">
+                <Form.Label htmlFor="campaignTypeId">Tipo de campanha</Form.Label>
+                <Form.Select name="campaignTypeId" type="number" options={campaignTypeOptions} />
+                <Form.ErrorMessage field="campaignTypeId" />
               </div>
 
               <div className="mb-6">

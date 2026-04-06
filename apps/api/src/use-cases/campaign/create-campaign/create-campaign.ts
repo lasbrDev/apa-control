@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js'
 
+import { CampaignStatus } from '@/database/schema/enums/campaign-status'
 import { Campaign } from '@/entities'
 import type { CampaignTypeRepository } from '@/repositories/campaign-type.repository'
 import type { CampaignRepository } from '@/repositories/campaign.repository'
@@ -27,8 +28,8 @@ export class CreateCampaignUseCase {
         description: data.description,
         startDate: data.startDate,
         endDate: data.endDate,
-        fundraisingGoal: new Decimal(data.fundraisingGoal),
-        status: data.status,
+        fundraisingGoal: data.fundraisingGoal != null ? new Decimal(data.fundraisingGoal) : null,
+        status: CampaignStatus.ACTIVE,
         observations: data.observations ?? null,
         createdAt: new Date(),
         updatedAt: null,

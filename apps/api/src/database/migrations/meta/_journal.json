@@ -92,6 +92,27 @@
       "when": 1775418310956,
       "tag": "0012_remove-posts",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1775433384526,
+      "tag": "0013_remove-requires-approval-final-destination-type",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1775434766140,
+      "tag": "0014_campaign-fundraising-goal-nullable",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1775435612807,
+      "tag": "0015_adoption-remove-term-signed-add-proof",
+      "breakpoints": true
     }
   ]
 }

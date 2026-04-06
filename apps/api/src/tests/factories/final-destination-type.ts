@@ -8,7 +8,6 @@ const FinalDestinationTypeFactory = {
   buildCreate: (props?: Partial<CreateFinalDestinationTypeData>): CreateFinalDestinationTypeData => ({
     name: faker.lorem.words(3),
     description: faker.lorem.paragraph(),
-    requiresApproval: faker.datatype.boolean(),
     active: true,
     ...props,
   }),
@@ -16,7 +15,6 @@ const FinalDestinationTypeFactory = {
   build: (props?: Partial<typeof finalDestinationType.$inferInsert>) => ({
     name: faker.lorem.words(3),
     description: faker.lorem.paragraph(),
-    requiresApproval: faker.datatype.boolean(),
     active: true,
     createdAt: new Date(),
     ...props,

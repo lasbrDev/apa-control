@@ -1,5 +1,7 @@
 import { authorize } from '@/http/middlewares/authorize'
 import type { FastifyInstance } from 'fastify'
+import { cancelCampaignController } from './cancel-campaign/cancel-campaign.controller'
+import { completeCampaignController } from './complete-campaign/complete-campaign.controller'
 import { createCampaignController } from './create-campaign/create-campaign.controller'
 import { getCampaignByIdController } from './get-campaign-by-id/get-campaign-by-id.controller'
 import { listCampaignsController } from './list-campaigns/list-campaigns.controller'
@@ -12,4 +14,6 @@ export async function campaignRoutes(app: FastifyInstance) {
   app.get('/campaign.list', authorize('AdminPanel', 'Campaigns'), listCampaignsController)
   app.get('/campaign.key/:id', authorize('AdminPanel', 'Campaigns'), getCampaignByIdController)
   app.delete('/campaign.delete/:id', authorize('AdminPanel', 'Campaigns'), removeCampaignController)
+  app.post('/campaign.cancel/:id', authorize('AdminPanel', 'Campaigns'), cancelCampaignController)
+  app.post('/campaign.complete/:id', authorize('AdminPanel', 'Campaigns'), completeCampaignController)
 }

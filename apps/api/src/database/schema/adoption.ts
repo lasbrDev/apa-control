@@ -1,4 +1,4 @@
-import { boolean, date, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { date, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { adopter } from './adopter'
 import { animal } from './animal'
 import { employee } from './employee'
@@ -17,10 +17,10 @@ export const adoption = pgTable('adoption', {
     .notNull()
     .references(() => employee.id),
   adoptionDate: date().notNull(),
-  termSigned: boolean().notNull().default(false),
   adaptationPeriod: integer(),
   status: adoptionStatusEnum().notNull(),
   observations: text(),
+  proof: varchar({ length: 255 }),
   createdAt: timestamp().notNull(),
   updatedAt: timestamp(),
 })

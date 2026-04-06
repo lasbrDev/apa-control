@@ -1,0 +1,1 @@
+ALTER TABLE "campaign" ALTER COLUMN "fundraising_goal" DROP NOT NULL;

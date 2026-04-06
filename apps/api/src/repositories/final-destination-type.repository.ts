@@ -33,7 +33,6 @@ export class FinalDestinationTypeRepository {
       .select({
         id: finalDestinationType.id,
         name: finalDestinationType.name,
-        requiresApproval: finalDestinationType.requiresApproval,
         active: finalDestinationType.active,
       })
       .from(finalDestinationType)
@@ -56,7 +55,6 @@ export class FinalDestinationTypeRepository {
         id: finalDestinationType.id,
         name: finalDestinationType.name,
         description: finalDestinationType.description,
-        requiresApproval: finalDestinationType.requiresApproval,
         active: finalDestinationType.active,
         createdAt: finalDestinationType.createdAt,
       })
@@ -77,7 +75,6 @@ export class FinalDestinationTypeRepository {
         id: finalDestinationType.id,
         name: finalDestinationType.name,
         description: finalDestinationType.description,
-        requiresApproval: finalDestinationType.requiresApproval,
         active: finalDestinationType.active,
         createdAt: finalDestinationType.createdAt,
       })

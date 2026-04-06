@@ -23,7 +23,6 @@ import { FinalDestinationTypeForm } from '../final-destination-type-form'
 interface FinalDestinationTypeListValues {
   id: number
   name: string
-  requiresApproval: boolean
   active: boolean
 }
 
@@ -156,7 +155,6 @@ export const FinalDestinationTypeList = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Requer Aprovação</TableHead>
                 <TableHead>Ativo</TableHead>
                 <TableHead aria-label="Ações" />
               </TableRow>
@@ -166,13 +164,6 @@ export const FinalDestinationTypeList = () => {
               {items.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>
-                    {item.requiresApproval ? (
-                      <CheckIcon className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <XIcon className="h-4 w-4 text-red-500" />
-                    )}
-                  </TableCell>
                   <TableCell>
                     {item.active ? (
                       <CheckIcon className="h-4 w-4 text-green-500" />

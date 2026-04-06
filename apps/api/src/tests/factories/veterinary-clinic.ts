@@ -23,7 +23,6 @@ const VeterinaryClinicFactory = {
     address: faker.location.streetAddress(),
     responsible: faker.person.fullName(),
     specialties: faker.lorem.sentence(),
-    active: true,
     ...props,
   }),
 

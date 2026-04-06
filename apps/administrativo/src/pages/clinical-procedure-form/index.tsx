@@ -48,11 +48,6 @@ const healthConditionOptions = [
   { value: 'estavel', label: 'Estável' },
   { value: 'critica', label: 'Crítica' },
 ]
-const animalStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
 const statusOptions = [
   { value: 'agendado', label: 'Agendado' },
   { value: 'realizado', label: 'Realizado' },
@@ -77,7 +72,6 @@ const schema = z.object({
   agePreview: z.string().nullish(),
   healthConditionPreview: z.string().nullish(),
   entryDatePreview: z.string().nullish(),
-  statusPreview: z.string().nullish(),
   animalObservationsPreview: z.string().nullish(),
 })
 type Data = z.infer<typeof schema>
@@ -199,7 +193,7 @@ export const ClinicalProcedureForm = () => {
       setValue('agePreview', '')
       setValue('healthConditionPreview', '')
       setValue('entryDatePreview', '')
-      setValue('statusPreview', '')
+
       setValue('animalObservationsPreview', '')
       return
     }
@@ -214,7 +208,7 @@ export const ClinicalProcedureForm = () => {
         setValue('agePreview', data.birthYear ? `${new Date().getFullYear() - data.birthYear} anos` : '')
         setValue('healthConditionPreview', data.healthCondition ?? '')
         setValue('entryDatePreview', data.entryDate?.split('T')[0] ?? '')
-        setValue('statusPreview', data.status ?? '')
+
         setValue('animalObservationsPreview', data.observations ?? '')
       })
       .catch(() => {
@@ -226,7 +220,7 @@ export const ClinicalProcedureForm = () => {
         setValue('agePreview', '')
         setValue('healthConditionPreview', '')
         setValue('entryDatePreview', '')
-        setValue('statusPreview', '')
+
         setValue('animalObservationsPreview', '')
       })
   }, [animalId, token, setValue])
@@ -268,7 +262,6 @@ export const ClinicalProcedureForm = () => {
                       debounceMs={300}
                       displayLabel={animalNamePreview || undefined}
                     />
-                    <Form.ErrorMessage field="animalId" />
                   </div>
                   <div className="mb-6 grid gap-4 lg:grid-cols-2 xl:auto-cols-fr xl:grid-flow-col">
                     <div>
@@ -305,15 +298,6 @@ export const ClinicalProcedureForm = () => {
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
                       <Form.Input name="entryDatePreview" type="date" disabled />
                     </div>
-                    <div>
-                      <Form.Label htmlFor="statusPreview">Status</Form.Label>
-                      <Form.Select
-                        name="statusPreview"
-                        options={animalStatusOptions}
-                        disabled
-                        className="bg-gray-100 dark:bg-gray-800"
-                      />
-                    </div>
                   </div>
                   <div className="mb-6">
                     <Form.Label htmlFor="animalObservationsPreview">Observações (animal)</Form.Label>
@@ -328,7 +312,7 @@ export const ClinicalProcedureForm = () => {
                       <Form.ErrorMessage field="procedureTypeId" />
                     </div>
                     <div>
-                      <Form.Label htmlFor="appointmentIdDisplay">Consulta vinculada (opcional)</Form.Label>
+                      <Form.Label htmlFor="appointmentIdDisplay">Consulta</Form.Label>
                       <div className="flex gap-2">
                         <Form.Input
                           id="appointmentIdDisplay"
@@ -398,7 +382,14 @@ export const ClinicalProcedureForm = () => {
                 <span>Voltar</span>
               </Button>
               {!isEdit && activeTab === 'animal' ? (
-                <Button type="button" variant="outline" onClick={() => setActiveTab('procedimento')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab('procedimento')
+                  }}
+                >
                   <ChevronRightIcon className="mr-2 h-5 w-5" />
                   <span>Continuar</span>
                 </Button>

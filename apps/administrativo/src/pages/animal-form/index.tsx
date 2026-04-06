@@ -39,7 +39,6 @@ const animalSchema = z.object({
   healthCondition: z.string({ error: RequiredMessage }),
   entryDate: z.string({ error: RequiredMessage }),
   observations: z.string().nullish(),
-  status: z.string({ error: RequiredMessage }),
 })
 
 type AnimalData = z.infer<typeof animalSchema>
@@ -67,12 +66,6 @@ const healthConditionOptions = [
   { value: 'critica', label: 'Crítica' },
 ]
 
-const statusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'ativo', label: 'Ativo' },
-  { value: 'inativo', label: 'Inativo' },
-]
-
 interface AnimalHistoryItem {
   id: number
   type: string
@@ -98,7 +91,6 @@ export const AnimalForm = () => {
   const animalForm = useForm({
     resolver: zodResolver(animalSchema),
     defaultValues: {
-      status: 'pendente',
       entryDate: new Date().toISOString().split('T')[0],
     },
   })
@@ -351,12 +343,6 @@ export const AnimalForm = () => {
                         <Form.Icon icon={CalendarIcon} />
                       </Form.IconContainer>
                       <Form.ErrorMessage field="entryDate" />
-                    </div>
-
-                    <div>
-                      <Form.Label htmlFor="status">Status</Form.Label>
-                      <Form.Select name="status" options={statusOptions} />
-                      <Form.ErrorMessage field="status" />
                     </div>
                   </div>
 

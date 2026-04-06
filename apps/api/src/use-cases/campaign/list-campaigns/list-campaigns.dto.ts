@@ -20,7 +20,7 @@ export interface CampaignWithDetails {
   description: string
   startDate: string
   endDate: string
-  fundraisingGoal: Decimal
+  fundraisingGoal: Decimal | null
   status: CampaignStatusValue
   observations: string | null
   createdAt: Date

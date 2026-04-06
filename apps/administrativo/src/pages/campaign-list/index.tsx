@@ -3,7 +3,17 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FileSpreadsheetIcon, FileTextIcon, MegaphoneIcon, PencilIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
+import {
+  CheckCircleIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  MegaphoneIcon,
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+  XCircleIcon,
+  XIcon,
+} from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -113,6 +123,48 @@ export const CampaignList = () => {
           if (confirmed) {
             api
               .delete(`campaign.delete/${values.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+              .then(refresh.force)
+              .catch((err) => modal.alert(errorMessageHandler(err)))
+          }
+        },
+      })
+    },
+    [token],
+  )
+
+  const cancelCampaign = useCallback(
+    (values: CampaignListValues) => {
+      modal.confirm({
+        title: 'Cancelar campanha',
+        message: `Deseja cancelar a campanha ${values.title}?`,
+        confirmText: 'Cancelar',
+        callback: (confirmed) => {
+          if (confirmed) {
+            api
+              .post(`campaign.cancel/${values.id}`, null, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+              .then(refresh.force)
+              .catch((err) => modal.alert(errorMessageHandler(err)))
+          }
+        },
+      })
+    },
+    [token],
+  )
+
+  const completeCampaign = useCallback(
+    (values: CampaignListValues) => {
+      modal.confirm({
+        title: 'Concluir campanha',
+        message: `Deseja concluir a campanha ${values.title}?`,
+        confirmText: 'Concluir',
+        callback: (confirmed) => {
+          if (confirmed) {
+            api
+              .post(`campaign.complete/${values.id}`, null, {
                 headers: { Authorization: `Bearer ${token}` },
               })
               .then(refresh.force)
@@ -318,9 +370,11 @@ export const CampaignList = () => {
                       {new Date(item.endDate).toLocaleDateString('pt-BR')}
                     </TableCell>
                     <TableCell>
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                        Number(item.fundraisingGoal),
-                      )}
+                      {item.fundraisingGoal != null
+                        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                            Number(item.fundraisingGoal),
+                          )
+                        : '—'}
                     </TableCell>
                     <TableCell>{formatCampaignStatus(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
@@ -330,6 +384,18 @@ export const CampaignList = () => {
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: ':id' },
                           { icon: XIcon, title: 'Remover', action: removeCampaign },
+                          {
+                            icon: XCircleIcon,
+                            title: 'Cancelar',
+                            action: cancelCampaign,
+                            hideWhen: (item) => item.status !== 'ativa',
+                          },
+                          {
+                            icon: CheckCircleIcon,
+                            title: 'Concluir',
+                            action: completeCampaign,
+                            hideWhen: (item) => item.status !== 'ativa',
+                          },
                         ]}
                       />
                     </TableCell>

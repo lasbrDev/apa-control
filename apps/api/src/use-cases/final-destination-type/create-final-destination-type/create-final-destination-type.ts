@@ -14,7 +14,6 @@ export class CreateFinalDestinationTypeUseCase {
     const finalDestinationType = new FinalDestinationType({
       name: data.name,
       description: data.description,
-      requiresApproval: data.requiresApproval,
       active: data.active,
       createdAt: new Date(),
     })

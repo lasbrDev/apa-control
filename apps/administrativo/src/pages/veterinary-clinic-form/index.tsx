@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { Building2Icon, CalendarIcon, ChevronLeftIcon, GlobeIcon, PhoneIcon, SaveIcon } from 'lucide-react'
+import { Building2Icon, ChevronLeftIcon, PhoneIcon, SaveIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -15,7 +15,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../comp
 import { Form } from '../../components/form-hook'
 import { LoadingCard } from '../../components/loading-card'
 import { Spinner } from '../../components/spinner'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
 import { isCnpj } from '../../helpers/validation'
@@ -38,7 +37,6 @@ const veterinaryClinicSchema = z.object({
   address: z.string().min(1, RequiredMessage),
   responsible: z.string().min(1, RequiredMessage),
   specialties: z.string().nullable().optional(),
-  active: z.coerce.boolean(),
 })
 
 type VeterinaryClinicData = z.infer<typeof veterinaryClinicSchema>
@@ -51,7 +49,7 @@ export const VeterinaryClinicForm = () => {
 
   const veterinaryClinicForm = useForm({
     resolver: zodResolver(veterinaryClinicSchema),
-    defaultValues: { active: true },
+    defaultValues: {},
   })
 
   const {
@@ -96,102 +94,79 @@ export const VeterinaryClinicForm = () => {
         <title>Clínica Veterinária - APA Control</title>
       </Helmet>
       <Card>
-        <Tabs defaultValue="general">
-          <CardHeader>
-            <CardTitle>
-              <Building2Icon />
-              {params.id ? 'Editar Clínica Veterinária' : 'Nova Clínica Veterinária'}
-            </CardTitle>
+        <CardHeader>
+          <CardTitle>
+            <Building2Icon />
+            {params.id ? 'Editar Clínica Veterinária' : 'Nova Clínica Veterinária'}
+          </CardTitle>
+        </CardHeader>
 
-            <TabsList>
-              <TabsTrigger value="general">
-                <GlobeIcon className="h-5 w-5 shrink-0" />
-                Geral
-              </TabsTrigger>
+        <FormProvider {...veterinaryClinicForm}>
+          <form autoComplete="off" onSubmit={handleSubmit(addOrUpdateVeterinaryClinic)}>
+            <CardContent>
+              <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                <div>
+                  <Form.Label htmlFor="name">Nome</Form.Label>
+                  <Form.Input name="name" />
+                  <Form.ErrorMessage field="name" />
+                </div>
 
-              <TabsTrigger value="schedule">
-                <CalendarIcon className="h-5 w-5 shrink-0" />
-                Agenda
-              </TabsTrigger>
-            </TabsList>
-          </CardHeader>
+                <div>
+                  <Form.Label htmlFor="cnpj">CNPJ</Form.Label>
+                  <Form.MaskInput name="cnpj" mask="00.000.000/0000-00" />
+                  <Form.ErrorMessage field="cnpj" />
+                </div>
+              </div>
 
-          <FormProvider {...veterinaryClinicForm}>
-            <form autoComplete="off" onSubmit={handleSubmit(addOrUpdateVeterinaryClinic)}>
-              <CardContent>
-                <TabsContent value="general">
-                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <div>
-                      <Form.Label htmlFor="name">Nome</Form.Label>
-                      <Form.Input name="name" />
-                      <Form.ErrorMessage field="name" />
-                    </div>
+              <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                <div>
+                  <Form.Label htmlFor="phone">Telefone</Form.Label>
+                  <Form.IconContainer>
+                    <Form.MaskInput name="phone" mask="(00) 00000-0000" className="pl-9" />
+                    <Form.Icon icon={PhoneIcon} />
+                  </Form.IconContainer>
+                  <Form.ErrorMessage field="phone" />
+                </div>
 
-                    <div>
-                      <Form.Label htmlFor="cnpj">CNPJ</Form.Label>
-                      <Form.MaskInput name="cnpj" mask="00.000.000/0000-00" />
-                      <Form.ErrorMessage field="cnpj" />
-                    </div>
-                  </div>
+                <div>
+                  <Form.Label htmlFor="responsible">Responsável</Form.Label>
+                  <Form.Input name="responsible" />
+                  <Form.ErrorMessage field="responsible" />
+                </div>
+              </div>
 
-                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <div>
-                      <Form.Label htmlFor="phone">Telefone</Form.Label>
-                      <Form.IconContainer>
-                        <Form.MaskInput name="phone" mask="(00) 00000-0000" className="pl-9" />
-                        <Form.Icon icon={PhoneIcon} />
-                      </Form.IconContainer>
-                      <Form.ErrorMessage field="phone" />
-                    </div>
+              <div className="mb-6">
+                <Form.Label htmlFor="address">Endereço</Form.Label>
+                <Form.TextArea name="address" rows={3} />
+                <Form.ErrorMessage field="address" />
+              </div>
 
-                    <div>
-                      <Form.Label htmlFor="responsible">Responsável</Form.Label>
-                      <Form.Input name="responsible" />
-                      <Form.ErrorMessage field="responsible" />
-                    </div>
-                  </div>
+              <div className="mb-6">
+                <Form.Label htmlFor="specialties">Especialidades</Form.Label>
+                <Form.TextArea name="specialties" rows={3} />
+                <Form.ErrorMessage field="specialties" />
+              </div>
+            </CardContent>
 
-                  <div className="mb-6">
-                    <Form.Label htmlFor="address">Endereço</Form.Label>
-                    <Form.TextArea name="address" rows={3} />
-                    <Form.ErrorMessage field="address" />
-                  </div>
+            <CardFooter>
+              <Button type="button" variant="outline" disabled={isSubmitting} onClick={() => pushTo(-1)}>
+                <ChevronLeftIcon className="mr-2 h-5 w-5" />
+                <span>Voltar</span>
+              </Button>
 
-                  <div className="mb-6">
-                    <Form.Label htmlFor="specialties">Especialidades</Form.Label>
-                    <Form.TextArea name="specialties" rows={3} />
-                    <Form.ErrorMessage field="specialties" />
-                  </div>
-
-                  <div className="mb-6 flex items-center space-x-2">
-                    <Form.Switch name="active" />
-                    <Form.Label htmlFor="active" className="mb-0 leading-normal">
-                      Ativo?
-                    </Form.Label>
-                  </div>
-                </TabsContent>
-              </CardContent>
-
-              <CardFooter>
-                <Button type="button" variant="outline" disabled={isSubmitting} onClick={() => pushTo(-1)}>
-                  <ChevronLeftIcon className="mr-2 h-5 w-5" />
-                  <span>Voltar</span>
-                </Button>
-
-                <Button type="submit" variant="success" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <Spinner />
-                  ) : (
-                    <>
-                      <SaveIcon className="mr-2 h-5 w-5" />
-                      <span>Salvar</span>
-                    </>
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </FormProvider>
-        </Tabs>
+              <Button type="submit" variant="success" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <SaveIcon className="mr-2 h-5 w-5" />
+                    <span>Salvar</span>
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </form>
+        </FormProvider>
       </Card>
     </>
   )

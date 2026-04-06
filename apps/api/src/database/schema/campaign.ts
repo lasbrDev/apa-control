@@ -12,7 +12,7 @@ export const campaign = pgTable('campaign', {
   description: text().notNull(),
   startDate: date().notNull(),
   endDate: date().notNull(),
-  fundraisingGoal: decimalJs({ precision: 13, scale: 2 }).notNull(),
+  fundraisingGoal: decimalJs({ precision: 13, scale: 2 }),
   status: campaignStatusEnum().notNull(),
   observations: text(),
   createdAt: timestamp().notNull(),

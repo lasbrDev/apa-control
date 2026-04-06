@@ -24,7 +24,6 @@ export class ConfirmAdoptionUseCase {
         id,
         {
           status: AdoptionStatus.COMPLETED,
-          termSigned: true,
           employeeId,
         },
         tx,

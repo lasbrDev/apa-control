@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CheckCircle2Icon,
+  DownloadIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
   HeartHandshakeIcon,
@@ -28,6 +29,7 @@ import { LoadingCard } from '../../components/loading-card'
 import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
+import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
@@ -40,10 +42,10 @@ interface AdoptionListValues {
   animalId: number
   adopterId: number
   adoptionDate: string
-  termSigned: boolean
   adaptationPeriod: number | null
   status: string
   observations: string | null
+  proof?: string | null
   animalName?: string | null
   adopterName?: string | null
   employeeName?: string | null
@@ -87,6 +89,11 @@ export const AdoptionList = () => {
   const [downloading, setDownloading] = useState<ReportExportType | null>(null)
   const [items, setItems] = useState<AdoptionListValues[]>([])
   const [total, setTotal] = useState(0)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [batchLoading, setBatchLoading] = useState(false)
+
+  const selectableItems = items.filter((item) => item.status === 'processando')
+  const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selectedIds.includes(item.id))
 
   const today = new Date()
   const monthAgo = new Date()
@@ -99,7 +106,7 @@ export const AdoptionList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,animalId,adopterId,adoptionDate,termSigned,adaptationPeriod,status,observations,animalName,adopterName,employeeName',
+        'id,animalId,adopterId,adoptionDate,adaptationPeriod,status,observations,proof,animalName,adopterName,employeeName',
       sort: '-adoptionDate',
       animalName: '',
       adopterName: '',
@@ -186,6 +193,66 @@ export const AdoptionList = () => {
     [token, modal, refresh],
   )
 
+  function handleSelectAll(checked: boolean) {
+    setSelectedIds(checked ? selectableItems.map((i) => i.id) : [])
+  }
+
+  function handleSelectItem(id: number, checked: boolean) {
+    setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)))
+  }
+
+  function cancelBatch() {
+    modal.confirm({
+      title: 'Cancelar adoções',
+      message: `Deseja cancelar ${selectedIds.length} adoção(ões) selecionada(s)?`,
+      confirmText: 'Cancelar adoções',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading(true)
+        try {
+          await api.post(
+            'adoption.cancelBatch',
+            { ids: selectedIds },
+            { headers: { Authorization: `Bearer ${token}` } },
+          )
+          toast.success(`${selectedIds.length} adoção(ões) cancelada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          modal.alert(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(false)
+        }
+      },
+    })
+  }
+
+  function confirmBatch() {
+    modal.confirm({
+      title: 'Confirmar adoções',
+      message: `Deseja confirmar ${selectedIds.length} adoção(ões) selecionada(s)?`,
+      confirmText: 'Confirmar adoções',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading(true)
+        try {
+          await api.post(
+            'adoption.confirmBatch',
+            { ids: selectedIds },
+            { headers: { Authorization: `Bearer ${token}` } },
+          )
+          toast.success(`${selectedIds.length} adoção(ões) confirmada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          modal.alert(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(false)
+        }
+      },
+    })
+  }
+
   async function listAdoptions(values: AdoptionFilterData) {
     setFetching(true)
     try {
@@ -217,6 +284,10 @@ export const AdoptionList = () => {
       setDownloading(null)
     }
   }
+
+  useEffect(() => {
+    setSelectedIds([])
+  }, [items])
 
   useEffect(() => {
     handleSubmit(listAdoptions)()
@@ -329,10 +400,26 @@ export const AdoptionList = () => {
                 </div>
               </div>
 
-              <CardFooter className="mt-6 p-0">
+              <CardFooter className="mt-6 flex flex-wrap items-center gap-3 p-0">
                 <Button type="submit">
                   <SearchIcon className="mr-2 h-5 w-5 shrink-0" />
                   <span>Consultar</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={selectedIds.length === 0 || batchLoading}
+                  onClick={cancelBatch}
+                >
+                  {batchLoading ? <Spinner /> : <span>Cancelar selecionadas</span>}
+                </Button>
+                <Button
+                  type="button"
+                  variant="success"
+                  disabled={selectedIds.length === 0 || batchLoading}
+                  onClick={confirmBatch}
+                >
+                  {batchLoading ? <Spinner /> : <span>Confirmar selecionadas</span>}
                 </Button>
               </CardFooter>
             </form>
@@ -346,10 +433,17 @@ export const AdoptionList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[1%]">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                  </TableHead>
                   <TableHead>Animal</TableHead>
                   <TableHead>Adotante</TableHead>
                   <TableHead>Data</TableHead>
-                  <TableHead>Termo</TableHead>
                   <TableHead>Período adapt.</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Responsável</TableHead>
@@ -360,6 +454,16 @@ export const AdoptionList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell className="w-[1%]">
+                      {item.status === 'processando' ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(item.id)}
+                          onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                          className="h-4 w-4 cursor-pointer"
+                        />
+                      ) : null}
+                    </TableCell>
                     <TableCell className="max-w-[160px] truncate" title={item.animalName ?? undefined}>
                       {item.animalName ?? `#${item.animalId}`}
                     </TableCell>
@@ -367,7 +471,6 @@ export const AdoptionList = () => {
                       {item.adopterName ?? `#${item.adopterId}`}
                     </TableCell>
                     <TableCell>{new Date(item.adoptionDate).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell>{item.termSigned ? 'Sim' : 'Não'}</TableCell>
                     <TableCell>{item.adaptationPeriod != null ? `${item.adaptationPeriod} dias` : '—'}</TableCell>
                     <TableCell>{formatAdoptionStatus(item.status)}</TableCell>
                     <TableCell>{item.employeeName ?? '—'}</TableCell>
@@ -390,6 +493,12 @@ export const AdoptionList = () => {
                           values={item}
                           actions={[
                             { icon: PencilIcon, title: 'Editar', action: ':id' },
+                            {
+                              icon: DownloadIcon,
+                              title: 'Baixar comprovante',
+                              action: (i) => window.open(`${appConfig.API_URL}${i.proof}`, '_blank'),
+                              hideWhen: (i) => !i.proof,
+                            },
                             { icon: XIcon, title: 'Remover', action: removeAdoption },
                           ]}
                         />
@@ -409,6 +518,9 @@ export const AdoptionList = () => {
             <span className="text-sm dark:text-gray-300">
               {itemCountMessage('adoções', page, pages, total, perPage)}
             </span>
+            {selectedIds.length > 0 && (
+              <span className="text-sm dark:text-gray-300">{selectedIds.length} item(s) selecionado(s).</span>
+            )}
             <Pagination current={page} total={pages} changePage={changePage} />
           </div>
         </div>

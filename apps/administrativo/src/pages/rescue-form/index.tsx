@@ -473,7 +473,6 @@ export const RescueForm = () => {
                         debounceMs={300}
                         displayLabel={isExistingAnimal ? (watch('name') as string) : undefined}
                       />
-                      <Form.ErrorMessage field="animalId" />
                     </div>
                   )}
 

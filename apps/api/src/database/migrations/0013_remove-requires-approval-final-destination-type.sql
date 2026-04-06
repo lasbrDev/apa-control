@@ -1,0 +1,1 @@
+ALTER TABLE "final_destination_type" DROP COLUMN "requires_approval";
