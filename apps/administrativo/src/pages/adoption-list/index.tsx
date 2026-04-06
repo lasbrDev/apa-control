@@ -401,17 +401,13 @@ export const AdoptionList = () => {
               </div>
 
               <CardFooter className="mt-6 flex flex-wrap items-center gap-3 p-0">
-                <Button type="submit">
-                  <SearchIcon className="mr-2 h-5 w-5 shrink-0" />
-                  <span>Consultar</span>
-                </Button>
                 <Button
                   type="button"
                   variant="danger"
                   disabled={selectedIds.length === 0 || batchLoading}
                   onClick={cancelBatch}
                 >
-                  {batchLoading ? <Spinner /> : <span>Cancelar selecionadas</span>}
+                  {batchLoading ? <Spinner /> : <span>Cancelar</span>}
                 </Button>
                 <Button
                   type="button"
@@ -419,7 +415,11 @@ export const AdoptionList = () => {
                   disabled={selectedIds.length === 0 || batchLoading}
                   onClick={confirmBatch}
                 >
-                  {batchLoading ? <Spinner /> : <span>Confirmar selecionadas</span>}
+                  {batchLoading ? <Spinner /> : <span>Confirmar</span>}
+                </Button>
+                <Button type="submit">
+                  <SearchIcon className="mr-2 h-5 w-5 shrink-0" />
+                  <span>Consultar</span>
                 </Button>
               </CardFooter>
             </form>
@@ -464,10 +464,10 @@ export const AdoptionList = () => {
                         />
                       ) : null}
                     </TableCell>
-                    <TableCell className="max-w-[160px] truncate" title={item.animalName ?? undefined}>
+                    <TableCell className="max-w-40 truncate" title={item.animalName ?? undefined}>
                       {item.animalName ?? `#${item.animalId}`}
                     </TableCell>
-                    <TableCell className="max-w-[160px] truncate" title={item.adopterName ?? undefined}>
+                    <TableCell className="max-w-40 truncate" title={item.adopterName ?? undefined}>
                       {item.adopterName ?? `#${item.adopterId}`}
                     </TableCell>
                     <TableCell>{new Date(item.adoptionDate).toLocaleDateString('pt-BR')}</TableCell>
