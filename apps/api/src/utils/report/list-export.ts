@@ -98,9 +98,24 @@ function normalizeHeader(rawKey: string): string {
     .replace(/^./, (c) => c.toUpperCase())
 }
 
+const enumLabels: Record<string, string> = {
+  clinico: 'Clínico',
+  cirurgico: 'Cirúrgico',
+  exame: 'Exame',
+  vacina: 'Vacina',
+  rotina: 'Rotina',
+  urgente: 'Urgente',
+  emergencia: 'Emergência',
+  receita: 'Receita',
+  despesa: 'Despesa',
+}
+
 function toNumberIfPossible(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
   if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) return Number(value)
+  if (value !== null && typeof value === 'object' && typeof (value as { toNumber?: unknown }).toNumber === 'function') {
+    return (value as { toNumber: () => number }).toNumber()
+  }
   return null
 }
 
@@ -111,7 +126,9 @@ function isDateLikeKey(key: string): boolean {
 function formatValueByKey(key: string, value: unknown): string {
   if (value === null || value === undefined) return ''
 
-  if (typeof value === 'boolean') return value ? 'Sim' : 'Nao'
+  if (typeof value === 'boolean') return value ? 'Sim' : 'Não'
+
+  if (typeof value === 'string' && enumLabels[value]) return enumLabels[value]
 
   const keyLower = key.toLowerCase()
 

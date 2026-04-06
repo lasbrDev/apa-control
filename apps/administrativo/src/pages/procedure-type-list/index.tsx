@@ -29,7 +29,7 @@ import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
 import { itemCountMessage } from '../../helpers/item-count'
-import { maskDecimal } from '../../helpers/mask/decimal'
+import { maskMoney } from '../../helpers/mask/decimal'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
 import { useRefresh } from '../../hooks/refresh'
@@ -244,7 +244,7 @@ export const ProcedureTypeList = () => {
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{formatProcedureCategory(item.category)}</TableCell>
-                  <TableCell>{maskDecimal(item.averageCost)}</TableCell>
+                  <TableCell>{maskMoney(item.averageCost)}</TableCell>
                   <TableCell>
                     {item.active ? (
                       <CheckIcon className="h-4 w-4 text-green-500" />
