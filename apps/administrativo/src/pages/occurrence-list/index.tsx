@@ -25,6 +25,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -272,7 +273,7 @@ export const OccurrenceList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.occurrenceTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.occurrenceDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.occurrenceDate)}</TableCell>
                     <TableCell className="max-w-[400px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>

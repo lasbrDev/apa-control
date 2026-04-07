@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -281,9 +282,7 @@ export const RescueList = () => {
                 {items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
-                    <TableCell>
-                      {item.rescueDate ? new Date(item.rescueDate).toLocaleDateString('pt-BR') : ''}
-                    </TableCell>
+                    <TableCell>{item.rescueDate ? formatDate(item.rescueDate) : ''}</TableCell>
                     <TableCell className="max-w-[200px] truncate" title={item.locationFound}>
                       {item.locationFound}
                     </TableCell>

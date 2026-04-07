@@ -10,6 +10,9 @@ import type { AppointmentRepository } from '@/repositories/appointment.repositor
 import type { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
 import type { VeterinaryClinicRepository } from '@/repositories/veterinary-clinic.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 import type { UpdateAppointmentData } from './update-appointment.dto'
 
 export class UpdateAppointmentUseCase {
@@ -45,7 +48,7 @@ export class UpdateAppointmentUseCase {
       if (!clinic.active) throw new ApiError('Clínica inativa.', 409)
     }
 
-    const appointmentDate = new Date(data.appointmentDate)
+    const appointmentDate = parseISO(data.appointmentDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(appointmentDate.getTime())) throw new ApiError('Data/hora da consulta inválida.', 400)
 
     if (existing.animalId !== data.animalId) {

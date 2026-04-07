@@ -31,6 +31,7 @@ import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -470,7 +471,7 @@ export const AdoptionList = () => {
                     <TableCell className="max-w-40 truncate" title={item.adopterName ?? undefined}>
                       {item.adopterName ?? `#${item.adopterId}`}
                     </TableCell>
-                    <TableCell>{new Date(item.adoptionDate).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{formatDate(item.adoptionDate)}</TableCell>
                     <TableCell>{item.adaptationPeriod != null ? `${item.adaptationPeriod} dias` : '—'}</TableCell>
                     <TableCell>{formatAdoptionStatus(item.status)}</TableCell>
                     <TableCell>{item.employeeName ?? '—'}</TableCell>

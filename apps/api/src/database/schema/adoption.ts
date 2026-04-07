@@ -21,6 +21,6 @@ export const adoption = pgTable('adoption', {
   status: adoptionStatusEnum().notNull(),
   observations: text(),
   proof: varchar({ length: 255 }),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
+  updatedAt: timestamp({ withTimezone: true }),
 })

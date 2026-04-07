@@ -4,6 +4,9 @@ import { getRootFolder } from '@/utils/get-root-folder'
 import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
 import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
 import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { listAnimalsSchema } from './list-animals.schema'
 
@@ -43,7 +46,7 @@ export async function listAnimalsController(request: FastifyRequest, reply: Fast
       Idade: item.birthYear ? `${new Date().getFullYear() - item.birthYear} anos` : '',
       Condicao: item.healthCondition,
       Status: item.status,
-      Entrada: item.entryDate ? new Date(item.entryDate).toLocaleDateString('pt-BR') : '',
+      Entrada: item.entryDate ? format(new Date(item.entryDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) }) : '',
     }))
 
     if (exportType === 'csv') {
@@ -71,13 +74,13 @@ export async function listAnimalsController(request: FastifyRequest, reply: Fast
       item.birthYear ? `${new Date().getFullYear() - item.birthYear} anos` : '',
       item.healthCondition,
       item.status,
-      item.entryDate ? new Date(item.entryDate).toLocaleDateString('pt-BR') : '',
+      item.entryDate ? format(new Date(item.entryDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) }) : '',
     ])
 
     const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
       title: 'Relatório de Animais',
       logoDataUrl: getApaControlLogoDataUrl(),
-      generatedAt: new Date().toLocaleString('pt-BR'),
+      generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
       period: null,
       headers,
       rows: pdfRows,

@@ -6,6 +6,9 @@ import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { OccurrenceTypeRepository } from '@/repositories/occurrence-type.repository'
 import type { OccurrenceRepository } from '@/repositories/occurrence.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 
 type UpdateOccurrenceData = {
   id: number
@@ -36,7 +39,7 @@ export class UpdateOccurrenceUseCase {
     if (!type) throw new ApiError('Tipo de ocorrência não encontrado.', 404)
     if (!type.active) throw new ApiError('Tipo de ocorrência inativo.', 409)
 
-    const occurrenceDate = new Date(data.occurrenceDate)
+    const occurrenceDate = parseISO(data.occurrenceDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(occurrenceDate.getTime())) throw new ApiError('Data/hora da ocorrência inválida.', 400)
 
     const oldValues = {

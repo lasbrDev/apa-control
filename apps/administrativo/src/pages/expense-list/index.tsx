@@ -30,6 +30,7 @@ import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -476,12 +477,10 @@ export const ExpenseList = () => {
                         Number(item.value),
                       )}
                     </TableCell>
-                    <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{formatDate(item.createdAt)}</TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
                     <TableCell>{expenseStatusBadge(item.status)}</TableCell>
-                    <TableCell>
-                      {item.paymentDate ? new Date(`${item.paymentDate}T00:00:00`).toLocaleDateString('pt-BR') : ''}
-                    </TableCell>
+                    <TableCell>{item.paymentDate ? formatDate(item.paymentDate) : ''}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"

@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -320,9 +321,7 @@ export const FinalDestinationList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>{item.destinationTypeName ?? `#${item.destinationTypeId}`}</TableCell>
-                    <TableCell>
-                      {item.destinationDate ? new Date(item.destinationDate).toLocaleDateString('pt-BR') : ''}
-                    </TableCell>
+                    <TableCell>{item.destinationDate ? formatDate(item.destinationDate) : ''}</TableCell>
                     <TableCell className="max-w-[220px] truncate" title={item.reason}>
                       {item.reason}
                     </TableCell>

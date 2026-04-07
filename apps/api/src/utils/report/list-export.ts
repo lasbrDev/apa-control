@@ -4,6 +4,9 @@ import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
 import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
 import { maskCellPhone, maskCpfCnpj } from '@/utils/report/report-helpers'
 import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import type { FastifyReply } from 'fastify'
 
 type ExportType = 'csv' | 'xlsx' | 'pdf'
@@ -16,7 +19,7 @@ function getApaControlLogoDataUrl() {
 
 function normalizeValue(value: unknown): string {
   if (value === null || value === undefined) return ''
-  if (value instanceof Date) return value.toLocaleDateString('pt-BR')
+  if (value instanceof Date) return format(value, 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
   if (typeof value === 'object') return JSON.stringify(value)
   return String(value)
 }
@@ -153,14 +156,16 @@ function formatValueByKey(key: string, value: unknown): string {
   }
 
   if (value instanceof Date) {
-    return value.toLocaleString('pt-BR')
+    return format(value, 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) })
   }
 
   if (typeof value === 'string' && isDateLikeKey(keyLower)) {
     const parsed = new Date(value)
     if (!Number.isNaN(parsed.getTime())) {
       const hasTime = value.includes('T') || value.includes(':')
-      return hasTime ? parsed.toLocaleString('pt-BR') : parsed.toLocaleDateString('pt-BR')
+      return hasTime
+        ? format(parsed, 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) })
+        : format(parsed, 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
     }
   }
 
@@ -206,7 +211,7 @@ export async function exportListData(
   const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
     title,
     logoDataUrl: getApaControlLogoDataUrl(),
-    generatedAt: new Date().toLocaleString('pt-BR'),
+    generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
     period: null,
     headers,
     rows: pdfRows,

@@ -120,6 +120,13 @@
       "when": 1775513157010,
       "tag": "0016_add-anamnesis-proof",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1775565610264,
+      "tag": "0017_time-zone-in-date-fields",
+      "breakpoints": true
     }
   ]
 }

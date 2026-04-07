@@ -7,5 +7,5 @@ export const appointmentType = pgTable('appointment_type', {
   description: text(),
   urgency: urgencyLevelEnum().notNull(),
   active: boolean().notNull().default(true),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

@@ -5,6 +5,9 @@ import type { AnimalHistoryRepository } from '@/repositories/animal-history.repo
 import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { RescueRepository } from '@/repositories/rescue.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO, startOfDay } from 'date-fns'
 import type { CreateRescueData } from './create-rescue.dto'
 
 export class CreateRescueUseCase {
@@ -77,7 +80,7 @@ export class CreateRescueUseCase {
         new Rescue({
           animalId,
           employeeId: data.employeeId,
-          rescueDate: new Date(data.rescueDate),
+          rescueDate: startOfDay(parseISO(data.rescueDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
           locationFound: data.locationFound,
           circumstances: data.circumstances,
           foundConditions: data.foundConditions,

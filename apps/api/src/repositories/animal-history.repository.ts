@@ -4,6 +4,9 @@ import type { AnimalHistoryTypeValue } from '@/database/schema/enums/animal-hist
 import type { DrizzleTransaction } from '@/database/types'
 import type { AnimalHistory } from '@/entities'
 import type { AnimalHistoryWithDetails } from '@/use-cases/animal-history/get-animal-history-by-id/get-animal-history-by-id.dto'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
 import { and, desc, eq, gte, inArray, lte } from 'drizzle-orm'
 
 type AnimalHistoryListFilter = {
@@ -23,8 +26,20 @@ export class AnimalHistoryRepository {
     const whereList = [eq(animalHistory.animalId, animalId)]
 
     if (filter?.types?.length) whereList.push(inArray(animalHistory.type, filter.types))
-    if (filter?.startDate) whereList.push(gte(animalHistory.createdAt, new Date(filter.startDate)))
-    if (filter?.endDate) whereList.push(lte(animalHistory.createdAt, new Date(filter.endDate)))
+    if (filter?.startDate)
+      whereList.push(
+        gte(
+          animalHistory.createdAt,
+          startOfDay(parseISO(filter.startDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
+    if (filter?.endDate)
+      whereList.push(
+        lte(
+          animalHistory.createdAt,
+          endOfDay(parseISO(filter.endDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
     if (filter?.employeeId) whereList.push(eq(animalHistory.employeeId, filter.employeeId))
 
     const whereClause = whereList.length === 1 ? whereList[0] : and(...whereList)

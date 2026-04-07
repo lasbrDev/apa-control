@@ -6,6 +6,9 @@ import { getRootFolder } from '@/utils/get-root-folder'
 import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
 import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
 import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { getAnimalHistoryByIdQuerySchema, getAnimalHistoryByIdSchema } from './get-animal-history-by-id.schema'
@@ -109,7 +112,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const animal = await getAnimalByIdUseCase.execute({ id })
 
     const rows = result.map((item) => ({
-      Data: item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
+      Data: item.createdAt ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }) : '',
       Tipo: formatHistoryType(item.type),
       Descrição: item.description,
       'Valor Antigo': formatHistoryValue(item.oldValue),
@@ -141,7 +144,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const pdfTemplatePath = getRootFolder('layout/pdf/report-animal-history.ejs')
     const headers = ['Data', 'Tipo', 'Descrição', 'Valor Antigo', 'Valor Novo', 'Por']
     const pdfRows = result.map((item) => [
-      item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
+      item.createdAt ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }) : '',
       formatHistoryType(item.type),
       item.description,
       formatHistoryValue(item.oldValue),
@@ -152,7 +155,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
       title: `Histórico do Animal - ${animal.name}`,
       logoDataUrl: getApaControlLogoDataUrl(),
-      generatedAt: new Date().toLocaleString('pt-BR'),
+      generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
       animal: {
         name: animal.name,
         species: mapEnum(animal.species, { canina: 'Cachorro', felina: 'Gato', outros: 'Outros' }),
@@ -170,11 +173,15 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
           ativo: 'Ativo',
           inativo: 'Inativo',
         }),
-        entryDate: animal.entryDate ? new Date(animal.entryDate).toLocaleDateString('pt-BR') : '',
+        entryDate: animal.entryDate
+          ? format(new Date(animal.entryDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
+          : '',
       },
       rescue: rescue
         ? {
-            rescueDate: rescue.rescueDate ? new Date(rescue.rescueDate).toLocaleDateString('pt-BR') : '',
+            rescueDate: rescue.rescueDate
+              ? format(new Date(rescue.rescueDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
+              : '',
             locationFound: rescue.locationFound,
             circumstances: rescue.circumstances,
             foundConditions: rescue.foundConditions,

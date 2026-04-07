@@ -13,7 +13,7 @@ export const animal = pgTable('animal', {
   entryDate: date().notNull(),
   observations: text(),
   status: animalStatusEnum().notNull(),
-  rescueAt: timestamp(),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp(),
+  rescueAt: timestamp({ withTimezone: true }),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
+  updatedAt: timestamp({ withTimezone: true }),
 })

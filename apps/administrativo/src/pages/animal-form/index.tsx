@@ -20,6 +20,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { formatDateTime } from '../../helpers/date'
 import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
 
@@ -245,9 +246,7 @@ export const AnimalForm = () => {
     const d = new Date(value)
     if (Number.isNaN(d.getTime())) return ''
 
-    const date = d.toLocaleDateString('pt-BR')
-    const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    return `${date} ${time}`
+    return formatDateTime(d)
   }
 
   const registrationHistory = animalHistory.filter((item) => item.type === 'cadastro')

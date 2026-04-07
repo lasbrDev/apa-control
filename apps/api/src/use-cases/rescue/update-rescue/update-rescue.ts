@@ -4,6 +4,9 @@ import { AnimalHistory } from '@/entities'
 import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import type { RescueRepository } from '@/repositories/rescue.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO, startOfDay } from 'date-fns'
 import type { UpdateRescueData } from './update-rescue.dto'
 
 export class UpdateRescueUseCase {
@@ -73,7 +76,7 @@ export class UpdateRescueUseCase {
       await this.rescueRepository.update(
         data.id,
         {
-          rescueDate: new Date(data.rescueDate),
+          rescueDate: startOfDay(parseISO(data.rescueDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
           locationFound: data.locationFound,
           circumstances: data.circumstances,
           foundConditions: data.foundConditions,

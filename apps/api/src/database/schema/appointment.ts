@@ -17,10 +17,10 @@ export const appointment = pgTable('appointment', {
   employeeId: integer()
     .notNull()
     .references(() => employee.id),
-  appointmentDate: timestamp().notNull(),
+  appointmentDate: timestamp({ withTimezone: true }).notNull(),
   consultationType: consultationTypeEnum().notNull(),
   status: appointmentStatusEnum().notNull(),
   observations: text(),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
+  updatedAt: timestamp({ withTimezone: true }),
 })

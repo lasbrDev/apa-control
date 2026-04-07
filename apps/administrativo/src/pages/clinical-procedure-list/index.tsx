@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -300,7 +301,7 @@ export const ClinicalProcedureList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.procedureTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.procedureDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.procedureDate)}</TableCell>
                     <TableCell>
                       {Number(item.actualCost).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </TableCell>

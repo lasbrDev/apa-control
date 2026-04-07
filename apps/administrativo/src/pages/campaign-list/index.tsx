@@ -29,6 +29,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -364,8 +365,7 @@ export const CampaignList = () => {
                     </TableCell>
                     <TableCell>{item.campaignTypeName ?? `#${item.campaignTypeId}`}</TableCell>
                     <TableCell>
-                      {new Date(item.startDate).toLocaleDateString('pt-BR')} -{' '}
-                      {new Date(item.endDate).toLocaleDateString('pt-BR')}
+                      {formatDate(item.startDate)} - {formatDate(item.endDate)}
                     </TableCell>
                     <TableCell>{formatCampaignStatus(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">

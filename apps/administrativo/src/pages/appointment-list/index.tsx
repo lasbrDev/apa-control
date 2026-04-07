@@ -27,6 +27,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -341,7 +342,7 @@ export const AppointmentList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.appointmentDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.appointmentDate)}</TableCell>
                     <TableCell>{item.status}</TableCell>
                     <TableCell>
                       <ActionsList

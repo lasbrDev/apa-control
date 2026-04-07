@@ -18,6 +18,7 @@ import { Spinner } from '../../components/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { formatDate } from '../../helpers/date'
 import { toQueryString } from '../../helpers/qs'
 import { api } from '../../service'
 
@@ -171,7 +172,7 @@ export const ClinicalProcedureForm = () => {
             try {
               const { data: appointment } = await api.get(`appointment.key/${key.appointmentId}`, config)
               setAppointmentDisplayLabel(
-                `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')})`,
+                `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${formatDate(appointment.appointmentDate)})`,
               )
             } catch {
               setAppointmentDisplayLabel(`#${key.appointmentId}`)
