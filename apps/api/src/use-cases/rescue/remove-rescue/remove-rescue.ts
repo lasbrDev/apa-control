@@ -21,9 +21,6 @@ export class RemoveRescueUseCase {
       throw new ApiError('Resgate não encontrado.', 404)
     }
 
-    const rescueDateLabel =
-      rescue.rescueDate instanceof Date ? rescue.rescueDate.toISOString().split('T')[0] : String(rescue.rescueDate)
-
     await db.transaction(async (tx) => {
       await this.rescueRepository.delete(data.id, tx)
       await this.animalRepository.update(rescue.animalId, { status: 'pendente', rescueAt: null }, tx)
@@ -35,7 +32,7 @@ export class RemoveRescueUseCase {
           employeeId: data.employeeId,
           type: AnimalHistoryType.RESCUE,
           action: 'rescue.deleted',
-          description: `Data: ${rescueDateLabel} - Local: ${rescue.locationFound}`,
+          description: 'Resgate removido',
           oldValue: null,
           newValue: null,
           createdAt: new Date(),

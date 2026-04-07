@@ -242,7 +242,7 @@ export function AnimalHistoryPage() {
             </Link>
           </Button>
 
-          <Button type="button" variant="danger" className="ml-2" disabled={isDownloading} onClick={handleDownloadPDF}>
+          <Button type="button" variant="danger" disabled={isDownloading} onClick={handleDownloadPDF}>
             {isDownloading ? <Spinner className="mr-2 h-5 w-5" /> : <DownloadIcon className="mr-2 h-5 w-5" />}
             <span>Baixar</span>
           </Button>

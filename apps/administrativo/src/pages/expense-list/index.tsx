@@ -401,7 +401,7 @@ export const ExpenseList = () => {
                 </div>
               </div>
 
-              <CardFooter className="mt-6 flex flex-wrap items-center gap-3 p-0">
+              <CardFooter className="mt-6 flex flex-wrap gap-3 p-0">
                 <Button
                   type="button"
                   variant="danger"
