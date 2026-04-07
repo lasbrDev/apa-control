@@ -1,4 +1,3 @@
-import { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import { AnimalRepository } from '@/repositories/animal.repository'
 import { CampaignRepository } from '@/repositories/campaign.repository'
 import { FinancialTransactionRepository } from '@/repositories/financial-transaction.repository'
@@ -11,6 +10,5 @@ export function makeCreateRevenueUseCase() {
     new TransactionTypeRepository(),
     new CampaignRepository(),
     new AnimalRepository(),
-    new AnimalHistoryRepository(),
   )
 }

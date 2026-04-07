@@ -1,10 +1,8 @@
 import Decimal from 'decimal.js'
 
 import { db } from '@/database/client'
-import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
-import { AnimalHistory, FinancialTransaction } from '@/entities'
-import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
+import { FinancialTransaction } from '@/entities'
 import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { CampaignRepository } from '@/repositories/campaign.repository'
 import type { FinancialTransactionRepository } from '@/repositories/financial-transaction.repository'
@@ -18,7 +16,6 @@ export class CreateExpenseUseCase {
     private transactionTypeRepository: TransactionTypeRepository,
     private campaignRepository: CampaignRepository,
     private animalRepository: AnimalRepository,
-    private animalHistoryRepository: AnimalHistoryRepository,
   ) {}
 
   async execute(data: CreateExpenseData, employeeId: number): Promise<number> {
@@ -55,23 +52,6 @@ export class CreateExpenseUseCase {
         }),
         tx,
       )
-
-      if (data.animalId) {
-        await this.animalHistoryRepository.create(
-          new AnimalHistory({
-            animalId: data.animalId,
-            rescueId: null,
-            employeeId,
-            type: AnimalHistoryType.EXPENSE,
-            action: 'Despesa registrada',
-            description: data.description,
-            oldValue: null,
-            newValue: null,
-            createdAt: new Date(),
-          }),
-          tx,
-        )
-      }
 
       return result!.id
     })
