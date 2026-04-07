@@ -390,12 +390,12 @@ export const AdoptionList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="adoptionDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="adoptionDateStart" />
+                  <Form.DateInput name="adoptionDateStart" />
                   <Form.ErrorMessage field="adoptionDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="adoptionDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="adoptionDateEnd" />
+                  <Form.DateInput name="adoptionDateEnd" />
                   <Form.ErrorMessage field="adoptionDateEnd" />
                 </div>
               </div>

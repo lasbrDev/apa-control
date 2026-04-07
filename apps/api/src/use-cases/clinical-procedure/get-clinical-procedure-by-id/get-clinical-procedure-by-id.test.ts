@@ -52,7 +52,6 @@ describe('Get clinical procedure by id', () => {
   }
 
   it('should get clinical procedure by id', async () => {
-    // Arrange
     const { animal, createdAppointment } = await createAppointmentBase()
     const procedureType = await ProcedureTypeFactory.create({ active: true })
 
@@ -72,7 +71,6 @@ describe('Get clinical procedure by id', () => {
       })
       .returning()
 
-    // Act
     const response = await app.inject({
       method: 'GET',
       url: `/clinical-procedure.key/${createdProcedure.id}`,
@@ -81,7 +79,6 @@ describe('Get clinical procedure by id', () => {
 
     const data = response.json()
 
-    // Assert
     expect(response.statusCode).toBe(200)
     expect(data).toHaveProperty('id')
     expect(data.id).toBe(createdProcedure.id)

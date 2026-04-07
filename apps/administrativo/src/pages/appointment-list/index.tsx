@@ -304,12 +304,12 @@ export const AppointmentList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="appointmentDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="appointmentDateStart" />
+                  <Form.DateInput name="appointmentDateStart" />
                   <Form.ErrorMessage field="appointmentDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="appointmentDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="appointmentDateEnd" />
+                  <Form.DateInput name="appointmentDateEnd" />
                   <Form.ErrorMessage field="appointmentDateEnd" />
                 </div>
               </div>

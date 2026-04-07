@@ -317,7 +317,7 @@ export const AnimalList = () => {
                   <TableHead>Nome</TableHead>
                   <TableHead>Espécie</TableHead>
                   <TableHead>Raça</TableHead>
-                  <TableHead>Idade Aprox.</TableHead>
+                  <TableHead>Idade</TableHead>
                   <TableHead>Condição</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />

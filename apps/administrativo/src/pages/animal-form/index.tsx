@@ -339,7 +339,7 @@ export const AnimalForm = () => {
                     <div>
                       <Form.Label htmlFor="entryDate">Data de Entrada</Form.Label>
                       <Form.IconContainer>
-                        <Form.Input name="entryDate" type="date" className="pl-9" />
+                        <Form.DateInput name="entryDate" className="pl-9" />
                         <Form.Icon icon={CalendarIcon} />
                       </Form.IconContainer>
                       <Form.ErrorMessage field="entryDate" />

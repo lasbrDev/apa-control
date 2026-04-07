@@ -280,7 +280,7 @@ export const FinalDestinationForm = () => {
                       <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Label htmlFor="agePreview">Idade</Form.Label>
                       <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
@@ -289,7 +289,7 @@ export const FinalDestinationForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" disabled />
+                      <Form.DateInput name="entryDatePreview" disabled />
                     </div>
                   </div>
                   <div className="mb-6">
@@ -306,7 +306,7 @@ export const FinalDestinationForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="destinationDate">Data do destino final</Form.Label>
-                      <Form.Input type="date" name="destinationDate" />
+                      <Form.DateInput name="destinationDate" />
                       <Form.ErrorMessage field="destinationDate" />
                     </div>
                   </div>

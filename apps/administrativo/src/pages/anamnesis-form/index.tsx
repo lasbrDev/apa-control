@@ -193,7 +193,7 @@ export const AnamnesisForm = () => {
                 <ChevronLeftIcon className="mr-2 h-5 w-5" />
                 Voltar
               </Button>
-              <Button type="submit" variant="danger" disabled={isSubmitting}>
+              <Button type="submit" variant="success" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner />

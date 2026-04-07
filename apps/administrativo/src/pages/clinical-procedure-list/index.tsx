@@ -263,12 +263,12 @@ export const ClinicalProcedureList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="procedureDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="procedureDateStart" />
+                  <Form.DateInput name="procedureDateStart" />
                   <Form.ErrorMessage field="procedureDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="procedureDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="procedureDateEnd" />
+                  <Form.DateInput name="procedureDateEnd" />
                   <Form.ErrorMessage field="procedureDateEnd" />
                 </div>
               </div>

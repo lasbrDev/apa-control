@@ -61,6 +61,7 @@ function normalizeHeader(rawKey: string): string {
     clinicName: 'Clínica',
     campaignTitle: 'Campanha',
     campaignTypeName: 'Tipo de campanha',
+    transactionTypeName: 'Tipo de transação',
     profileName: 'Perfil',
     disabledAt: 'Desativado em',
     active: 'Ativo',
@@ -108,6 +109,12 @@ const enumLabels: Record<string, string> = {
   emergencia: 'Emergência',
   receita: 'Receita',
   despesa: 'Despesa',
+  pendente: 'Pendente',
+  confirmado: 'Confirmado',
+  cancelado: 'Cancelado',
+  ativa: 'Ativa',
+  concluida: 'Concluída',
+  cancelada: 'Cancelada',
 }
 
 function toNumberIfPossible(value: unknown): number | null {

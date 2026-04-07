@@ -235,12 +235,12 @@ export const OccurrenceList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="occurrenceDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="occurrenceDateStart" />
+                  <Form.DateInput name="occurrenceDateStart" />
                   <Form.ErrorMessage field="occurrenceDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="occurrenceDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="occurrenceDateEnd" />
+                  <Form.DateInput name="occurrenceDateEnd" />
                   <Form.ErrorMessage field="occurrenceDateEnd" />
                 </div>
               </div>

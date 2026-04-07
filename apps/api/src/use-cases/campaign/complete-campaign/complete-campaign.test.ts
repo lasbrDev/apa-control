@@ -49,14 +49,12 @@ describe('Complete campaign', () => {
   it('should return 400 when campaign is not active', async () => {
     const id = await createCampaign()
 
-    // complete first
     await app.inject({
       method: 'POST',
       url: `/campaign.complete/${id}`,
       headers: { authorization: `Bearer ${token}` },
     })
 
-    // try to complete again
     const response = await app.inject({
       method: 'POST',
       url: `/campaign.complete/${id}`,

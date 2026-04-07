@@ -207,7 +207,7 @@ export const RevenueForm = () => {
 
                 <div>
                   <Form.Label htmlFor="value">Valor (R$)</Form.Label>
-                  <Form.Input name="value" type="number" step="0.01" min={0} />
+                  <Form.DecimalInput name="value" />
                   <Form.ErrorMessage field="value" />
                 </div>
               </div>
@@ -260,7 +260,7 @@ export const RevenueForm = () => {
                 Voltar
               </Button>
 
-              <Button type="submit" variant="danger" disabled={isSubmitting}>
+              <Button type="submit" variant="success" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner />

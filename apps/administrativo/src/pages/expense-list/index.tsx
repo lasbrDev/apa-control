@@ -391,17 +391,17 @@ export const ExpenseList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="createdAtStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="createdAtStart" />
+                  <Form.DateInput name="createdAtStart" />
                   <Form.ErrorMessage field="createdAtStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="createdAtEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="createdAtEnd" />
+                  <Form.DateInput name="createdAtEnd" />
                   <Form.ErrorMessage field="createdAtEnd" />
                 </div>
               </div>
 
-              <CardFooter className="mt-6 flex-wrap items-center gap-3 p-0">
+              <CardFooter className="mt-6 flex flex-wrap items-center gap-3 p-0">
                 <Button
                   type="button"
                   variant="danger"

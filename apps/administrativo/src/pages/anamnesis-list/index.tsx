@@ -226,12 +226,12 @@ export const AnamnesisList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="createdDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="createdDateStart" />
+                  <Form.DateInput name="createdDateStart" />
                   <Form.ErrorMessage field="createdDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="createdDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="createdDateEnd" />
+                  <Form.DateInput name="createdDateEnd" />
                   <Form.ErrorMessage field="createdDateEnd" />
                 </div>
               </div>

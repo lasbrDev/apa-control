@@ -240,14 +240,14 @@ export const RescueList = () => {
                 </div>
 
                 <div>
-                  <Form.Label htmlFor="rescueDateStart">Data inicial do resgate</Form.Label>
-                  <Form.Input type="date" name="rescueDateStart" />
+                  <Form.Label htmlFor="rescueDateStart">Data inicial</Form.Label>
+                  <Form.DateInput name="rescueDateStart" />
                   <Form.ErrorMessage field="rescueDateStart" />
                 </div>
 
                 <div>
-                  <Form.Label htmlFor="rescueDateEnd">Data final do resgate</Form.Label>
-                  <Form.Input type="date" name="rescueDateEnd" />
+                  <Form.Label htmlFor="rescueDateEnd">Data final</Form.Label>
+                  <Form.DateInput name="rescueDateEnd" />
                   <Form.ErrorMessage field="rescueDateEnd" />
                 </div>
               </div>
@@ -270,7 +270,7 @@ export const RescueList = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Animal</TableHead>
-                  <TableHead>Data do resgate</TableHead>
+                  <TableHead>Data</TableHead>
                   <TableHead>Local encontrado</TableHead>
                   <TableHead>Circunstâncias</TableHead>
                   <TableHead aria-label="Ações" />

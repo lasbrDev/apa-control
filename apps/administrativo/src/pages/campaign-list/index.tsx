@@ -42,7 +42,6 @@ interface CampaignListValues {
   description: string
   startDate: string
   endDate: string
-  fundraisingGoal: string
   status: string
   observations: string | null
   campaignTypeName?: string
@@ -98,7 +97,7 @@ export const CampaignList = () => {
     defaultValues: {
       page: 1,
       perPage: 10,
-      fields: 'id,campaignTypeId,title,startDate,endDate,fundraisingGoal,status,campaignTypeName',
+      fields: 'id,campaignTypeId,title,startDate,endDate,status,campaignTypeName',
       sort: '-startDate',
       title: '',
       campaignTypeId: null,
@@ -322,12 +321,12 @@ export const CampaignList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="startDate">Data inicial</Form.Label>
-                  <Form.Input type="date" name="startDate" />
+                  <Form.DateInput name="startDate" />
                   <Form.ErrorMessage field="startDate" />
                 </div>
                 <div>
                   <Form.Label htmlFor="endDate">Data final</Form.Label>
-                  <Form.Input type="date" name="endDate" />
+                  <Form.DateInput name="endDate" />
                   <Form.ErrorMessage field="endDate" />
                 </div>
               </div>
@@ -352,7 +351,6 @@ export const CampaignList = () => {
                   <TableHead>Título</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Período</TableHead>
-                  <TableHead>Meta</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />
                 </TableRow>
@@ -368,13 +366,6 @@ export const CampaignList = () => {
                     <TableCell>
                       {new Date(item.startDate).toLocaleDateString('pt-BR')} -{' '}
                       {new Date(item.endDate).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                    <TableCell>
-                      {item.fundraisingGoal != null
-                        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                            Number(item.fundraisingGoal),
-                          )
-                        : '—'}
                     </TableCell>
                     <TableCell>{formatCampaignStatus(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">

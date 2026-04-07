@@ -9,7 +9,8 @@ export async function listRevenuesController(request: FastifyRequest, reply: Fas
   const [count, items] = await listRevenuesUseCase.execute(data)
 
   if (data.exportType) {
-    return exportListData(reply, data.exportType, 'Receitas', 'receitas', items)
+    const exportItems = items.map(({ proof: _proof, ...rest }) => rest)
+    return exportListData(reply, data.exportType, 'Receitas', 'receitas', exportItems)
   }
 
   reply.header('X-Total-Count', count)

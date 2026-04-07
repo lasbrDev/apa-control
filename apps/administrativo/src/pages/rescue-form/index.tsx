@@ -515,7 +515,7 @@ export const RescueForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDate">Data de entrada</Form.Label>
-                      <Form.Input name="entryDate" type="date" disabled={disableAnimalFields} />
+                      <Form.DateInput name="entryDate" disabled={disableAnimalFields} />
                       <Form.ErrorMessage field="entryDate" />
                     </div>
                   </div>
@@ -577,7 +577,7 @@ export const RescueForm = () => {
                     <div>
                       <Form.Label htmlFor="rescueDate">Data do resgate</Form.Label>
                       <Form.IconContainer>
-                        <Form.Input name="rescueDate" type="date" className="pl-9" />
+                        <Form.DateInput name="rescueDate" className="pl-9" />
                         <Form.Icon icon={CalendarIcon} />
                       </Form.IconContainer>
                       <Form.ErrorMessage field="rescueDate" />

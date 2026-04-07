@@ -278,13 +278,13 @@ export const FinalDestinationList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="destinationDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="destinationDateStart" />
+                  <Form.DateInput name="destinationDateStart" />
                   <Form.ErrorMessage field="destinationDateStart" />
                 </div>
 
                 <div>
                   <Form.Label htmlFor="destinationDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="destinationDateEnd" />
+                  <Form.DateInput name="destinationDateEnd" />
                   <Form.ErrorMessage field="destinationDateEnd" />
                 </div>
               </div>
