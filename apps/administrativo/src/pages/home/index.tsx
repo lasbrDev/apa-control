@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { toast } from 'sonner'
 
 import { useApp } from '../../App'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/card'
@@ -51,7 +52,7 @@ interface MonthlyFinancialData {
 }
 
 export const Home = () => {
-  const { modal, operator, token } = useApp()
+  const { operator, token } = useApp()
   const { theme } = useTheme()
   const [stats, setStats] = useState<DashboardStats>({})
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
@@ -83,7 +84,7 @@ export const Home = () => {
         setMonthlyData(monthlyStats)
         setFinancialStats(financialData)
       })
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
       .finally(() => setFetching(false))
   }, [token])
 

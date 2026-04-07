@@ -31,23 +31,32 @@ export class UpdateFinalDestinationUseCase {
     if (!destinationType) throw new ApiError('Tipo de destino final não encontrado.', 404)
     if (duplicateByAnimal) throw new ApiError('Este animal já possui destino final registrado.', 409)
 
-    const oldValues: Record<string, unknown> = {
-      animalId: existing.animalId,
-      destinationTypeId: existing.destinationTypeId,
-      destinationDate: existing.destinationDate,
-      reason: existing.reason,
-      observations: existing.observations ?? null,
-      proof: existing.proof ?? null,
-    }
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id' || key === 'employeeId'
+        if (shouldIgnoreKey) return acc
 
-    const newValues: Record<string, unknown> = {
-      animalId: data.animalId,
-      destinationTypeId: data.destinationTypeId,
-      destinationDate: data.destinationDate,
-      reason: data.reason,
-      observations: data.observations ?? null,
-      proof: data.proof ?? null,
-    }
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
+
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
+
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.finalDestinationRepository.update(

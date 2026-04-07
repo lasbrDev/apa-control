@@ -24,7 +24,6 @@ describe('List anamneses', () => {
     employeeId = employee.id
     token = getAuthToken({ id: employeeId, roles: ['AdminPanel', 'Anamnesis'] })
 
-    // Create anamnesis for testing
     const animal = await AnimalFactory.create()
     const appointmentType = await AppointmentTypeFactory.create({ active: true })
     const clinic = await VeterinaryClinicFactory.create({ active: true })

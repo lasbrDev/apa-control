@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -103,8 +104,11 @@ export const RescueList = () => {
           if (confirmed) {
             api
               .delete(`rescue.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((error) => modal.alert(errorMessageHandler(error)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((error) => toast.error(errorMessageHandler(error)))
           }
         },
       })
@@ -123,7 +127,7 @@ export const RescueList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
 
     setFetching(false)
@@ -240,14 +244,14 @@ export const RescueList = () => {
                 </div>
 
                 <div>
-                  <Form.Label htmlFor="rescueDateStart">Data inicial do resgate</Form.Label>
-                  <Form.Input type="date" name="rescueDateStart" />
+                  <Form.Label htmlFor="rescueDateStart">Data inicial</Form.Label>
+                  <Form.DateInput name="rescueDateStart" />
                   <Form.ErrorMessage field="rescueDateStart" />
                 </div>
 
                 <div>
-                  <Form.Label htmlFor="rescueDateEnd">Data final do resgate</Form.Label>
-                  <Form.Input type="date" name="rescueDateEnd" />
+                  <Form.Label htmlFor="rescueDateEnd">Data final</Form.Label>
+                  <Form.DateInput name="rescueDateEnd" />
                   <Form.ErrorMessage field="rescueDateEnd" />
                 </div>
               </div>
@@ -270,7 +274,7 @@ export const RescueList = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Animal</TableHead>
-                  <TableHead>Data do resgate</TableHead>
+                  <TableHead>Data</TableHead>
                   <TableHead>Local encontrado</TableHead>
                   <TableHead>Circunstâncias</TableHead>
                   <TableHead aria-label="Ações" />
@@ -281,9 +285,7 @@ export const RescueList = () => {
                 {items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
-                    <TableCell>
-                      {item.rescueDate ? new Date(item.rescueDate).toLocaleDateString('pt-BR') : ''}
-                    </TableCell>
+                    <TableCell>{item.rescueDate ? formatDate(item.rescueDate) : ''}</TableCell>
                     <TableCell className="max-w-[200px] truncate" title={item.locationFound}>
                       {item.locationFound}
                     </TableCell>

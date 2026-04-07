@@ -47,8 +47,11 @@ export const CampaignTypeList = () => {
           if (confirmed) {
             api
               .delete(`campaign-type.delete/${values.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -62,7 +65,7 @@ export const CampaignTypeList = () => {
     api
       .get('campaign-type.list', { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => setItems(data))
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
       .finally(() => setFetching(false))
   }, [refresh.ref])
 

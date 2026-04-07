@@ -5,5 +5,5 @@ export const campaignType = pgTable('campaign_type', {
   name: varchar({ length: 100 }).notNull().unique(),
   description: text(),
   active: boolean().notNull().default(true),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

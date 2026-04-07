@@ -26,26 +26,32 @@ export class UpdateAnamnesisUseCase {
     if (!appointment) throw new ApiError('Consulta não encontrada.', 404)
     if (duplicateByAppointment) throw new ApiError('Esta consulta já possui anamnese registrada.', 409)
 
-    const oldValues = {
-      appointmentId: existing.appointmentId,
-      symptomsPresented: existing.symptomsPresented ?? null,
-      dietaryHistory: existing.dietaryHistory ?? null,
-      behavioralHistory: existing.behavioralHistory ?? null,
-      requestedExams: existing.requestedExams ?? null,
-      presumptiveDiagnosis: existing.presumptiveDiagnosis ?? null,
-      observations: existing.observations ?? null,
-      proof: existing.proof ?? null,
-    }
-    const newValues = {
-      appointmentId: data.appointmentId,
-      symptomsPresented: data.symptomsPresented ?? null,
-      dietaryHistory: data.dietaryHistory ?? null,
-      behavioralHistory: data.behavioralHistory ?? null,
-      requestedExams: data.requestedExams ?? null,
-      presumptiveDiagnosis: data.presumptiveDiagnosis ?? null,
-      observations: data.observations ?? null,
-      proof: data.proof ?? null,
-    }
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id'
+        if (shouldIgnoreKey) return acc
+
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
+
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
+
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.anamnesisRepository.update(

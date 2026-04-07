@@ -10,6 +10,6 @@ export const adopter = pgTable('adopter', {
   address: text().notNull(),
   familyIncome: decimalJs({ precision: 10, scale: 2 }).notNull(),
   animalExperience: boolean().notNull().default(false),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
+  updatedAt: timestamp({ withTimezone: true }),
 })

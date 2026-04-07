@@ -50,7 +50,6 @@ describe('Get anamnesis by id', () => {
   }
 
   it('should get anamnesis by id', async () => {
-    // Arrange
     const { animal, createdAppointment } = await createAppointmentBase()
 
     const [createdAnamnesis] = await db
@@ -67,7 +66,6 @@ describe('Get anamnesis by id', () => {
       })
       .returning()
 
-    // Act
     const response = await app.inject({
       method: 'GET',
       url: `/anamnesis.key/${createdAnamnesis.id}`,
@@ -76,7 +74,6 @@ describe('Get anamnesis by id', () => {
 
     const data = response.json()
 
-    // Assert
     expect(response.statusCode).toBe(200)
     expect(data).toHaveProperty('id')
     expect(data.id).toBe(createdAnamnesis.id)

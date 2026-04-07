@@ -2,18 +2,23 @@ import { db } from '@/database/client'
 import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
 import { AnimalHistory } from '@/entities'
 import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
+import type { OccurrenceTypeRepository } from '@/repositories/occurrence-type.repository'
 import type { OccurrenceRepository } from '@/repositories/occurrence.repository'
 import { ApiError } from '@/utils/api-error'
 
 export class RemoveOccurrenceUseCase {
   constructor(
     private occurrenceRepository: OccurrenceRepository,
+    private occurrenceTypeRepository: OccurrenceTypeRepository,
     private animalHistoryRepository: AnimalHistoryRepository,
   ) {}
 
   async execute(id: number, employeeId: number): Promise<void> {
     const existing = await this.occurrenceRepository.findById(id)
     if (!existing) throw new ApiError('Ocorrência não encontrada.', 404)
+
+    const type = await this.occurrenceTypeRepository.findById(existing.occurrenceTypeId)
+    if (!type) throw new ApiError('Tipo de ocorrência não encontrado.', 404)
 
     await db.transaction(async (tx) => {
       await this.occurrenceRepository.delete(id, tx)
@@ -25,7 +30,7 @@ export class RemoveOccurrenceUseCase {
           employeeId,
           type: AnimalHistoryType.OCCURRENCE,
           action: 'occurrence.deleted',
-          description: 'Ocorrência removida',
+          description: `Ocorrência de ${type.name} removida`,
           oldValue: null,
           newValue: null,
           createdAt: new Date(),

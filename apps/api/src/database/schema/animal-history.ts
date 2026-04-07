@@ -18,5 +18,5 @@ export const animalHistory = pgTable('animal_history', {
   description: text().notNull(),
   oldValue: text(),
   newValue: text(),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

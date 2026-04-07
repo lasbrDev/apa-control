@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -109,8 +110,11 @@ export const ClinicalProcedureList = () => {
           if (confirmed) {
             api
               .delete(`clinical-procedure.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -127,7 +131,7 @@ export const ClinicalProcedureList = () => {
       setItems(Array.isArray(data) ? data : [])
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -161,7 +165,7 @@ export const ClinicalProcedureList = () => {
             .map((i: { id: number; name: string }) => ({ value: i.id, label: i.name })),
         ),
       )
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [token, modal])
 
   useEffect(() => {
@@ -263,12 +267,12 @@ export const ClinicalProcedureList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="procedureDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="procedureDateStart" />
+                  <Form.DateInput name="procedureDateStart" />
                   <Form.ErrorMessage field="procedureDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="procedureDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="procedureDateEnd" />
+                  <Form.DateInput name="procedureDateEnd" />
                   <Form.ErrorMessage field="procedureDateEnd" />
                 </div>
               </div>
@@ -300,7 +304,7 @@ export const ClinicalProcedureList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.procedureTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.procedureDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.procedureDate)}</TableCell>
                     <TableCell>
                       {Number(item.actualCost).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </TableCell>

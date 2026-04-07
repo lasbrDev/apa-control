@@ -31,6 +31,7 @@ import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -133,8 +134,11 @@ export const AdoptionList = () => {
               .delete(`adoption.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -158,8 +162,11 @@ export const AdoptionList = () => {
                 headers: { Authorization: `Bearer ${token}` },
               },
             )
-            .then(refresh.force)
-            .catch((err) => modal.alert(errorMessageHandler(err)))
+            .then(() => {
+              toast.success('Adoção confirmada com sucesso!')
+              refresh.force()
+            })
+            .catch((err) => toast.error(errorMessageHandler(err)))
         },
       })
     },
@@ -174,7 +181,7 @@ export const AdoptionList = () => {
         callback: (reason) => {
           const value = String(reason ?? '').trim()
           if (!value) {
-            modal.alert('Motivo é obrigatório para cancelar a adoção.')
+            toast.error('Motivo é obrigatório para cancelar a adoção.')
             return
           }
           api
@@ -185,8 +192,11 @@ export const AdoptionList = () => {
                 headers: { Authorization: `Bearer ${token}` },
               },
             )
-            .then(refresh.force)
-            .catch((err) => modal.alert(errorMessageHandler(err)))
+            .then(() => {
+              toast.success('Adoção cancelada com sucesso!')
+              refresh.force()
+            })
+            .catch((err) => toast.error(errorMessageHandler(err)))
         },
       })
     },
@@ -219,7 +229,7 @@ export const AdoptionList = () => {
           setSelectedIds([])
           refresh.force()
         } catch (error) {
-          modal.alert(errorMessageHandler(error))
+          toast.error(errorMessageHandler(error))
         } finally {
           setBatchLoading(false)
         }
@@ -245,7 +255,7 @@ export const AdoptionList = () => {
           setSelectedIds([])
           refresh.force()
         } catch (error) {
-          modal.alert(errorMessageHandler(error))
+          toast.error(errorMessageHandler(error))
         } finally {
           setBatchLoading(false)
         }
@@ -263,7 +273,7 @@ export const AdoptionList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -390,12 +400,12 @@ export const AdoptionList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="adoptionDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="adoptionDateStart" />
+                  <Form.DateInput name="adoptionDateStart" />
                   <Form.ErrorMessage field="adoptionDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="adoptionDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="adoptionDateEnd" />
+                  <Form.DateInput name="adoptionDateEnd" />
                   <Form.ErrorMessage field="adoptionDateEnd" />
                 </div>
               </div>
@@ -470,7 +480,7 @@ export const AdoptionList = () => {
                     <TableCell className="max-w-40 truncate" title={item.adopterName ?? undefined}>
                       {item.adopterName ?? `#${item.adopterId}`}
                     </TableCell>
-                    <TableCell>{new Date(item.adoptionDate).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{formatDate(item.adoptionDate)}</TableCell>
                     <TableCell>{item.adaptationPeriod != null ? `${item.adaptationPeriod} dias` : '—'}</TableCell>
                     <TableCell>{formatAdoptionStatus(item.status)}</TableCell>
                     <TableCell>{item.employeeName ?? '—'}</TableCell>

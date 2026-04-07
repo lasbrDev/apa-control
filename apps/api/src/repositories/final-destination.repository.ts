@@ -69,6 +69,7 @@ export class FinalDestinationRepository {
   async findById(id: number) {
     const [item] = await db
       .select({
+        animalName: animal.name,
         id: finalDestination.id,
         animalId: finalDestination.animalId,
         destinationTypeId: finalDestination.destinationTypeId,
@@ -78,7 +79,6 @@ export class FinalDestinationRepository {
         observations: finalDestination.observations,
         proof: finalDestination.proof,
         createdAt: finalDestination.createdAt,
-        animalName: animal.name,
         destinationTypeName: finalDestinationType.name,
         employeeName: employee.name,
       })

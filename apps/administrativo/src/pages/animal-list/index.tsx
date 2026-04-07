@@ -107,13 +107,16 @@ export const AnimalList = () => {
               .delete(`animal.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success(`Animal ${values.name} removido com sucesso!`)
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
     },
-    [token],
+    [modal, refresh, token],
   )
 
   const reactivateAnimal = useCallback(
@@ -136,12 +139,12 @@ export const AnimalList = () => {
                 toast.success(`Animal ${values.name} reativado com sucesso!`)
                 refresh.force()
               })
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
     },
-    [token],
+    [modal, refresh, token],
   )
 
   async function listAnimals(values: AnimalFilterData) {
@@ -155,7 +158,7 @@ export const AnimalList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
 
     setFetching(false)
@@ -317,7 +320,7 @@ export const AnimalList = () => {
                   <TableHead>Nome</TableHead>
                   <TableHead>Espécie</TableHead>
                   <TableHead>Raça</TableHead>
-                  <TableHead>Idade Aprox.</TableHead>
+                  <TableHead>Idade</TableHead>
                   <TableHead>Condição</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />

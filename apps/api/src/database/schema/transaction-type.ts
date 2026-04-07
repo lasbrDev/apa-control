@@ -7,5 +7,5 @@ export const transactionType = pgTable('transaction_type', {
   category: transactionCategoryEnum().notNull(),
   description: text(),
   active: boolean().notNull().default(true),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

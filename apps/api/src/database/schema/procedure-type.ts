@@ -9,5 +9,5 @@ export const procedureType = pgTable('procedure_type', {
   category: procedureCategoryEnum().notNull(),
   averageCost: decimalJs({ precision: 10, scale: 2 }).notNull(),
   active: boolean().notNull().default(true),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

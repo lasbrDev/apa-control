@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { CalendarIcon, SearchIcon, XIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { useApp } from '../App'
 import { errorMessageHandler } from '../helpers/axios'
+import { formatDate, formatDateTime } from '../helpers/date'
 import { toQueryString } from '../helpers/qs'
 import { api } from '../service'
 import { Button } from './button'
@@ -33,7 +35,7 @@ const statusLabel: Record<string, string> = {
 }
 
 export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentSearchModalProps) {
-  const { token, modal } = useApp()
+  const { token } = useApp()
   const [fetching, setFetching] = useState(false)
   const [items, setItems] = useState<AppointmentItem[]>([])
   const [animalName, setAnimalName] = useState('')
@@ -53,7 +55,7 @@ export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentS
 
   async function loadAppointments() {
     if (!dateStart || !dateEnd) {
-      modal.alert('Informe data inicial e final.')
+      toast.error('Informe data inicial e final.')
       return
     }
     setFetching(true)
@@ -70,7 +72,7 @@ export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentS
       const { data } = await api.get(`appointment.list?${qs}`, { headers: { Authorization: `Bearer ${token}` } })
       setItems(Array.isArray(data) ? data : [])
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -150,15 +152,13 @@ export function AppointmentSearchModal({ open, onClose, onSelect }: AppointmentS
               </TableHeader>
               <TableBody>
                 {items.map((item) => {
-                  const label = `#${item.id} - ${item.animalName ?? 'Animal'} (${item.appointmentDate ? new Date(item.appointmentDate).toLocaleDateString('pt-BR') : ''})`
+                  const label = `#${item.id} - ${item.animalName ?? 'Animal'} (${item.appointmentDate ? formatDate(item.appointmentDate) : ''})`
                   return (
                     <TableRow key={item.id}>
                       <TableCell>#{item.id}</TableCell>
                       <TableCell>{item.animalName ?? ''}</TableCell>
                       <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
-                      <TableCell>
-                        {item.appointmentDate ? new Date(item.appointmentDate).toLocaleString('pt-BR') : ''}
-                      </TableCell>
+                      <TableCell>{item.appointmentDate ? formatDateTime(item.appointmentDate) : ''}</TableCell>
                       <TableCell>{item.status ? (statusLabel[item.status] ?? item.status) : ''}</TableCell>
                       <TableCell className="w-[1%] whitespace-nowrap">
                         <Button type="button" variant="success" onClick={() => onSelect({ id: item.id, label })}>

@@ -17,6 +17,7 @@ import { LoadingCard } from '../../components/loading-card'
 import { Spinner } from '../../components/spinner'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { formatDate } from '../../helpers/date'
 import { api } from '../../service'
 
 const schema = z.object({
@@ -98,7 +99,7 @@ export const AnamnesisForm = () => {
           try {
             const { data: appointment } = await api.get(`appointment.key/${key.appointmentId}`, config)
             setAppointmentDisplayLabel(
-              `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')})`,
+              `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${formatDate(appointment.appointmentDate)})`,
             )
           } catch {
             setAppointmentDisplayLabel(`#${key.appointmentId}`)
@@ -193,7 +194,7 @@ export const AnamnesisForm = () => {
                 <ChevronLeftIcon className="mr-2 h-5 w-5" />
                 Voltar
               </Button>
-              <Button type="submit" variant="danger" disabled={isSubmitting}>
+              <Button type="submit" variant="success" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner />

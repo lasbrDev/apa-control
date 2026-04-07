@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeftIcon, DogIcon, DownloadIcon, SearchIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { FormProvider, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
@@ -15,6 +16,7 @@ import { LoadingCard } from '../../components/loading-card'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate, formatDateTime } from '../../helpers/date'
 import { toQueryString } from '../../helpers/qs'
 import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
@@ -53,7 +55,7 @@ const historyFilterSchema = z.object({
 })
 
 export function AnimalHistoryPage() {
-  const { token, modal } = useApp()
+  const { token } = useApp()
   const params = useParams()
   const [fetching, setFetching] = useState(false)
   const [animalName, setAnimalName] = useState<string>('')
@@ -92,7 +94,7 @@ export function AnimalHistoryPage() {
     try {
       await fetchHistory(values)
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     } finally {
       setFetching(false)
     }
@@ -114,7 +116,7 @@ export function AnimalHistoryPage() {
       const res = await api.get(`animal-history.key/${params.id}?${query}`, config)
       downloadReportBlob(res.data, `historico-animal-${params.id}`, 'pdf')
     } catch (error) {
-      modal.alert('Erro ao baixar PDF')
+      toast.error('Erro ao baixar PDF')
     } finally {
       setIsDownloading(false)
     }
@@ -136,9 +138,9 @@ export function AnimalHistoryPage() {
         const employeeList = Array.isArray(employeeResponse.data) ? employeeResponse.data : []
         setEmployees(employeeList)
       })
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
       .finally(() => setFetching(false))
-  }, [params.id, token, modal, historyFilterForm, fetchHistory])
+  }, [params.id, token, historyFilterForm, fetchHistory])
 
   if (fetching) return <LoadingCard />
 
@@ -242,7 +244,7 @@ export function AnimalHistoryPage() {
             </Link>
           </Button>
 
-          <Button type="button" variant="danger" className="ml-2" disabled={isDownloading} onClick={handleDownloadPDF}>
+          <Button type="button" variant="danger" disabled={isDownloading} onClick={handleDownloadPDF}>
             {isDownloading ? <Spinner className="mr-2 h-5 w-5" /> : <DownloadIcon className="mr-2 h-5 w-5" />}
             <span>Baixar</span>
           </Button>
@@ -256,9 +258,7 @@ function formatDateNoComma(value: string) {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return ''
 
-  const date = d.toLocaleDateString('pt-BR')
-  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  return `${date} ${time}`
+  return formatDateTime(d)
 }
 
 function formatHistoryType(type: string) {
@@ -281,6 +281,7 @@ function formatHistoryValue(value: string | null) {
     const parsed = JSON.parse(value) as unknown
     const fieldLabelMap: Record<string, string> = {
       name: 'Nome',
+      animalId: 'Animal',
       species: 'Espécie',
       breed: 'Raça',
       size: 'Porte',
@@ -295,11 +296,27 @@ function formatHistoryValue(value: string | null) {
       circumstances: 'Circunstâncias',
       foundConditions: 'Condições em que foi encontrado',
       immediateProcedures: 'Procedimentos Imediatos',
+      occurrenceTypeId: 'Tipo de Ocorrência',
+      occurrenceDate: 'Data da Ocorrência',
+      appointmentTypeId: 'Tipo de Consulta',
+      appointmentDate: 'Data da Consulta',
+      consultationType: 'Modalidade',
+      clinicId: 'Clínica',
+      appointmentId: 'Consulta',
+      symptomsPresented: 'Sintomas Apresentados',
+      dietaryHistory: 'Histórico Alimentar',
+      behavioralHistory: 'Histórico Comportamental',
+      requestedExams: 'Exames Solicitados',
+      presumptiveDiagnosis: 'Diagnóstico Presuntivo',
+      procedureTypeId: 'Tipo de Procedimento',
+      procedureDate: 'Data do Procedimento',
+      actualCost: 'Custo Real',
       destinationTypeId: 'Tipo de Destino Final',
       destinationDate: 'Data do Destino Final',
       reason: 'Motivo',
       proof: 'Comprovante',
       animal: 'Animal',
+      description: 'Descrição',
     }
 
     const valueLabelMapByField: Record<string, Record<string, string>> = {
@@ -307,11 +324,27 @@ function formatHistoryValue(value: string | null) {
       size: { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' },
       sex: { macho: 'Macho', femea: 'Fêmea' },
       healthCondition: { saudavel: 'Saudável', estavel: 'Estável', critica: 'Crítica' },
-      status: { pendente: 'Pendente', ativo: 'Ativo', inativo: 'Inativo' },
+      status: {
+        pendente: 'Pendente',
+        ativo: 'Ativo',
+        inativo: 'Inativo',
+        agendado: 'Agendado',
+        realizado: 'Realizado',
+        cancelado: 'Cancelado',
+      },
+      consultationType: { clinica: 'Clínica', domiciliar: 'Domiciliar', emergencia: 'Emergência' },
     }
 
     const translateValue = (fieldKey: string, fieldValue: unknown): unknown => {
       if (typeof fieldValue === 'string') {
+        if (['entryDate', 'rescueDate', 'destinationDate'].includes(fieldKey)) {
+          return formatDate(fieldValue)
+        }
+
+        if (['occurrenceDate', 'appointmentDate', 'procedureDate'].includes(fieldKey)) {
+          return formatDateNoComma(fieldValue)
+        }
+
         return valueLabelMapByField[fieldKey]?.[fieldValue] ?? fieldValue
       }
       return fieldValue
@@ -332,7 +365,18 @@ function formatHistoryValue(value: string | null) {
       return input
     }
 
-    return JSON.stringify(translatePayload(parsed))
+    const formatTranslatedValue = (input: unknown): string => {
+      if (Array.isArray(input)) return input.map(formatTranslatedValue).join('; ')
+      if (input && typeof input === 'object') {
+        return Object.entries(input as Record<string, unknown>)
+          .map(([key, fieldValue]) => `${key}: ${formatTranslatedValue(fieldValue)}`)
+          .join(', ')
+      }
+      if (input === null || typeof input === 'undefined') return ''
+      return String(input)
+    }
+
+    return formatTranslatedValue(translatePayload(parsed))
   } catch {
     return value
   }

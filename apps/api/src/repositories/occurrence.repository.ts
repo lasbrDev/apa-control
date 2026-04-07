@@ -4,6 +4,9 @@ import type { DrizzleTransaction } from '@/database/types'
 import type { Occurrence } from '@/entities'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
 import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
 
 export interface ListOccurrencesData {
@@ -61,8 +64,20 @@ export class OccurrenceRepository {
     if (animalName) whereList.push(ilike(animal.name, `%${animalName}%`))
     if (occurrenceTypeId) whereList.push(eq(occurrence.occurrenceTypeId, occurrenceTypeId))
     if (employeeId) whereList.push(eq(occurrence.employeeId, employeeId))
-    if (occurrenceDateStart) whereList.push(gte(occurrence.occurrenceDate, new Date(occurrenceDateStart)))
-    if (occurrenceDateEnd) whereList.push(lte(occurrence.occurrenceDate, new Date(occurrenceDateEnd)))
+    if (occurrenceDateStart)
+      whereList.push(
+        gte(
+          occurrence.occurrenceDate,
+          startOfDay(parseISO(occurrenceDateStart, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
+    if (occurrenceDateEnd)
+      whereList.push(
+        lte(
+          occurrence.occurrenceDate,
+          endOfDay(parseISO(occurrenceDateEnd, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
 
     const [sqlQuery, countQuery] = querifyString<OccurrenceWithDetails>(data, whereList, querifyStringSettings)
     const items = await sqlQuery

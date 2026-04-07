@@ -29,6 +29,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -42,7 +43,6 @@ interface CampaignListValues {
   description: string
   startDate: string
   endDate: string
-  fundraisingGoal: string
   status: string
   observations: string | null
   campaignTypeName?: string
@@ -98,7 +98,7 @@ export const CampaignList = () => {
     defaultValues: {
       page: 1,
       perPage: 10,
-      fields: 'id,campaignTypeId,title,startDate,endDate,fundraisingGoal,status,campaignTypeName',
+      fields: 'id,campaignTypeId,title,startDate,endDate,status,campaignTypeName',
       sort: '-startDate',
       title: '',
       campaignTypeId: null,
@@ -125,8 +125,11 @@ export const CampaignList = () => {
               .delete(`campaign.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -146,8 +149,11 @@ export const CampaignList = () => {
               .post(`campaign.cancel/${values.id}`, null, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Campanha cancelada com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -167,8 +173,11 @@ export const CampaignList = () => {
               .post(`campaign.complete/${values.id}`, null, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Campanha concluída com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -186,7 +195,7 @@ export const CampaignList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -200,7 +209,7 @@ export const CampaignList = () => {
           campaignTypes.filter((item) => item.active).map((item) => ({ value: item.id, label: item.name })),
         )
       })
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [])
 
   useEffect(() => {
@@ -322,12 +331,12 @@ export const CampaignList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="startDate">Data inicial</Form.Label>
-                  <Form.Input type="date" name="startDate" />
+                  <Form.DateInput name="startDate" />
                   <Form.ErrorMessage field="startDate" />
                 </div>
                 <div>
                   <Form.Label htmlFor="endDate">Data final</Form.Label>
-                  <Form.Input type="date" name="endDate" />
+                  <Form.DateInput name="endDate" />
                   <Form.ErrorMessage field="endDate" />
                 </div>
               </div>
@@ -352,7 +361,6 @@ export const CampaignList = () => {
                   <TableHead>Título</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Período</TableHead>
-                  <TableHead>Meta</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead aria-label="Ações" />
                 </TableRow>
@@ -366,15 +374,7 @@ export const CampaignList = () => {
                     </TableCell>
                     <TableCell>{item.campaignTypeName ?? `#${item.campaignTypeId}`}</TableCell>
                     <TableCell>
-                      {new Date(item.startDate).toLocaleDateString('pt-BR')} -{' '}
-                      {new Date(item.endDate).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                    <TableCell>
-                      {item.fundraisingGoal != null
-                        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                            Number(item.fundraisingGoal),
-                          )
-                        : '—'}
+                      {formatDate(item.startDate)} - {formatDate(item.endDate)}
                     </TableCell>
                     <TableCell>{formatCampaignStatus(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">

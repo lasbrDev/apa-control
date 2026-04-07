@@ -5,6 +5,9 @@ import type { Anamnesis } from '@/entities'
 import type { AnamnesisWithDetails, ListAnamnesesData } from '@/use-cases/anamnesis/list-anamneses/list-anamneses.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
 import { type SQL, and, eq, gte, ilike, lte, ne } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
@@ -35,8 +38,20 @@ export class AnamnesisRepository {
     if (animalName) whereList.push(ilike(animal.name, `%${animalName}%`))
     if (appointmentId) whereList.push(eq(anamnesis.appointmentId, appointmentId))
     if (employeeId) whereList.push(eq(appointment.employeeId, employeeId))
-    if (createdDateStart) whereList.push(gte(anamnesis.createdAt, new Date(createdDateStart)))
-    if (createdDateEnd) whereList.push(lte(anamnesis.createdAt, new Date(createdDateEnd)))
+    if (createdDateStart)
+      whereList.push(
+        gte(
+          anamnesis.createdAt,
+          startOfDay(parseISO(createdDateStart, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
+    if (createdDateEnd)
+      whereList.push(
+        lte(
+          anamnesis.createdAt,
+          endOfDay(parseISO(createdDateEnd, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
 
     const [sqlQuery, countQuery] = querifyString<AnamnesisWithDetails>(data, whereList, querifyStringSettings)
     const items = await sqlQuery

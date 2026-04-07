@@ -145,13 +145,13 @@ export const CampaignForm = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-3">
                 <div>
                   <Form.Label htmlFor="startDate">Data inicial</Form.Label>
-                  <Form.Input type="date" name="startDate" />
+                  <Form.DateInput name="startDate" />
                   <Form.ErrorMessage field="startDate" />
                 </div>
 
                 <div>
                   <Form.Label htmlFor="endDate">Data final</Form.Label>
-                  <Form.Input type="date" name="endDate" />
+                  <Form.DateInput name="endDate" />
                   <Form.ErrorMessage field="endDate" />
                 </div>
 

@@ -8,7 +8,10 @@ import type {
 } from '@/use-cases/appointment/list-appointments/list-appointments.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
-import { type SQL, and, eq, gte, ilike, lte } from 'drizzle-orm'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
+import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
   table: appointment,
@@ -52,8 +55,20 @@ export class AppointmentRepository {
     if (consultationType) whereList.push(eq(appointment.consultationType, consultationType))
     if (status) whereList.push(eq(appointment.status, status))
     if (employeeId) whereList.push(eq(appointment.employeeId, employeeId))
-    if (appointmentDateStart) whereList.push(gte(appointment.appointmentDate, new Date(appointmentDateStart)))
-    if (appointmentDateEnd) whereList.push(lte(appointment.appointmentDate, new Date(appointmentDateEnd)))
+    if (appointmentDateStart)
+      whereList.push(
+        gte(
+          appointment.appointmentDate,
+          startOfDay(parseISO(appointmentDateStart, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
+    if (appointmentDateEnd)
+      whereList.push(
+        lte(
+          appointment.appointmentDate,
+          endOfDay(parseISO(appointmentDateEnd, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
 
     const [sqlQuery, countQuery] = querifyString<AppointmentWithDetails>(data, whereList, querifyStringSettings)
     const items = await sqlQuery

@@ -52,8 +52,11 @@ export const OccurrenceTypeList = () => {
           if (confirmed) {
             api
               .delete(`occurrence-type.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((error) => modal.alert(errorMessageHandler(error)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((error) => toast.error(errorMessageHandler(error)))
           }
         },
       })
@@ -66,7 +69,7 @@ export const OccurrenceTypeList = () => {
     api
       .get('occurrence-type.list', { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => setItems(Array.isArray(data) ? data : []))
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
       .finally(() => setFetching(false))
   }, [modal, token, refresh.ref])
 

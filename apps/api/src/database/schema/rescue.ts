@@ -10,11 +10,11 @@ export const rescue = pgTable('rescue', {
   employeeId: integer()
     .notNull()
     .references(() => employee.id),
-  rescueDate: timestamp().notNull(),
+  rescueDate: timestamp({ withTimezone: true }).notNull(),
   locationFound: varchar({ length: 200 }).notNull(),
   circumstances: text().notNull(),
   foundConditions: text().notNull(),
   immediateProcedures: text(),
   observations: text(),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

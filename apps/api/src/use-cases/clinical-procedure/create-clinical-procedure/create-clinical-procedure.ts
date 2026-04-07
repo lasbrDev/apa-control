@@ -8,6 +8,9 @@ import type { AppointmentRepository } from '@/repositories/appointment.repositor
 import type { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
 import type { ProcedureTypeRepository } from '@/repositories/procedure-type.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 import Decimal from 'decimal.js'
 import type { CreateClinicalProcedureData } from './create-clinical-procedure.dto'
 
@@ -38,7 +41,7 @@ export class CreateClinicalProcedureUseCase {
       }
     }
 
-    const procedureDate = new Date(data.procedureDate)
+    const procedureDate = parseISO(data.procedureDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(procedureDate.getTime())) throw new ApiError('Data/hora do procedimento inválida.', 400)
 
     return await db.transaction(async (tx) => {

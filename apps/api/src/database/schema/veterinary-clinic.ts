@@ -9,5 +9,5 @@ export const veterinaryClinic = pgTable('veterinary_clinic', {
   responsible: varchar({ length: 100 }).notNull(),
   specialties: text(),
   active: boolean().notNull().default(true),
-  registrationDate: timestamp().notNull(),
+  registrationDate: timestamp({ withTimezone: true }).notNull(),
 })

@@ -25,6 +25,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -90,8 +91,11 @@ export const OccurrenceList = () => {
           if (confirmed) {
             api
               .delete(`occurrence.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((error) => modal.alert(errorMessageHandler(error)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((error) => toast.error(errorMessageHandler(error)))
           }
         },
       })
@@ -108,7 +112,7 @@ export const OccurrenceList = () => {
       setItems(Array.isArray(data) ? data : [])
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -145,7 +149,7 @@ export const OccurrenceList = () => {
             .map((i: { id: number; name: string }) => ({ value: i.id, label: i.name })),
         ),
       )
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [token, modal])
 
   useEffect(() => {
@@ -235,12 +239,12 @@ export const OccurrenceList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="occurrenceDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="occurrenceDateStart" />
+                  <Form.DateInput name="occurrenceDateStart" />
                   <Form.ErrorMessage field="occurrenceDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="occurrenceDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="occurrenceDateEnd" />
+                  <Form.DateInput name="occurrenceDateEnd" />
                   <Form.ErrorMessage field="occurrenceDateEnd" />
                 </div>
               </div>
@@ -272,7 +276,7 @@ export const OccurrenceList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.occurrenceTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.occurrenceDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.occurrenceDate)}</TableCell>
                     <TableCell className="max-w-[400px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>

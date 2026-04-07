@@ -14,9 +14,9 @@ export const occurrence = pgTable('occurrence', {
   employeeId: integer()
     .notNull()
     .references(() => employee.id),
-  occurrenceDate: timestamp().notNull(),
+  occurrenceDate: timestamp({ withTimezone: true }).notNull(),
   description: text().notNull(),
   observations: text(),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
+  updatedAt: timestamp({ withTimezone: true }),
 })

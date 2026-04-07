@@ -26,7 +26,6 @@ describe('Get appointment by id', () => {
   })
 
   it('should get appointment by id', async () => {
-    // Arrange
     const animal = await AnimalFactory.create()
     const appointmentType = await AppointmentTypeFactory.create({ active: true })
     const clinic = await VeterinaryClinicFactory.create({ active: true })
@@ -47,7 +46,6 @@ describe('Get appointment by id', () => {
       })
       .returning()
 
-    // Act
     const response = await app.inject({
       method: 'GET',
       url: `/appointment.key/${createdAppointment.id}`,
@@ -56,7 +54,6 @@ describe('Get appointment by id', () => {
 
     const data = response.json()
 
-    // Assert
     expect(response.statusCode).toBe(200)
     expect(data).toHaveProperty('id')
     expect(data.id).toBe(createdAppointment.id)

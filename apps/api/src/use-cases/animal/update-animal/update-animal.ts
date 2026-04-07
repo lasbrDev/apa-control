@@ -20,20 +20,6 @@ export class UpdateAnimalUseCase {
       throw new ApiError('Animal não encontrado.', 404)
     }
 
-    const labelMap: Record<string, string> = {
-      name: 'Nome',
-      species: 'Espécie',
-      breed: 'Raça',
-      size: 'Porte',
-      sex: 'Sexo',
-      birthYear: 'Ano de Nascimento',
-      healthCondition: 'Condição de saúde',
-      entryDate: 'Data de entrada',
-      observations: 'Observações',
-    }
-
-    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '' : String(value))
-
     const changedData = Object.entries(data).reduce((acc, [key, value]) => {
       const shouldIgnoreKey = key === 'id' || key === 'employeeId'
       if (shouldIgnoreKey) return acc
@@ -58,13 +44,7 @@ export class UpdateAnimalUseCase {
       return acc
     }, {})
 
-    const changedLabels: string[] =
-      Object.keys(changedData).map((key) => {
-        const label = labelMap[key] ?? key
-        return `${label}: ${formatValue(oldValues[key])} -> ${formatValue(newValues[key])}`
-      }) ?? []
-
-    const description = changedLabels.length > 0 ? changedLabels.join(' | ') : 'Nenhuma alteração relevante detectada'
+    const description = 'Cadastro atualizado'
 
     await db.transaction(async (tx) => {
       await this.animalRepository.update(data.id, changedData, tx)

@@ -4,6 +4,9 @@ import { AnimalHistory } from '@/entities'
 import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import type { RescueRepository } from '@/repositories/rescue.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO, startOfDay } from 'date-fns'
 import type { UpdateRescueData } from './update-rescue.dto'
 
 export class UpdateRescueUseCase {
@@ -19,61 +22,38 @@ export class UpdateRescueUseCase {
       throw new ApiError('Resgate não encontrado.', 404)
     }
 
-    const toDateLabel = (value: Date | string) => (value instanceof Date ? value.toISOString().split('T')[0] : value)
-    const formatValue = (value: unknown) => (value === null || typeof value === 'undefined' ? '' : String(value))
-    const changed: string[] = []
-    const oldValues: Record<string, unknown> = {}
-    const newValues: Record<string, unknown> = {}
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id' || key === 'employeeId'
+        if (shouldIgnoreKey) return acc
 
-    const nextRescueDateLabel = toDateLabel(data.rescueDate)
-    const prevRescueDateLabel = toDateLabel(existing.rescueDate)
-    if (prevRescueDateLabel !== nextRescueDateLabel) {
-      changed.push(`Data do resgate: ${formatValue(prevRescueDateLabel)} -> ${formatValue(nextRescueDateLabel)}`)
-      oldValues.rescueDate = prevRescueDateLabel
-      newValues.rescueDate = nextRescueDateLabel
-    }
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
 
-    if (existing.locationFound !== data.locationFound) {
-      changed.push(`Local encontrado: ${formatValue(existing.locationFound)} -> ${formatValue(data.locationFound)}`)
-      oldValues.locationFound = existing.locationFound
-      newValues.locationFound = data.locationFound
-    }
-    if (existing.circumstances !== data.circumstances) {
-      changed.push(`Circunstâncias: ${formatValue(existing.circumstances)} -> ${formatValue(data.circumstances)}`)
-      oldValues.circumstances = existing.circumstances
-      newValues.circumstances = data.circumstances
-    }
-    if (existing.foundConditions !== data.foundConditions) {
-      changed.push(
-        `Condições em que foi encontrado: ${formatValue(existing.foundConditions)} -> ${formatValue(data.foundConditions)}`,
-      )
-      oldValues.foundConditions = existing.foundConditions
-      newValues.foundConditions = data.foundConditions
-    }
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
 
-    const prevImmediate = existing.immediateProcedures ?? null
-    const nextImmediate = data.immediateProcedures ?? null
-    if (prevImmediate !== nextImmediate) {
-      changed.push(`Procedimentos imediatos: ${formatValue(prevImmediate)} -> ${formatValue(nextImmediate)}`)
-      oldValues.immediateProcedures = prevImmediate
-      newValues.immediateProcedures = nextImmediate
-    }
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
 
-    const prevObs = existing.observations ?? null
-    const nextObs = data.observations ?? null
-    if (prevObs !== nextObs) {
-      changed.push(`Observações do resgate: ${formatValue(prevObs)} -> ${formatValue(nextObs)}`)
-      oldValues.observations = prevObs
-      newValues.observations = nextObs
-    }
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
 
-    const description = 'Dados de Resgate atualizados'
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.rescueRepository.update(
         data.id,
         {
-          rescueDate: new Date(data.rescueDate),
+          rescueDate: startOfDay(parseISO(data.rescueDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
           locationFound: data.locationFound,
           circumstances: data.circumstances,
           foundConditions: data.foundConditions,
@@ -90,7 +70,7 @@ export class UpdateRescueUseCase {
           employeeId: data.employeeId,
           type: AnimalHistoryType.RESCUE,
           action: 'rescue.updated',
-          description,
+          description: 'Resgate atualizado',
           oldValue: JSON.stringify(oldValues),
           newValue: JSON.stringify(newValues),
           createdAt: new Date(),

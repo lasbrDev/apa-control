@@ -30,6 +30,7 @@ import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -151,8 +152,11 @@ export const RevenueList = () => {
               .delete(`revenue.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -218,7 +222,7 @@ export const RevenueList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -252,7 +256,7 @@ export const RevenueList = () => {
         const animals = Array.isArray(animalsRes.data) ? animalsRes.data : []
         setAnimalOptions(animals.map((item: { id: number; name: string }) => ({ value: item.id, label: item.name })))
       })
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [token, modal])
 
   useEffect(() => {
@@ -390,17 +394,17 @@ export const RevenueList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="createdAtStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="createdAtStart" />
+                  <Form.DateInput name="createdAtStart" />
                   <Form.ErrorMessage field="createdAtStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="createdAtEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="createdAtEnd" />
+                  <Form.DateInput name="createdAtEnd" />
                   <Form.ErrorMessage field="createdAtEnd" />
                 </div>
               </div>
 
-              <CardFooter className="mt-6 flex-wrap items-center gap-3 p-0">
+              <CardFooter className="mt-6 flex flex-wrap gap-3 p-0">
                 <Button
                   type="button"
                   variant="danger"
@@ -474,7 +478,7 @@ export const RevenueList = () => {
                         Number(item.value),
                       )}
                     </TableCell>
-                    <TableCell>{new Date(item.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                    <TableCell>{formatDate(item.createdAt)}</TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
                     <TableCell>{revenueStatusBadge(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">

@@ -22,5 +22,5 @@ export const financialTransaction = pgTable('financial_transaction', {
   observations: text(),
   status: transactionStatusEnum().notNull(),
   paymentDate: date(),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

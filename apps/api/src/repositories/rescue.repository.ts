@@ -4,6 +4,9 @@ import type { DrizzleTransaction } from '@/database/types'
 import type { Rescue } from '@/entities'
 import type { ListRescuesData, RescueWithDetails } from '@/use-cases/rescue/list-rescues/list-rescues.dto'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
 import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
@@ -38,13 +41,21 @@ export class RescueRepository {
     }
 
     if (rescueDateStart) {
-      const startDate = new Date(`${rescueDateStart}T00:00:00`)
-      whereList.push(gte(rescue.rescueDate, startDate))
+      whereList.push(
+        gte(
+          rescue.rescueDate,
+          startOfDay(parseISO(rescueDateStart, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
     }
 
     if (rescueDateEnd) {
-      const endDate = new Date(`${rescueDateEnd}T23:59:59.999`)
-      whereList.push(lte(rescue.rescueDate, endDate))
+      whereList.push(
+        lte(
+          rescue.rescueDate,
+          endOfDay(parseISO(rescueDateEnd, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
     }
 
     const [sqlQuery, countQuery] = querifyString<RescueWithDetails>(data, whereList, querifyStringSettings)

@@ -49,8 +49,11 @@ export const FinalDestinationTypeList = () => {
               .delete(`final-destination-type.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -64,7 +67,7 @@ export const FinalDestinationTypeList = () => {
     api
       .get('final-destination-type.list', { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => setItems(data))
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
       .finally(() => setFetching(false))
   }, [refresh.ref])
 

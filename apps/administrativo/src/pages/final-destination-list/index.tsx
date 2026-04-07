@@ -19,6 +19,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -110,8 +111,11 @@ export const FinalDestinationList = () => {
           if (confirmed) {
             api
               .delete(`final-destination.delete/${values.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -128,7 +132,7 @@ export const FinalDestinationList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -148,7 +152,7 @@ export const FinalDestinationList = () => {
         const employees = Array.isArray(employeeResponse.data) ? employeeResponse.data : []
         setEmployeeOptions(employees.map((item) => ({ value: item.id, label: item.name })))
       })
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [])
 
   useEffect(() => {
@@ -278,13 +282,13 @@ export const FinalDestinationList = () => {
               <div className="mb-6 grid gap-4 lg:grid-cols-2">
                 <div>
                   <Form.Label htmlFor="destinationDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="destinationDateStart" />
+                  <Form.DateInput name="destinationDateStart" />
                   <Form.ErrorMessage field="destinationDateStart" />
                 </div>
 
                 <div>
                   <Form.Label htmlFor="destinationDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="destinationDateEnd" />
+                  <Form.DateInput name="destinationDateEnd" />
                   <Form.ErrorMessage field="destinationDateEnd" />
                 </div>
               </div>
@@ -320,9 +324,7 @@ export const FinalDestinationList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>{item.destinationTypeName ?? `#${item.destinationTypeId}`}</TableCell>
-                    <TableCell>
-                      {item.destinationDate ? new Date(item.destinationDate).toLocaleDateString('pt-BR') : ''}
-                    </TableCell>
+                    <TableCell>{item.destinationDate ? formatDate(item.destinationDate) : ''}</TableCell>
                     <TableCell className="max-w-[220px] truncate" title={item.reason}>
                       {item.reason}
                     </TableCell>

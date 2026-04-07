@@ -126,7 +126,8 @@ const ChildMenuItem = ({ page, basename, strictActive }: SingleMenuItemProps & {
 export const DropdownMenuItem = ({ page, basename }: DropdownMenuItemProps) => {
   const location = useLocation()
   const strictAtive = page.strictActive
-  const [opened, setOpened] = useState<boolean>(Boolean(matchRoutes(page.pages!, location, basename)))
+  const isChildActive = Boolean(matchRoutes(page.pages!, location, basename))
+  const [opened, setOpened] = useState<boolean>(isChildActive)
   const handleButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
     ev.preventDefault()
     setOpened((prev) => !prev)
@@ -145,7 +146,7 @@ export const DropdownMenuItem = ({ page, basename }: DropdownMenuItemProps) => {
         className={cn(
           'group relative flex h-11 w-full grow items-center rounded-xl px-4 py-2.5 outline-hidden transition-all duration-200 ease-in-out',
           'hover:bg-linear-to-r hover:from-brand/8 hover:to-brand/5 hover:text-brand hover:shadow-sm',
-          opened && 'bg-linear-to-r from-brand/12 to-brand/8 text-brand shadow-sm',
+          isChildActive && 'bg-linear-to-r from-brand/12 to-brand/8 text-brand shadow-sm',
         )}
         type="button"
         onClick={handleButtonClick}
@@ -155,14 +156,14 @@ export const DropdownMenuItem = ({ page, basename }: DropdownMenuItemProps) => {
             className={cn(
               'relative z-10 mr-3 h-5 w-5 transition-all duration-200',
               'group-hover:scale-110',
-              opened ? 'text-brand' : 'text-gray-600 group-hover:text-brand',
+              isChildActive ? 'text-brand' : 'text-gray-600 group-hover:text-brand',
             )}
           />
         )}
         <span
           className={cn(
             'relative z-10 flex-1 text-left font-medium text-base transition-colors',
-            opened && 'text-brand',
+            isChildActive && 'text-brand',
           )}
         >
           {page.title}

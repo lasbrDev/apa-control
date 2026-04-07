@@ -54,7 +54,6 @@ const schema = z.object({
   clinicId: z.number().nullish(),
   appointmentDate: z.string({ message: RequiredMessage }).min(1, RequiredMessage),
   consultationType: z.enum(['clinica', 'domiciliar', 'emergencia']),
-  status: z.enum(['agendado', 'realizado', 'cancelado']),
   observations: z.string().nullish(),
   animalNamePreview: z.string().nullish(),
   speciesPreview: z.string().nullish(),
@@ -72,11 +71,6 @@ const consultationTypeOptions = [
   { value: 'clinica', label: 'Clínica' },
   { value: 'domiciliar', label: 'Domiciliar' },
   { value: 'emergencia', label: 'Emergência' },
-]
-const statusOptions = [
-  { value: 'agendado', label: 'Agendado' },
-  { value: 'realizado', label: 'Realizado' },
-  { value: 'cancelado', label: 'Cancelado' },
 ]
 
 export const AppointmentForm = () => {
@@ -102,7 +96,7 @@ export const AppointmentForm = () => {
 
   const form = useForm<Data>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'agendado', consultationType: 'clinica', observations: '', clinicId: null },
+    defaultValues: { consultationType: 'clinica', observations: '', clinicId: null },
   })
   const {
     handleSubmit,
@@ -123,7 +117,6 @@ export const AppointmentForm = () => {
         clinicId: values.clinicId,
         appointmentDate: values.appointmentDate,
         consultationType: values.consultationType,
-        status: values.status,
         observations: values.observations,
       }
       await api[params.id ? 'put' : 'post'](params.id ? 'appointment.update' : 'appointment.add', payload, {
@@ -167,7 +160,6 @@ export const AppointmentForm = () => {
             clinicId: key.clinicId ?? null,
             appointmentDate: local,
             consultationType: key.consultationType,
-            status: key.status,
             observations: key.observations ?? '',
             animalNamePreview: key.animalName ?? '',
           })
@@ -224,7 +216,6 @@ export const AppointmentForm = () => {
     'appointmentTypeId',
     'appointmentDate',
     'consultationType',
-    'status',
     'observations',
   ]
 
@@ -304,7 +295,7 @@ export const AppointmentForm = () => {
                       <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Label htmlFor="agePreview">Idade</Form.Label>
                       <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
@@ -313,7 +304,7 @@ export const AppointmentForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" disabled />
+                      <Form.DateInput name="entryDatePreview" disabled />
                     </div>
                   </div>
                   <div className="mb-6">
@@ -351,13 +342,6 @@ export const AppointmentForm = () => {
                       <Form.Label htmlFor="consultationType">Modalidade</Form.Label>
                       <Form.Select name="consultationType" options={consultationTypeOptions} />
                       <Form.ErrorMessage field="consultationType" />
-                    </div>
-                  </div>
-                  <div className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <div>
-                      <Form.Label htmlFor="status">Status</Form.Label>
-                      <Form.Select name="status" options={statusOptions} />
-                      <Form.ErrorMessage field="status" />
                     </div>
                   </div>
                   <div className="mb-6">

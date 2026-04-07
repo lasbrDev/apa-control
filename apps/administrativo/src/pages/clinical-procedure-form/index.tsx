@@ -18,6 +18,7 @@ import { Spinner } from '../../components/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { formatDate } from '../../helpers/date'
 import { toQueryString } from '../../helpers/qs'
 import { api } from '../../service'
 
@@ -171,7 +172,7 @@ export const ClinicalProcedureForm = () => {
             try {
               const { data: appointment } = await api.get(`appointment.key/${key.appointmentId}`, config)
               setAppointmentDisplayLabel(
-                `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')})`,
+                `#${appointment.id} - ${appointment.animalName ?? 'Animal'} (${formatDate(appointment.appointmentDate)})`,
               )
             } catch {
               setAppointmentDisplayLabel(`#${key.appointmentId}`)
@@ -287,7 +288,7 @@ export const ClinicalProcedureForm = () => {
                       <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Label htmlFor="agePreview">Idade</Form.Label>
                       <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
@@ -296,7 +297,7 @@ export const ClinicalProcedureForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" disabled />
+                      <Form.DateInput name="entryDatePreview" disabled />
                     </div>
                   </div>
                   <div className="mb-6">
@@ -347,7 +348,7 @@ export const ClinicalProcedureForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="actualCost">Custo real (R$)</Form.Label>
-                      <Form.Input name="actualCost" type="number" step="0.01" min={0} />
+                      <Form.DecimalInput name="actualCost" />
                       <Form.ErrorMessage field="actualCost" />
                     </div>
                   </div>

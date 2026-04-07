@@ -28,6 +28,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/tabs'
 import { errorMessageHandler } from '../../helpers/axios'
 import { RequiredMessage } from '../../helpers/constants'
+import { formatDateTime } from '../../helpers/date'
 import { toQueryString } from '../../helpers/qs'
 import { downloadReportBlob } from '../../helpers/report-download'
 import { api } from '../../service'
@@ -280,9 +281,7 @@ export const RescueForm = () => {
     const d = new Date(value)
     if (Number.isNaN(d.getTime())) return ''
 
-    const date = d.toLocaleDateString('pt-BR')
-    const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    return `${date} ${time}`
+    return formatDateTime(d)
   }
 
   useEffect(() => {
@@ -515,7 +514,7 @@ export const RescueForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDate">Data de entrada</Form.Label>
-                      <Form.Input name="entryDate" type="date" disabled={disableAnimalFields} />
+                      <Form.DateInput name="entryDate" disabled={disableAnimalFields} />
                       <Form.ErrorMessage field="entryDate" />
                     </div>
                   </div>
@@ -577,7 +576,7 @@ export const RescueForm = () => {
                     <div>
                       <Form.Label htmlFor="rescueDate">Data do resgate</Form.Label>
                       <Form.IconContainer>
-                        <Form.Input name="rescueDate" type="date" className="pl-9" />
+                        <Form.DateInput name="rescueDate" className="pl-9" />
                         <Form.Icon icon={CalendarIcon} />
                       </Form.IconContainer>
                       <Form.ErrorMessage field="rescueDate" />

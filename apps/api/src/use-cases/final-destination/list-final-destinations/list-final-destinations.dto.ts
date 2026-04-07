@@ -11,6 +11,7 @@ export interface ListFinalDestinationsData {
 }
 
 export type FinalDestinationWithDetails = {
+  animalName?: string
   id: number
   animalId: number
   destinationTypeId: number
@@ -20,7 +21,6 @@ export type FinalDestinationWithDetails = {
   observations: string | null
   proof: string | null
   createdAt: Date
-  animalName?: string
   destinationTypeName?: string
   employeeName?: string
 }

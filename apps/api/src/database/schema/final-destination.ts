@@ -19,5 +19,5 @@ export const finalDestination = pgTable('final_destination', {
   reason: text().notNull(),
   observations: text(),
   proof: varchar({ length: 255 }),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

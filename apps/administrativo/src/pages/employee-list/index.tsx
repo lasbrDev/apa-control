@@ -104,8 +104,11 @@ export const EmployeeList = () => {
                 { id: values.id, disabled: true },
                 { headers: { Authorization: `Bearer ${token}` } },
               )
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success(`Funcionário ${values.name} desabilitado com sucesso!`)
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -127,8 +130,11 @@ export const EmployeeList = () => {
                 { id: values.id, disabled: false },
                 { headers: { Authorization: `Bearer ${token}` } },
               )
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success(`Funcionário ${values.name} habilitado com sucesso!`)
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -147,7 +153,7 @@ export const EmployeeList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
 
     setFetching(false)
@@ -180,7 +186,7 @@ export const EmployeeList = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(({ data }) => setProfiles(data))
-      .catch((err) => modal.alert(errorMessageHandler(err)))
+      .catch((err) => toast.error(errorMessageHandler(err)))
   }, [])
 
   function changePage(page: number) {

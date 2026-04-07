@@ -440,7 +440,7 @@ export const AdoptionForm = () => {
                       <Form.Select name="sexPreview" options={sexOptions} disabled />
                     </div>
                     <div>
-                      <Form.Label htmlFor="agePreview">Idade Aprox.</Form.Label>
+                      <Form.Label htmlFor="agePreview">Idade</Form.Label>
                       <Form.Input name="agePreview" disabled />
                     </div>
                     <div>
@@ -449,7 +449,7 @@ export const AdoptionForm = () => {
                     </div>
                     <div>
                       <Form.Label htmlFor="entryDatePreview">Data de entrada</Form.Label>
-                      <Form.Input name="entryDatePreview" type="date" disabled />
+                      <Form.DateInput name="entryDatePreview" disabled />
                     </div>
                   </div>
                   <div className="mb-6">
@@ -532,7 +532,7 @@ export const AdoptionForm = () => {
                   <div className="mb-6 grid gap-4 lg:grid-cols-2">
                     <div>
                       <Form.Label htmlFor="adoptionDate">Data da adoção</Form.Label>
-                      <Form.Input type="date" name="adoptionDate" />
+                      <Form.DateInput name="adoptionDate" />
                       <Form.ErrorMessage field="adoptionDate" />
                     </div>
                     <div>

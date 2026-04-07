@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronLeftIcon, SendIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { toast } from 'sonner'
 import { z } from 'zod'
-import { useApp } from '../../App'
 import { Button } from '../../components/button'
 import { Form } from '../../components/form-hook'
 import { ErrorAlert } from '../../components/form/error-alert'
@@ -21,7 +21,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>
 
 export const ForgotPassword = () => {
-  const { modal } = useApp()
   const pushTo = useNavigate()
 
   const forgotPasswordForm = useForm<ForgotPasswordData>({
@@ -39,7 +38,7 @@ export const ForgotPassword = () => {
     try {
       const { data } = await api.post('auth.forgotpassword', values)
 
-      modal.alert(`Um e-mail foi enviado para ${data.email}.\nVerifique seu e-mail e siga as instruções.`)
+      toast.success(`Um e-mail foi enviado para ${data.email}. Verifique seu e-mail e siga as instruções.`)
       pushTo('/')
     } catch (err) {
       setError('root', { message: errorMessageHandler(err) })

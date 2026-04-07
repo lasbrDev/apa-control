@@ -14,5 +14,5 @@ export const anamnesis = pgTable('anamnesis', {
   presumptiveDiagnosis: text(),
   observations: text(),
   proof: varchar({ length: 255 }),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

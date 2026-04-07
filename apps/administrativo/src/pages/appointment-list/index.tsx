@@ -27,6 +27,7 @@ import { Separator } from '../../components/separator'
 import { Spinner } from '../../components/spinner'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../../components/table'
 import { errorMessageHandler } from '../../helpers/axios'
+import { formatDateTime } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -129,8 +130,11 @@ export const AppointmentList = () => {
           if (confirmed) {
             api
               .delete(`appointment.delete/${item.id}`, { headers: { Authorization: `Bearer ${token}` } })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -147,7 +151,7 @@ export const AppointmentList = () => {
       setItems(Array.isArray(data) ? data : [])
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -187,7 +191,7 @@ export const AppointmentList = () => {
             .map((i: { id: number; name: string }) => ({ value: i.id, label: i.name })),
         )
       })
-      .catch((error) => modal.alert(errorMessageHandler(error)))
+      .catch((error) => toast.error(errorMessageHandler(error)))
   }, [token, modal])
 
   useEffect(() => {
@@ -304,12 +308,12 @@ export const AppointmentList = () => {
                 </div>
                 <div>
                   <Form.Label htmlFor="appointmentDateStart">Data inicial</Form.Label>
-                  <Form.Input type="date" name="appointmentDateStart" />
+                  <Form.DateInput name="appointmentDateStart" />
                   <Form.ErrorMessage field="appointmentDateStart" />
                 </div>
                 <div>
                   <Form.Label htmlFor="appointmentDateEnd">Data final</Form.Label>
-                  <Form.Input type="date" name="appointmentDateEnd" />
+                  <Form.DateInput name="appointmentDateEnd" />
                   <Form.ErrorMessage field="appointmentDateEnd" />
                 </div>
               </div>
@@ -341,7 +345,7 @@ export const AppointmentList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
-                    <TableCell>{new Date(item.appointmentDate).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{formatDateTime(item.appointmentDate)}</TableCell>
                     <TableCell>{item.status}</TableCell>
                     <TableCell>
                       <ActionsList

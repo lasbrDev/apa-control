@@ -6,6 +6,9 @@ import { getRootFolder } from '@/utils/get-root-folder'
 import { createCsvFromJson2Csv } from '@/utils/report/csv-export'
 import { generatePdfFromTemplate } from '@/utils/report/pdf-generator'
 import { createSimpleXlsxBuffer } from '@/utils/report/xlsx-export'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { format } from 'date-fns'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { getAnimalHistoryByIdQuerySchema, getAnimalHistoryByIdSchema } from './get-animal-history-by-id.schema'
@@ -36,6 +39,7 @@ function formatHistoryValue(value: string | null) {
     const parsed = JSON.parse(value) as unknown
     const fieldLabelMap: Record<string, string> = {
       name: 'Nome',
+      animalId: 'Animal',
       species: 'Espécie',
       breed: 'Raça',
       size: 'Porte',
@@ -50,21 +54,56 @@ function formatHistoryValue(value: string | null) {
       circumstances: 'Circunstâncias',
       foundConditions: 'Condições em que foi encontrado',
       immediateProcedures: 'Procedimentos Imediatos',
+      occurrenceTypeId: 'Tipo de Ocorrência',
+      occurrenceDate: 'Data da Ocorrência',
+      appointmentTypeId: 'Tipo de Consulta',
+      appointmentDate: 'Data da Consulta',
+      consultationType: 'Modalidade',
+      clinicId: 'Clínica',
+      appointmentId: 'Consulta',
+      symptomsPresented: 'Sintomas Apresentados',
+      dietaryHistory: 'Histórico Alimentar',
+      behavioralHistory: 'Histórico Comportamental',
+      requestedExams: 'Exames Solicitados',
+      presumptiveDiagnosis: 'Diagnóstico Presuntivo',
+      procedureTypeId: 'Tipo de Procedimento',
+      procedureDate: 'Data do Procedimento',
+      actualCost: 'Custo Real',
       destinationTypeId: 'Tipo de Destino Final',
       destinationDate: 'Data do Destino Final',
       reason: 'Motivo',
       proof: 'Comprovante',
       animal: 'Animal',
+      description: 'Descrição',
     }
     const valueLabelMapByField: Record<string, Record<string, string>> = {
       species: { canina: 'Cachorro', felina: 'Gato', outros: 'Outros' },
       size: { pequeno: 'Pequeno', medio: 'Médio', grande: 'Grande' },
       sex: { macho: 'Macho', femea: 'Fêmea' },
       healthCondition: { saudavel: 'Saudável', estavel: 'Estável', critica: 'Crítica' },
-      status: { pendente: 'Pendente', ativo: 'Ativo', inativo: 'Inativo' },
+      status: {
+        pendente: 'Pendente',
+        ativo: 'Ativo',
+        inativo: 'Inativo',
+        agendado: 'Agendado',
+        realizado: 'Realizado',
+        cancelado: 'Cancelado',
+      },
+      consultationType: { clinica: 'Clínica', domiciliar: 'Domiciliar', emergencia: 'Emergência' },
     }
+    const dateOnlyFields = new Set(['entryDate', 'rescueDate', 'destinationDate'])
+    const dateTimeFields = new Set(['occurrenceDate', 'appointmentDate', 'procedureDate'])
     const translateValue = (fieldKey: string, fieldValue: unknown): unknown => {
       if (typeof fieldValue === 'string') {
+        if (dateOnlyFields.has(fieldKey) || dateTimeFields.has(fieldKey)) {
+          const parsedDate = new Date(fieldValue)
+          if (!Number.isNaN(parsedDate.getTime())) {
+            return format(parsedDate, dateTimeFields.has(fieldKey) ? 'dd/MM/yyyy HH:mm:ss' : 'yyyy-MM-dd', {
+              in: tz(timeZoneName.SP),
+            })
+          }
+        }
+
         return valueLabelMapByField[fieldKey]?.[fieldValue] ?? fieldValue
       }
       return fieldValue
@@ -83,7 +122,19 @@ function formatHistoryValue(value: string | null) {
       }
       return input
     }
-    return JSON.stringify(translatePayload(parsed))
+
+    const formatTranslatedValue = (input: unknown): string => {
+      if (Array.isArray(input)) return input.map(formatTranslatedValue).join('; ')
+      if (input && typeof input === 'object') {
+        return Object.entries(input as Record<string, unknown>)
+          .map(([key, fieldValue]) => `${key}: ${formatTranslatedValue(fieldValue)}`)
+          .join(', ')
+      }
+      if (input === null || typeof input === 'undefined') return ''
+      return String(input)
+    }
+
+    return formatTranslatedValue(translatePayload(parsed))
   } catch {
     return value
   }
@@ -109,7 +160,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const animal = await getAnimalByIdUseCase.execute({ id })
 
     const rows = result.map((item) => ({
-      Data: item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
+      Data: item.createdAt ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }) : '',
       Tipo: formatHistoryType(item.type),
       Descrição: item.description,
       'Valor Antigo': formatHistoryValue(item.oldValue),
@@ -141,7 +192,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const pdfTemplatePath = getRootFolder('layout/pdf/report-animal-history.ejs')
     const headers = ['Data', 'Tipo', 'Descrição', 'Valor Antigo', 'Valor Novo', 'Por']
     const pdfRows = result.map((item) => [
-      item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '',
+      item.createdAt ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }) : '',
       formatHistoryType(item.type),
       item.description,
       formatHistoryValue(item.oldValue),
@@ -152,7 +203,7 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
     const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
       title: `Histórico do Animal - ${animal.name}`,
       logoDataUrl: getApaControlLogoDataUrl(),
-      generatedAt: new Date().toLocaleString('pt-BR'),
+      generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
       animal: {
         name: animal.name,
         species: mapEnum(animal.species, { canina: 'Cachorro', felina: 'Gato', outros: 'Outros' }),
@@ -170,11 +221,15 @@ export async function getAnimalHistoryByIdController(request: FastifyRequest, re
           ativo: 'Ativo',
           inativo: 'Inativo',
         }),
-        entryDate: animal.entryDate ? new Date(animal.entryDate).toLocaleDateString('pt-BR') : '',
+        entryDate: animal.entryDate
+          ? format(new Date(animal.entryDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
+          : '',
       },
       rescue: rescue
         ? {
-            rescueDate: rescue.rescueDate ? new Date(rescue.rescueDate).toLocaleDateString('pt-BR') : '',
+            rescueDate: rescue.rescueDate
+              ? format(new Date(rescue.rescueDate), 'dd/MM/yyyy', { in: tz(timeZoneName.SP) })
+              : '',
             locationFound: rescue.locationFound,
             circumstances: rescue.circumstances,
             foundConditions: rescue.foundConditions,

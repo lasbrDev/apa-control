@@ -1,4 +1,3 @@
-import { AppointmentStatusValues } from '@/database/schema/enums/appointment-status'
 import { ConsultationTypeValues } from '@/database/schema/enums/consultation-type'
 import { z } from 'zod'
 
@@ -13,6 +12,5 @@ export const createAppointmentSchema = z.object({
   clinicId: optionalId,
   appointmentDate: z.string().min(1, 'Data/hora da consulta é obrigatória'),
   consultationType: z.enum(ConsultationTypeValues),
-  status: z.enum(AppointmentStatusValues).optional(),
   observations: z.string().nullish(),
 })

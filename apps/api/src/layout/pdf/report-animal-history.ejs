@@ -15,11 +15,16 @@
       .animal-info h3 { margin-top: 0; margin-bottom: 10px; font-size: 14px; }
       .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .info-item strong { font-weight: 600; }
-      table { width: 100%; border-collapse: collapse; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
       th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
       td { word-break: break-word; overflow-wrap: break-word; }
       th { background: #f5f5f5; white-space: nowrap; }
-      th:nth-child(5), td:nth-child(5) { width: 35%; } /* Valor Novo */
+      th:nth-child(1), td:nth-child(1) { width: 11%; }
+      th:nth-child(2), td:nth-child(2) { width: 8%; }
+      th:nth-child(3), td:nth-child(3) { width: 16%; }
+      th:nth-child(4), td:nth-child(4) { width: 26%; }
+      th:nth-child(5), td:nth-child(5) { width: 26%; }
+      th:nth-child(6), td:nth-child(6) { width: 13%; }
     </style>
   </head>
   <body>

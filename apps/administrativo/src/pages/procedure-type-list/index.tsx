@@ -88,7 +88,7 @@ export const ProcedureTypeList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
     setFetching(false)
   }
@@ -107,8 +107,11 @@ export const ProcedureTypeList = () => {
         if (confirmed) {
           api
             .delete(`procedure-type.delete/${values.id}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(refresh.force)
-            .catch((err) => modal.alert(errorMessageHandler(err)))
+            .then(() => {
+              toast.success('Registro removido com sucesso!')
+              refresh.force()
+            })
+            .catch((err) => toast.error(errorMessageHandler(err)))
         }
       },
     })

@@ -6,6 +6,9 @@ import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { OccurrenceTypeRepository } from '@/repositories/occurrence-type.repository'
 import type { OccurrenceRepository } from '@/repositories/occurrence.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 
 type UpdateOccurrenceData = {
   id: number
@@ -36,23 +39,35 @@ export class UpdateOccurrenceUseCase {
     if (!type) throw new ApiError('Tipo de ocorrência não encontrado.', 404)
     if (!type.active) throw new ApiError('Tipo de ocorrência inativo.', 409)
 
-    const occurrenceDate = new Date(data.occurrenceDate)
+    const occurrenceDate = parseISO(data.occurrenceDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(occurrenceDate.getTime())) throw new ApiError('Data/hora da ocorrência inválida.', 400)
 
-    const oldValues = {
-      animalId: existing.animalId,
-      occurrenceTypeId: existing.occurrenceTypeId,
-      occurrenceDate: existing.occurrenceDate,
-      description: existing.description,
-      observations: existing.observations ?? null,
-    }
-    const newValues = {
-      animalId: data.animalId,
-      occurrenceTypeId: data.occurrenceTypeId,
-      occurrenceDate: occurrenceDate.toISOString(),
-      description: data.description.trim(),
-      observations: data.observations?.trim() || null,
-    }
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id'
+        if (shouldIgnoreKey) return acc
+
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
+
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
+
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.occurrenceRepository.update(
@@ -75,7 +90,7 @@ export class UpdateOccurrenceUseCase {
           employeeId,
           type: AnimalHistoryType.OCCURRENCE,
           action: 'occurrence.updated',
-          description: 'Ocorrência atualizada',
+          description: `Ocorrência de ${type.name} atualizada`,
           oldValue: JSON.stringify(oldValues),
           newValue: JSON.stringify(newValues),
           createdAt: new Date(),

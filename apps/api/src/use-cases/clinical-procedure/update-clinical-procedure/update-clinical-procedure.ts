@@ -7,6 +7,9 @@ import type { AppointmentRepository } from '@/repositories/appointment.repositor
 import type { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
 import type { ProcedureTypeRepository } from '@/repositories/procedure-type.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 import Decimal from 'decimal.js'
 import type { UpdateClinicalProcedureData } from './update-clinical-procedure.dto'
 
@@ -39,29 +42,35 @@ export class UpdateClinicalProcedureUseCase {
       }
     }
 
-    const procedureDate = new Date(data.procedureDate)
+    const procedureDate = parseISO(data.procedureDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(procedureDate.getTime())) throw new ApiError('Data/hora do procedimento inválida.', 400)
 
-    const oldValues = {
-      animalId: existing.animalId,
-      procedureTypeId: existing.procedureTypeId,
-      appointmentId: existing.appointmentId ?? null,
-      procedureDate: existing.procedureDate,
-      description: existing.description,
-      actualCost: existing.actualCost,
-      observations: existing.observations ?? null,
-      status: existing.status,
-    }
-    const newValues = {
-      animalId: data.animalId,
-      procedureTypeId: data.procedureTypeId,
-      appointmentId: data.appointmentId ?? null,
-      procedureDate: procedureDate.toISOString(),
-      description: data.description,
-      actualCost: data.actualCost,
-      observations: data.observations ?? null,
-      status: data.status,
-    }
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id'
+        if (shouldIgnoreKey) return acc
+
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
+
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
+
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.clinicalProcedureRepository.update(

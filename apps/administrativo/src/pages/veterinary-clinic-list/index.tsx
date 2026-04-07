@@ -102,8 +102,11 @@ export const VeterinaryClinicList = () => {
               .delete(`veterinary-clinic.delete/${values.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               })
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success('Registro removido com sucesso!')
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -125,8 +128,11 @@ export const VeterinaryClinicList = () => {
                 { id: values.id, disabled: true },
                 { headers: { Authorization: `Bearer ${token}` } },
               )
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success(`Clínica ${values.name} desabilitada com sucesso!`)
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -148,8 +154,11 @@ export const VeterinaryClinicList = () => {
                 { id: values.id, disabled: false },
                 { headers: { Authorization: `Bearer ${token}` } },
               )
-              .then(refresh.force)
-              .catch((err) => modal.alert(errorMessageHandler(err)))
+              .then(() => {
+                toast.success(`Clínica ${values.name} habilitada com sucesso!`)
+                refresh.force()
+              })
+              .catch((err) => toast.error(errorMessageHandler(err)))
           }
         },
       })
@@ -168,7 +177,7 @@ export const VeterinaryClinicList = () => {
       setItems(data)
       setTotal(Number(headers['x-total-count']))
     } catch (error) {
-      modal.alert(errorMessageHandler(error))
+      toast.error(errorMessageHandler(error))
     }
 
     setFetching(false)

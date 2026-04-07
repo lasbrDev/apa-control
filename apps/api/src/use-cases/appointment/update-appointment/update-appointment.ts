@@ -10,6 +10,9 @@ import type { AppointmentRepository } from '@/repositories/appointment.repositor
 import type { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
 import type { VeterinaryClinicRepository } from '@/repositories/veterinary-clinic.repository'
 import { ApiError } from '@/utils/api-error'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { parseISO } from 'date-fns'
 import type { UpdateAppointmentData } from './update-appointment.dto'
 
 export class UpdateAppointmentUseCase {
@@ -45,7 +48,7 @@ export class UpdateAppointmentUseCase {
       if (!clinic.active) throw new ApiError('Clínica inativa.', 409)
     }
 
-    const appointmentDate = new Date(data.appointmentDate)
+    const appointmentDate = parseISO(data.appointmentDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(appointmentDate.getTime())) throw new ApiError('Data/hora da consulta inválida.', 400)
 
     if (existing.animalId !== data.animalId) {
@@ -62,25 +65,32 @@ export class UpdateAppointmentUseCase {
       }
     }
 
-    const oldValues = {
-      animalId: existing.animalId,
-      appointmentTypeId: existing.appointmentTypeId,
-      clinicId: existing.clinicId ?? null,
-      appointmentDate: existing.appointmentDate,
-      consultationType: existing.consultationType,
-      status: existing.status,
-      observations: existing.observations ?? null,
-    }
+    const changedData = Object.entries(data).reduce(
+      (acc, [key, value]) => {
+        const shouldIgnoreKey = key === 'id' || key === 'status'
+        if (shouldIgnoreKey) return acc
 
-    const newValues = {
-      animalId: data.animalId,
-      appointmentTypeId: data.appointmentTypeId,
-      clinicId: data.clinicId ?? null,
-      appointmentDate: appointmentDate.toISOString(),
-      consultationType: data.consultationType,
-      status: data.status,
-      observations: data.observations ?? null,
-    }
+        const oldValue = (existing as Record<string, unknown>)[key] ?? null
+        const newValue = typeof value !== 'undefined' ? value : oldValue
+
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          return { ...acc, [key]: newValue }
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    const oldValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = (existing as Record<string, unknown>)[key] ?? null
+      return acc
+    }, {})
+
+    const newValues = Object.keys(changedData).reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = changedData[key]
+      return acc
+    }, {})
 
     await db.transaction(async (tx) => {
       await this.appointmentRepository.update(
@@ -91,7 +101,6 @@ export class UpdateAppointmentUseCase {
           clinicId: data.clinicId ?? null,
           appointmentDate,
           consultationType: data.consultationType,
-          status: data.status,
           observations: data.observations ?? null,
           updatedAt: new Date(),
         },

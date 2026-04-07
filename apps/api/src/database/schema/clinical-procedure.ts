@@ -18,10 +18,10 @@ export const clinicalProcedure = pgTable('clinical_procedure', {
   employeeId: integer()
     .notNull()
     .references(() => employee.id),
-  procedureDate: timestamp().notNull(),
+  procedureDate: timestamp({ withTimezone: true }).notNull(),
   description: text().notNull(),
   actualCost: decimalJs({ precision: 10, scale: 2 }).notNull(),
   observations: text(),
   status: procedureStatusEnum().notNull(),
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp({ withTimezone: true }).notNull(),
 })

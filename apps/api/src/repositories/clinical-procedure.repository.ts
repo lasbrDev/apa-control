@@ -8,6 +8,9 @@ import type {
 } from '@/use-cases/clinical-procedure/list-clinical-procedures/list-clinical-procedures.dto'
 import { ApiError } from '@/utils/api-error'
 import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify-string'
+import { timeZoneName } from '@/utils/time-zone'
+import { tz } from '@date-fns/tz'
+import { endOfDay, parseISO, startOfDay } from 'date-fns'
 import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
@@ -43,8 +46,20 @@ export class ClinicalProcedureRepository {
     if (appointmentId) whereList.push(eq(clinicalProcedure.appointmentId, appointmentId))
     if (employeeId) whereList.push(eq(clinicalProcedure.employeeId, employeeId))
     if (status) whereList.push(eq(clinicalProcedure.status, status))
-    if (procedureDateStart) whereList.push(gte(clinicalProcedure.procedureDate, new Date(procedureDateStart)))
-    if (procedureDateEnd) whereList.push(lte(clinicalProcedure.procedureDate, new Date(procedureDateEnd)))
+    if (procedureDateStart)
+      whereList.push(
+        gte(
+          clinicalProcedure.procedureDate,
+          startOfDay(parseISO(procedureDateStart, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
+    if (procedureDateEnd)
+      whereList.push(
+        lte(
+          clinicalProcedure.procedureDate,
+          endOfDay(parseISO(procedureDateEnd, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
+        ),
+      )
 
     const [sqlQuery, countQuery] = querifyString<ClinicalProcedureWithDetails>(data, whereList, querifyStringSettings)
     const items = await sqlQuery
