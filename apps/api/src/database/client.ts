@@ -6,10 +6,15 @@ import { logError } from '@/logger'
 
 import * as schema from './schema'
 
-const useSSL = env.DATABASE_URL.includes('sslmode=require') || env.NODE_ENV === 'production'
+const useSSL = env.DATABASE_URL.includes('sslmode=') || env.NODE_ENV === 'production'
+
+const connectionString = env.DATABASE_URL.replace('sslmode=require', 'sslmode=verify-full').replace(
+  'sslmode=prefer',
+  'sslmode=verify-full',
+)
 
 const pool = new Pool({
-  connectionString: env.DATABASE_URL,
+  connectionString,
   min: 2,
   max: 30,
   idleTimeoutMillis: 1000 * 60 * 5,
