@@ -90,6 +90,10 @@ function normalizeHeader(rawKey: string): string {
     responsible: 'Responsável',
     category: 'Categoria',
     type: 'Tipo',
+    reason: 'Motivo',
+    adopterName: 'Adotante',
+    adaptationPeriod: 'Período de adaptação',
+    proof: 'Comprovante',
   }
 
   if (dictionary[rawKey]) return dictionary[rawKey]
