@@ -2,7 +2,9 @@ import { db } from '@/database/client'
 import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
 import { AnimalHistory } from '@/entities'
 import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
+import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { FinalDestinationRepository } from '@/repositories/final-destination.repository'
+import type { RescueRepository } from '@/repositories/rescue.repository'
 import { ApiError } from '@/utils/api-error'
 import { removeUploadFile } from '@/utils/files/remove-upload-file'
 import type { RemoveFinalDestinationData } from './remove-final-destination.dto'
@@ -10,6 +12,8 @@ import type { RemoveFinalDestinationData } from './remove-final-destination.dto'
 export class RemoveFinalDestinationUseCase {
   constructor(
     private finalDestinationRepository: FinalDestinationRepository,
+    private animalRepository: AnimalRepository,
+    private rescueRepository: RescueRepository,
     private animalHistoryRepository: AnimalHistoryRepository,
   ) {}
 
@@ -17,17 +21,15 @@ export class RemoveFinalDestinationUseCase {
     const finalDestination = await this.finalDestinationRepository.findById(data.id)
     if (!finalDestination) throw new ApiError('Destino final não encontrado.', 404)
 
-    const oldValues = {
-      animalId: finalDestination.animalId,
-      destinationTypeId: finalDestination.destinationTypeId,
-      destinationDate: finalDestination.destinationDate,
-      reason: finalDestination.reason,
-      observations: finalDestination.observations ?? null,
-      proof: finalDestination.proof ?? null,
-    }
+    const hasRescue = await this.rescueRepository.findExistingRescue(finalDestination.animalId)
 
     await db.transaction(async (tx) => {
       await this.finalDestinationRepository.delete(data.id, tx)
+      await this.animalRepository.update(
+        finalDestination.animalId,
+        hasRescue ? { status: 'ativo' } : { status: 'pendente', rescueAt: null },
+        tx,
+      )
 
       await this.animalHistoryRepository.create(
         new AnimalHistory({
