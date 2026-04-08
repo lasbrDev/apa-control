@@ -9,7 +9,8 @@ export async function listCampaignsController(request: FastifyRequest, reply: Fa
   const [count, items] = await listCampaignsUseCase.execute(data)
 
   if (data.exportType) {
-    return exportListData(reply, data.exportType, 'Campanhas', 'campanhas', items)
+    const exportItems = items.map(({ proof: _proof, ...rest }) => rest)
+    return exportListData(reply, data.exportType, 'Campanhas', 'campanhas', exportItems)
   }
 
   reply.header('X-Total-Count', count)

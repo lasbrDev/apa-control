@@ -1,0 +1,1 @@
+ALTER TABLE "campaign" ADD COLUMN "proof" varchar(255);

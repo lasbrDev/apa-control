@@ -1,3 +1,4 @@
+import FormData from 'form-data'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { campaignRoutes } from '@/http/controllers/campaign/routes'
@@ -46,6 +47,45 @@ describe('Update campaign', () => {
     })
 
     expect(response.statusCode).toBe(204)
+  })
+
+  it('should upload proof file when updating campaign', async () => {
+    const id = await createCampaign()
+    const payload = CampaignFactory.buildCreate({ campaignTypeId })
+    const formData = new FormData()
+
+    formData.append('id', String(id))
+    formData.append('campaignTypeId', String(payload.campaignTypeId))
+    formData.append('title', payload.title)
+    formData.append('description', payload.description)
+    formData.append('startDate', payload.startDate)
+    formData.append('endDate', payload.endDate)
+    if (payload.fundraisingGoal != null) formData.append('fundraisingGoal', String(payload.fundraisingGoal))
+    if (payload.observations) formData.append('observations', payload.observations)
+    formData.append('proofFile', Buffer.from('campaign-proof-update'), { filename: 'campaign-proof-update.txt' })
+
+    const updateResponse = await app.inject({
+      method: 'PUT',
+      url: '/campaign.update',
+      headers: { authorization: `Bearer ${token}`, ...formData.getHeaders() },
+      payload: formData.getBuffer(),
+    })
+
+    const keyResponse = await app.inject({
+      method: 'GET',
+      url: `/campaign.key/${id}`,
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(updateResponse.statusCode).toBe(204)
+    expect(keyResponse.statusCode).toBe(200)
+    expect(keyResponse.json().proof).toMatch(/^\/uploads\/campaign\//)
+
+    await app.inject({
+      method: 'DELETE',
+      url: `/campaign.delete/${id}`,
+      headers: { authorization: `Bearer ${token}` },
+    })
   })
 
   it('should return 404 when campaign does not exist', async () => {

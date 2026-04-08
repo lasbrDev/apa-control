@@ -3,6 +3,7 @@ import Decimal from 'decimal.js'
 import type { CampaignTypeRepository } from '@/repositories/campaign-type.repository'
 import type { CampaignRepository } from '@/repositories/campaign.repository'
 import { ApiError } from '@/utils/api-error'
+import { removeUploadFile } from '@/utils/files/remove-upload-file'
 import type { UpdateCampaignData } from './update-campaign.dto'
 
 export class UpdateCampaignUseCase {
@@ -23,6 +24,7 @@ export class UpdateCampaignUseCase {
     if (new Date(data.startDate) > new Date(data.endDate)) {
       throw new ApiError('A data inicial deve ser menor ou igual à data final.', 400)
     }
+    const proof = data.proof ?? null
 
     await this.campaignRepository.update(data.id, {
       campaignTypeId: data.campaignTypeId,
@@ -31,8 +33,13 @@ export class UpdateCampaignUseCase {
       startDate: data.startDate,
       endDate: data.endDate,
       fundraisingGoal: data.fundraisingGoal != null ? new Decimal(data.fundraisingGoal) : null,
+      proof,
       observations: data.observations ?? null,
       updatedAt: new Date(),
     })
+
+    if (campaign.proof && campaign.proof !== proof) {
+      await removeUploadFile(campaign.proof)
+    }
   }
 }

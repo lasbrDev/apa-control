@@ -6,6 +6,7 @@ import {
   clinicalProcedure,
   finalDestination,
   financialTransaction,
+  occurrence,
   rescue,
 } from '@/database/schema'
 import type { AnimalRepository } from '@/repositories/animal.repository'
@@ -71,6 +72,15 @@ export class RemoveAnimalUseCase {
       .limit(1)
     if (financialTransactionExists.length > 0) {
       throw new ApiError('Não é possível remover o animal, pois ele possui transações financeiras vinculadas.', 409)
+    }
+
+    const occurrenceExists = await db
+      .select({ id: occurrence.id })
+      .from(occurrence)
+      .where(eq(occurrence.animalId, data.id))
+      .limit(1)
+    if (occurrenceExists.length > 0) {
+      throw new ApiError('Não é possível remover o animal, pois ele possui ocorrências vinculadas.', 409)
     }
 
     await db.transaction(async (tx) => {

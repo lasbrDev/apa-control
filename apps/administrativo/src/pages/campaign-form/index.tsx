@@ -32,6 +32,8 @@ const campaignSchema = z
     startDate: z.string().min(1, RequiredMessage),
     endDate: z.string().min(1, RequiredMessage),
     fundraisingGoal: z.number().nonnegative(RequiredMessage).nullish(),
+    proof: z.string().nullish(),
+    proofFile: z.any().nullish(),
     observations: z.string().nullish(),
   })
   .refine((data) => new Date(data.startDate) <= new Date(data.endDate), {
@@ -47,10 +49,13 @@ export const CampaignForm = () => {
   const pushTo = useNavigate()
   const [fetching, setFetching] = useState(false)
   const [campaignTypeOptions, setCampaignTypeOptions] = useState<SelectOption[]>([])
+  const [currentProof, setCurrentProof] = useState<string>('')
 
   const campaignForm = useForm<CampaignData>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
+      proof: '',
+      proofFile: null,
       observations: '',
     },
   })
@@ -63,7 +68,21 @@ export const CampaignForm = () => {
 
   async function addOrUpdateCampaign(values: CampaignData) {
     try {
-      await api[params.id ? 'put' : 'post'](params.id ? 'campaign.update' : 'campaign.add', values, {
+      const formData = new FormData()
+      if (values.id) formData.append('id', String(values.id))
+      formData.append('campaignTypeId', String(values.campaignTypeId))
+      formData.append('title', values.title)
+      formData.append('description', values.description)
+      formData.append('startDate', values.startDate)
+      formData.append('endDate', values.endDate)
+      if (values.fundraisingGoal != null) formData.append('fundraisingGoal', String(values.fundraisingGoal))
+      if (currentProof) formData.append('proof', currentProof)
+      if (values.proofFile?.length) {
+        formData.append('proofFile', values.proofFile[0])
+      }
+      if (values.observations) formData.append('observations', values.observations)
+
+      await api[params.id ? 'put' : 'post'](params.id ? 'campaign.update' : 'campaign.add', formData, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -90,6 +109,7 @@ export const CampaignForm = () => {
 
         if (keyResponse.data) {
           const key = keyResponse.data
+          setCurrentProof(key.proof ?? '')
           reset({
             id: key.id,
             campaignTypeId: key.campaignTypeId,
@@ -98,6 +118,7 @@ export const CampaignForm = () => {
             startDate: typeof key.startDate === 'string' ? key.startDate.split('T')[0] : '',
             endDate: typeof key.endDate === 'string' ? key.endDate.split('T')[0] : '',
             fundraisingGoal: key.fundraisingGoal != null ? Number(key.fundraisingGoal) : null,
+            proof: key.proof ?? '',
             observations: key.observations ?? '',
           })
         }
@@ -160,6 +181,15 @@ export const CampaignForm = () => {
                   <Form.DecimalInput name="fundraisingGoal" />
                   <Form.ErrorMessage field="fundraisingGoal" />
                 </div>
+              </div>
+
+              <div className="mb-6">
+                <Form.Label htmlFor="proofFile">Documento</Form.Label>
+                <Form.FileInput name="proofFile" />
+                <Form.ErrorMessage field="proofFile" />
+                {currentProof ? (
+                  <span className="mt-2 block text-muted-foreground text-xs">Arquivo atual: {currentProof}</span>
+                ) : null}
               </div>
 
               <div className="mb-6">

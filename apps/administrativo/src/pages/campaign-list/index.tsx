@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CheckCircleIcon,
+  DownloadIcon,
   FileSpreadsheetIcon,
   FileTextIcon,
   MegaphoneIcon,
@@ -19,6 +20,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
+import { Badge } from '../../components/badge'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardToolbar } from '../../components/card'
 import { Form } from '../../components/form-hook'
@@ -36,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/table'
+import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
@@ -52,6 +55,7 @@ interface CampaignListValues {
   startDate: string
   endDate: string
   status: string
+  proof?: string | null
   observations: string | null
   campaignTypeName?: string
 }
@@ -106,7 +110,7 @@ export const CampaignList = () => {
     defaultValues: {
       page: 1,
       perPage: 10,
-      fields: 'id,campaignTypeId,title,startDate,endDate,status,campaignTypeName',
+      fields: 'id,campaignTypeId,title,startDate,endDate,status,proof,campaignTypeName',
       sort: '-startDate',
       title: '',
       campaignTypeId: null,
@@ -382,9 +386,9 @@ export const CampaignList = () => {
                     </TableCell>
                     <TableCell>{item.campaignTypeName ?? `#${item.campaignTypeId}`}</TableCell>
                     <TableCell>
-                      {formatDate(item.startDate)} - {formatDate(item.endDate)}
+                      {formatDate(item.startDate)} até {formatDate(item.endDate)}
                     </TableCell>
-                    <TableCell>{formatCampaignStatus(item.status)}</TableCell>
+                    <TableCell>{campaignStatusBadge(item.status)}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"
@@ -392,6 +396,12 @@ export const CampaignList = () => {
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: ':id' },
                           { icon: XIcon, title: 'Remover', action: removeCampaign },
+                          {
+                            icon: DownloadIcon,
+                            title: 'Baixar comprovante',
+                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            hideWhen: (item) => !item.proof,
+                          },
                           {
                             icon: XCircleIcon,
                             title: 'Cancelar',
@@ -427,11 +437,13 @@ export const CampaignList = () => {
   )
 }
 
-function formatCampaignStatus(status: string) {
-  const map: Record<string, string> = {
-    ativa: 'Ativa',
-    concluida: 'Concluída',
-    cancelada: 'Cancelada',
+function campaignStatusBadge(status: string) {
+  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'danger' }> = {
+    ativa: { label: 'Ativa', variant: 'warning' },
+    concluida: { label: 'Concluída', variant: 'success' },
+    cancelada: { label: 'Cancelada', variant: 'danger' },
   }
-  return map[status] ?? status
+  const config = map[status]
+  if (!config) return <Badge variant="outline">{status}</Badge>
+  return <Badge variant={config.variant}>{config.label}</Badge>
 }

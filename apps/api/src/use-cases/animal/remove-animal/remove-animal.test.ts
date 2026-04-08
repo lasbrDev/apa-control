@@ -3,6 +3,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { AccessProfileFactory } from '@/tests/factories/access-profile'
 import { AnimalFactory } from '@/tests/factories/animal'
 import { EmployeeFactory } from '@/tests/factories/employee'
+import { OccurrenceFactory } from '@/tests/factories/occurrence'
+import { OccurrenceTypeFactory } from '@/tests/factories/occurrence-type'
 import { RescueFactory } from '@/tests/factories/rescue'
 import { getAuthToken } from '@/tests/utils'
 import { createBaseApp } from '@/utils/fastify/create-base-app'
@@ -80,9 +82,7 @@ describe('Remove animal', () => {
 
     expect(deleteResponse.statusCode).toBe(409)
     const data = deleteResponse.json()
-    expect(data.message).toBe(
-      'Não é possível remover o animal pois ele já possui resgates ou atendimentos cadastrados.',
-    )
+    expect(data.message).toBe('Não é possível remover o animal, pois ele foi resgatado.')
   })
 
   it('should not access without token roles', async () => {
@@ -94,5 +94,26 @@ describe('Remove animal', () => {
     })
 
     expect(response.statusCode).toBe(403)
+  })
+
+  it('should return 409 when animal has occurrences', async () => {
+    const animal = await AnimalFactory.create()
+    const occurrenceType = await OccurrenceTypeFactory.create({ active: true })
+
+    await OccurrenceFactory.create({
+      animalId: animal.id,
+      occurrenceTypeId: occurrenceType.id,
+      employeeId,
+    })
+
+    const token = getAuthToken({ id: employeeId, roles: ['AdminPanel', 'Animals'] })
+    const response = await app.inject({
+      method: 'DELETE',
+      url: `/animal.delete/${animal.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.statusCode).toBe(409)
+    expect(response.json().message).toBe('Não é possível remover o animal, pois ele possui ocorrências vinculadas.')
   })
 })

@@ -88,7 +88,7 @@ export class UpdateFinalDestinationUseCase {
       )
     })
 
-    if (existing.proof && data.proof && existing.proof !== data.proof) {
+    if (existing.proof && existing.proof !== (data.proof ?? null)) {
       await removeUploadFile(existing.proof)
     }
   }

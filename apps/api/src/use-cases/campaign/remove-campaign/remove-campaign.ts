@@ -3,6 +3,7 @@ import { financialTransaction, transactionType } from '@/database/schema'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
 import type { CampaignRepository } from '@/repositories/campaign.repository'
 import { ApiError } from '@/utils/api-error'
+import { removeUploadFile } from '@/utils/files/remove-upload-file'
 import { and, eq } from 'drizzle-orm'
 import type { RemoveCampaignData } from './remove-campaign.dto'
 
@@ -40,5 +41,6 @@ export class RemoveCampaignUseCase {
     }
 
     await this.campaignRepository.delete(data.id)
+    await removeUploadFile(campaign.proof)
   }
 }

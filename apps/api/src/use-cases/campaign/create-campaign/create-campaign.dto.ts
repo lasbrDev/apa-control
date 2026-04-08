@@ -5,5 +5,6 @@ export interface CreateCampaignData {
   startDate: string
   endDate: string
   fundraisingGoal?: number | null
+  proof?: string | null
   observations?: string | null
 }

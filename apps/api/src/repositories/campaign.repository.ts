@@ -50,6 +50,7 @@ export class CampaignRepository {
         endDate: campaign.endDate,
         fundraisingGoal: campaign.fundraisingGoal,
         status: campaign.status,
+        proof: campaign.proof,
         observations: campaign.observations,
         createdAt: campaign.createdAt,
         updatedAt: campaign.updatedAt,

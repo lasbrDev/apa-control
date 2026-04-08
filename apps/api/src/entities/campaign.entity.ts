@@ -10,6 +10,7 @@ export class Campaign {
   endDate: string
   fundraisingGoal: Decimal | null
   status: CampaignStatusValue
+  proof?: string | null
   observations?: string | null
   createdAt: Date
   updatedAt?: Date | null
@@ -23,6 +24,7 @@ export class Campaign {
     this.endDate = props.endDate
     this.fundraisingGoal = props.fundraisingGoal
     this.status = props.status
+    this.proof = props.proof
     this.observations = props.observations
     this.createdAt = props.createdAt
     this.updatedAt = props.updatedAt

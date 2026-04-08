@@ -14,6 +14,7 @@ export const campaign = pgTable('campaign', {
   endDate: date().notNull(),
   fundraisingGoal: decimalJs({ precision: 13, scale: 2 }),
   status: campaignStatusEnum().notNull(),
+  proof: varchar({ length: 255 }),
   observations: text(),
   createdAt: timestamp({ withTimezone: true }).notNull(),
   updatedAt: timestamp({ withTimezone: true }),

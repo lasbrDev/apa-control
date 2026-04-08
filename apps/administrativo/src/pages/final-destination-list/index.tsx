@@ -3,7 +3,16 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FileSpreadsheetIcon, FileTextIcon, FlagIcon, PencilIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
+import {
+  DownloadIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  FlagIcon,
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+  XIcon,
+} from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -26,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/table'
+import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
 import { itemCountMessage } from '../../helpers/item-count'
@@ -94,7 +104,7 @@ export const FinalDestinationList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,animalId,destinationTypeId,employeeId,destinationDate,reason,animalName,destinationTypeName,employeeName',
+        'id,animalId,destinationTypeId,employeeId,destinationDate,reason,proof,animalName,destinationTypeName,employeeName',
       sort: '-destinationDate',
       animalName: '',
       destinationTypeId: null,
@@ -343,6 +353,12 @@ export const FinalDestinationList = () => {
                         values={item}
                         actions={[
                           { icon: PencilIcon, title: 'Editar', action: ':id' },
+                          {
+                            icon: DownloadIcon,
+                            title: 'Baixar comprovante',
+                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            hideWhen: (item) => !item.proof,
+                          },
                           { icon: XIcon, title: 'Remover', action: removeFinalDestination },
                         ]}
                       />

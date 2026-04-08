@@ -9,7 +9,8 @@ export async function listFinalDestinationsController(request: FastifyRequest, r
   const [count, items] = await listFinalDestinationsUseCase.execute(data)
 
   if (data.exportType) {
-    return exportListData(reply, data.exportType, 'Destinos Finais', 'destinos-finais', items)
+    const exportItems = items.map(({ proof: _proof, ...rest }) => rest)
+    return exportListData(reply, data.exportType, 'Destinos Finais', 'destinos-finais', exportItems)
   }
 
   reply.header('X-Total-Count', count)

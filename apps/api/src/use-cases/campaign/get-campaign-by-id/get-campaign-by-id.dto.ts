@@ -14,6 +14,7 @@ export interface CampaignById {
   endDate: string
   fundraisingGoal: Decimal | null
   status: CampaignStatusValue
+  proof: string | null
   observations: string | null
   createdAt: Date
   updatedAt: Date | null
