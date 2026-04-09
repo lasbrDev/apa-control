@@ -3,6 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isAxiosError } from 'axios'
 import { CalendarHeartIcon, ChevronLeftIcon, ChevronRightIcon, SaveIcon } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'sonner'
@@ -51,7 +52,7 @@ const schema = z.object({
   id: z.number().nullish(),
   animalId: z.number({ message: RequiredMessage }).int().positive(),
   appointmentTypeId: z.number({ message: RequiredMessage }).int().positive(),
-  clinicId: z.number().nullish(),
+  clinicId: z.number({ message: RequiredMessage }).int().positive(),
   appointmentDate: z.string({ message: RequiredMessage }).min(1, RequiredMessage),
   consultationType: z.enum(['clinica', 'domiciliar', 'emergencia']),
   observations: z.string().nullish(),
@@ -96,7 +97,7 @@ export const AppointmentForm = () => {
 
   const form = useForm<Data>({
     resolver: zodResolver(schema),
-    defaultValues: { consultationType: 'clinica', observations: '', clinicId: null },
+    defaultValues: { consultationType: 'clinica', observations: '' },
   })
   const {
     handleSubmit,
@@ -125,6 +126,10 @@ export const AppointmentForm = () => {
       toast.success(`Consulta ${params.id ? 'atualizada' : 'registrada'} com sucesso!`)
       pushTo(-1)
     } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        toast.error('Essa consulta não pode mais ser editada porque não está agendada.')
+        return
+      }
       toast.error(errorMessageHandler(error))
     }
   }
@@ -214,6 +219,7 @@ export const AppointmentForm = () => {
   const animalTabFields: Array<keyof Data> = ['animalId']
   const consultaTabFields: Array<keyof Data> = [
     'appointmentTypeId',
+    'clinicId',
     'appointmentDate',
     'consultationType',
     'observations',

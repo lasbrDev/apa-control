@@ -206,11 +206,7 @@ export const ExpenseList = () => {
         if (!confirmed) return
         setBatchLoading(true)
         try {
-          await api.post(
-            'expense.confirmPayment',
-            { ids: selectedIds },
-            { headers: { Authorization: `Bearer ${token}` } },
-          )
+          await api.post('expense.confirm', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
           toast.success(`${selectedIds.length} despesa(s) confirmada(s) com sucesso.`)
           setSelectedIds([])
           refresh.force()
@@ -452,7 +448,9 @@ export const ExpenseList = () => {
                   <TableHead>Animal</TableHead>
                   <TableHead>Por</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Vencimento</TableHead>
                   <TableHead>Pagamento</TableHead>
+                  <TableHead>Estorno</TableHead>
                   <TableHead aria-label="Ações" />
                 </TableRow>
               </TableHeader>
@@ -488,7 +486,9 @@ export const ExpenseList = () => {
                     </TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
                     <TableCell>{expenseStatusBadge(item.status, item.dueDate)}</TableCell>
+                    <TableCell>{item.dueDate ? formatDate(item.dueDate) : ''}</TableCell>
                     <TableCell>{item.paymentDate ? formatDate(item.paymentDate) : ''}</TableCell>
+                    <TableCell>{item.reversalDate ? formatDate(item.reversalDate) : ''}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"

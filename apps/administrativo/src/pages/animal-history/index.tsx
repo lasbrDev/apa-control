@@ -291,6 +291,7 @@ function formatHistoryValue(value: string | null) {
       entryDate: 'Data de Entrada',
       observations: 'Observações',
       status: 'Status',
+      value: 'Valor',
       rescueDate: 'Data do Resgate',
       locationFound: 'Local Encontrado',
       circumstances: 'Circunstâncias',
@@ -302,6 +303,8 @@ function formatHistoryValue(value: string | null) {
       appointmentDate: 'Data da Consulta',
       consultationType: 'Modalidade',
       clinicId: 'Clínica',
+      transactionTypeId: 'Tipo de Lançamento',
+      campaignId: 'Campanha',
       appointmentId: 'Consulta',
       symptomsPresented: 'Sintomas Apresentados',
       dietaryHistory: 'Histórico Alimentar',
@@ -337,7 +340,9 @@ function formatHistoryValue(value: string | null) {
 
     const translateValue = (fieldKey: string, fieldValue: unknown): unknown => {
       if (typeof fieldValue === 'string') {
-        if (['entryDate', 'rescueDate', 'destinationDate'].includes(fieldKey)) {
+        if (
+          ['entryDate', 'rescueDate', 'destinationDate', 'dueDate', 'paymentDate', 'reversalDate'].includes(fieldKey)
+        ) {
           return formatDate(fieldValue)
         }
 

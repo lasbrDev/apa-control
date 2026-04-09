@@ -45,16 +45,43 @@ export class UpdateClinicalProcedureUseCase {
     const procedureDate = parseISO(data.procedureDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(procedureDate.getTime())) throw new ApiError('Data/hora do procedimento inválida.', 400)
 
-    const changedData = Object.entries(data).reduce(
-      (acc, [key, value]) => {
-        const shouldIgnoreKey = key === 'id'
-        if (shouldIgnoreKey) return acc
+    const normalizedData = {
+      animalId: data.animalId,
+      procedureTypeId: data.procedureTypeId,
+      appointmentId: data.appointmentId ?? null,
+      procedureDate,
+      description: data.description,
+      actualCost: data.actualCost,
+      observations: data.observations ?? null,
+      status: data.status,
+    } as const
 
-        const oldValue = (existing as Record<string, unknown>)[key] ?? null
-        const newValue = typeof value !== 'undefined' ? value : oldValue
+    const comparableExisting = {
+      animalId: existing.animalId,
+      procedureTypeId: existing.procedureTypeId,
+      appointmentId: existing.appointmentId ?? null,
+      procedureDate: existing.procedureDate.getTime(),
+      description: existing.description,
+      actualCost: String(existing.actualCost),
+      observations: existing.observations ?? null,
+      status: existing.status,
+    } as const
 
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-          return { ...acc, [key]: newValue }
+    const comparableNew = {
+      animalId: normalizedData.animalId,
+      procedureTypeId: normalizedData.procedureTypeId,
+      appointmentId: normalizedData.appointmentId,
+      procedureDate: normalizedData.procedureDate.getTime(),
+      description: normalizedData.description,
+      actualCost: String(normalizedData.actualCost),
+      observations: normalizedData.observations,
+      status: normalizedData.status,
+    } as const
+
+    const changedData = (Object.keys(normalizedData) as (keyof typeof normalizedData)[]).reduce(
+      (acc, key) => {
+        if (JSON.stringify(comparableExisting[key]) !== JSON.stringify(comparableNew[key])) {
+          return { ...acc, [key]: normalizedData[key] }
         }
 
         return acc
@@ -72,18 +99,20 @@ export class UpdateClinicalProcedureUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.clinicalProcedureRepository.update(
         data.id,
         {
-          animalId: data.animalId,
-          procedureTypeId: data.procedureTypeId,
-          appointmentId: data.appointmentId ?? null,
+          animalId: normalizedData.animalId,
+          procedureTypeId: normalizedData.procedureTypeId,
+          appointmentId: normalizedData.appointmentId,
           procedureDate,
-          description: data.description,
-          actualCost: new Decimal(data.actualCost),
-          observations: data.observations ?? null,
-          status: data.status,
+          description: normalizedData.description,
+          actualCost: new Decimal(normalizedData.actualCost),
+          observations: normalizedData.observations,
+          status: normalizedData.status,
         },
         tx,
       )

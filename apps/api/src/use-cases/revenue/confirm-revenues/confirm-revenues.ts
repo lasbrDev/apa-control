@@ -20,7 +20,7 @@ export class ConfirmRevenuesUseCase {
       throw new ApiError('Apenas receitas estornadas podem ser confirmadas.', 409)
     }
 
-    await this.financialTransactionRepository.confirmPaymentByIds(data.ids)
+    await this.financialTransactionRepository.confirmTransactionByIds(data.ids)
 
     for (const transaction of transactions) {
       if (transaction.animalId) {

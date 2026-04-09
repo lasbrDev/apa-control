@@ -1,14 +1,15 @@
-import { type ElementType, useState } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { type ElementType, useEffect, useState } from 'react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import * as ScrollArea from '@radix-ui/react-scroll-area'
-import { ChevronDownIcon, HomeIcon, LogOutIcon, MenuIcon, MoonIcon, SunIcon, UserIcon } from 'lucide-react'
+import { BellIcon, ChevronDownIcon, HomeIcon, LogOutIcon, MenuIcon, MoonIcon, SunIcon, UserIcon } from 'lucide-react'
 
 import { useApp } from '../../App'
 import { cn } from '../../helpers/classname'
 import { useEffectExceptOnMount } from '../../hooks/effect-except-on-mount'
 import { useTheme } from '../../hooks/theme'
+import { api } from '../../service'
 import { Logo } from '../logo'
 import { DropdownMenuItem, SingleMenuItem } from './MenuItem'
 
@@ -28,11 +29,13 @@ interface PanelProps {
 
 export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
   const { pathname: actualPath } = useLocation()
+  const navigate = useNavigate()
   const [sidebarOpened, setSidebarOpened] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
   const isHome = actualPath === basename
-  const { operator } = useApp()
+  const { operator, token } = useApp()
   const { theme, setTheme } = useTheme()
+  const [unreadRemindersCount, setUnreadRemindersCount] = useState(0)
 
   const toggleTheme = () => {
     const currentTheme = theme || 'light'
@@ -52,6 +55,50 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
   useEffectExceptOnMount(() => {
     setSidebarOpened(false)
   }, [actualPath])
+
+  useEffect(() => {
+    let cancelled = false
+    let intervalId: number | null = null
+
+    async function syncUnreadCount() {
+      try {
+        const { data } = await api.get('reminder.unread', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        if (!cancelled) {
+          setUnreadRemindersCount(typeof data === 'number' ? data : Number(data) || 0)
+        }
+      } catch {
+        if (!cancelled) {
+          setUnreadRemindersCount(0)
+        }
+      }
+    }
+
+    if (token) {
+      void syncUnreadCount()
+      const handleReminderReadUpdated = () => {
+        void syncUnreadCount()
+      }
+      window.addEventListener('reminder:read-updated', handleReminderReadUpdated)
+      intervalId = window.setInterval(() => {
+        void syncUnreadCount()
+      }, 60_000)
+
+      return () => {
+        cancelled = true
+        window.removeEventListener('reminder:read-updated', handleReminderReadUpdated)
+        if (intervalId) window.clearInterval(intervalId)
+      }
+    }
+    setUnreadRemindersCount(0)
+
+    return () => {
+      cancelled = true
+      if (intervalId) window.clearInterval(intervalId)
+    }
+  }, [token, actualPath])
 
   return (
     <div id="panel" className="flex w-full flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
@@ -84,6 +131,19 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
           </Link>
 
           <div className="flex items-center justify-end gap-3 lg:flex-1 lg:justify-end">
+            <Link
+              to={`${basename}/lembretes`}
+              className="relative hidden h-10 w-10 items-center justify-center rounded-lg text-gray-700 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 sm:inline-flex dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+              aria-label="Abrir lembretes"
+            >
+              <BellIcon className="h-5 w-5" />
+              {unreadRemindersCount > 0 && (
+                <span className="-top-1 -right-1 absolute inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-semibold text-white text-xs">
+                  {unreadRemindersCount}
+                </span>
+              )}
+            </Link>
+
             <DropdownMenu.Root modal={false}>
               <DropdownMenu.Trigger asChild>
                 <button
@@ -118,6 +178,24 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
                   </div>
 
                   <DropdownMenu.Separator className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
+
+                  <DropdownMenu.Item
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm outline-hidden transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden sm:hidden dark:focus:bg-gray-800 dark:focus:text-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                    onSelect={(e) => {
+                      e.preventDefault()
+                      navigate(`${basename}/lembretes`)
+                    }}
+                  >
+                    <BellIcon className="h-4 w-4" />
+                    <span>Lembretes</span>
+                    {unreadRemindersCount > 0 && (
+                      <span className="ml-auto inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-semibold text-white text-xs">
+                        {unreadRemindersCount}
+                      </span>
+                    )}
+                  </DropdownMenu.Item>
+
+                  <DropdownMenu.Separator className="my-1 h-px bg-gray-200 sm:hidden dark:bg-gray-700" />
 
                   <DropdownMenu.Item
                     className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-sm outline-hidden transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden dark:focus:bg-gray-800 dark:focus:text-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-100"
@@ -224,7 +302,7 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
               className="flex touch-none select-none bg-black/[.114] p-0.5 transition-colors duration-150 ease-out hover:bg-black/22 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col dark:bg-white/[.114] dark:hover:bg-white/22"
               orientation="vertical"
             >
-              <ScrollArea.Thumb className="before:-translate-x-1/2 before:-translate-y-1/2 relative flex-1 rounded-[10px] bg-stone-500 before:absolute before:top-1/2 before:left-1/2 before:h-full before:min-h-[44px] before:w-full before:min-w-[44px] before:content-[''] dark:bg-gray-600" />
+              <ScrollArea.Thumb className="before:-translate-x-1/2 before:-translate-y-1/2 relative flex-1 rounded-[10px] bg-stone-500 before:absolute before:top-1/2 before:left-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:content-[''] dark:bg-gray-600" />
             </ScrollArea.Scrollbar>
           </div>
         </ScrollArea.Root>
@@ -253,7 +331,7 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
                 className="flex touch-none select-none bg-black/[.114] p-0.5 transition-colors duration-150 ease-out hover:bg-black/22 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col dark:bg-white/[.114] dark:hover:bg-white/22"
                 orientation="vertical"
               >
-                <ScrollArea.Thumb className="before:-translate-x-1/2 before:-translate-y-1/2 relative flex-1 rounded-[10px] bg-stone-500 before:absolute before:top-1/2 before:left-1/2 before:h-full before:min-h-[44px] before:w-full before:min-w-[44px] before:content-[''] dark:bg-gray-600" />
+                <ScrollArea.Thumb className="before:-translate-x-1/2 before:-translate-y-1/2 relative flex-1 rounded-[10px] bg-stone-500 before:absolute before:top-1/2 before:left-1/2 before:h-full before:min-h-11 before:w-full before:min-w-11 before:content-[''] dark:bg-gray-600" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </div>

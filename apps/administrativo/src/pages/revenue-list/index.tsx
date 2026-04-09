@@ -202,11 +202,7 @@ export const RevenueList = () => {
         if (!confirmed) return
         setBatchLoading(true)
         try {
-          await api.post(
-            'revenue.confirmRevenue',
-            { ids: selectedIds },
-            { headers: { Authorization: `Bearer ${token}` } },
-          )
+          await api.post('revenue.confirm', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
           toast.success(`${selectedIds.length} receita(s) confirmada(s) com sucesso.`)
           setSelectedIds([])
           refresh.force()
@@ -448,6 +444,7 @@ export const RevenueList = () => {
                   <TableHead>Animal</TableHead>
                   <TableHead>Por</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Estorno</TableHead>
                   <TableHead aria-label="Ações" />
                 </TableRow>
               </TableHeader>
@@ -483,6 +480,7 @@ export const RevenueList = () => {
                     </TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
                     <TableCell>{revenueStatusBadge(item.status)}</TableCell>
+                    <TableCell>{item.reversalDate ? formatDate(item.reversalDate) : ''}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"

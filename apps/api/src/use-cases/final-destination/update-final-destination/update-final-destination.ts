@@ -58,6 +58,8 @@ export class UpdateFinalDestinationUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.finalDestinationRepository.update(
         data.id,

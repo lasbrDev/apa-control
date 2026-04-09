@@ -3,13 +3,17 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isAxiosError } from 'axios'
+import { endOfMonth, format, startOfMonth } from 'date-fns'
 import {
   CalendarHeartIcon,
+  CheckCircle2Icon,
   FileSpreadsheetIcon,
   FileTextIcon,
   PencilIcon,
   PlusIcon,
   SearchIcon,
+  XCircleIcon,
   XIcon,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
@@ -17,6 +21,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useApp } from '../../App'
+import { Badge } from '../../components/badge'
 import { Button } from '../../components/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardToolbar } from '../../components/card'
 import { Form } from '../../components/form-hook'
@@ -90,6 +95,7 @@ const consultationTypeOptions = [
 ]
 const statusOptions = [
   { value: 'agendado', label: 'Agendado' },
+  { value: 'pendente', label: 'Pendente' },
   { value: 'realizado', label: 'Realizado' },
   { value: 'cancelado', label: 'Cancelado' },
 ]
@@ -103,11 +109,14 @@ export const AppointmentList = () => {
   const [total, setTotal] = useState(0)
   const [appointmentTypeOptions, setAppointmentTypeOptions] = useState<SelectOption[]>([])
   const [clinicOptions, setClinicOptions] = useState<SelectOption[]>([])
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [batchLoading, setBatchLoading] = useState<'confirm' | 'cancel' | null>(null)
 
-  const today = new Date()
-  const monthAgo = new Date()
-  monthAgo.setMonth(monthAgo.getMonth() - 1)
-  const toDateInput = (date: Date) => date.toISOString().split('T')[0]
+  const selectableItems = items.filter((item) => item.status === 'agendado')
+  const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selectedIds.includes(item.id))
+
+  const currentDate = new Date()
+  const toDateInput = (date: Date) => format(date, 'yyyy-MM-dd')
 
   const filterForm = useForm<FilterData>({
     resolver: zodResolver(appointmentFilterSchema),
@@ -121,12 +130,16 @@ export const AppointmentList = () => {
       clinicId: null,
       consultationType: null,
       status: null,
-      appointmentDateStart: toDateInput(monthAgo),
-      appointmentDateEnd: toDateInput(today),
+      appointmentDateStart: toDateInput(startOfMonth(currentDate)),
+      appointmentDateEnd: toDateInput(endOfMonth(currentDate)),
     },
   })
   const { handleSubmit, getValues, setValue } = filterForm
   const pages = Math.ceil(total / getValues('perPage')) || 1
+
+  useEffect(() => {
+    setSelectedIds([])
+  }, [items])
 
   const removeItem = useCallback(
     (item: Item) => {
@@ -142,7 +155,13 @@ export const AppointmentList = () => {
                 toast.success('Registro removido com sucesso!')
                 refresh.force()
               })
-              .catch((err) => toast.error(errorMessageHandler(err)))
+              .catch((err) => {
+                if (isAxiosError(err) && err.response?.status === 409) {
+                  toast.error('Essa consulta não pode mais ser removida porque não está agendada.')
+                  return
+                }
+                toast.error(errorMessageHandler(err))
+              })
           }
         },
       })
@@ -162,6 +181,58 @@ export const AppointmentList = () => {
       toast.error(errorMessageHandler(error))
     }
     setFetching(false)
+  }
+
+  function handleSelectAll(checked: boolean) {
+    setSelectedIds(checked ? selectableItems.map((item) => item.id) : [])
+  }
+
+  function handleSelectItem(id: number, checked: boolean) {
+    setSelectedIds((previous) => (checked ? [...previous, id] : previous.filter((itemId) => itemId !== id)))
+  }
+
+  function confirmAppointmentsBatch() {
+    modal.confirm({
+      title: 'Confirmar consultas',
+      message: `Deseja confirmar ${selectedIds.length} consulta(s) selecionada(s) como realizada(s)?`,
+      confirmText: 'Confirmar consultas',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading('confirm')
+        try {
+          await api.post('appointment.confirm', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
+          toast.success(`${selectedIds.length} consulta(s) confirmada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          toast.error(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(null)
+        }
+      },
+    })
+  }
+
+  function cancelAppointmentsBatch() {
+    modal.confirm({
+      title: 'Cancelar consultas',
+      message: `Deseja cancelar ${selectedIds.length} consulta(s) selecionada(s)?`,
+      confirmText: 'Cancelar consultas',
+      callback: async (confirmed) => {
+        if (!confirmed) return
+        setBatchLoading('cancel')
+        try {
+          await api.post('appointment.cancel', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
+          toast.success(`${selectedIds.length} consulta(s) cancelada(s) com sucesso.`)
+          setSelectedIds([])
+          refresh.force()
+        } catch (error) {
+          toast.error(errorMessageHandler(error))
+        } finally {
+          setBatchLoading(null)
+        }
+      },
+    })
   }
 
   async function exportAppointments(exportType: ReportExportType) {
@@ -326,6 +397,36 @@ export const AppointmentList = () => {
                 </div>
               </div>
               <CardFooter className="gap-4 p-0">
+                <Button
+                  type="button"
+                  variant="success"
+                  disabled={selectedIds.length === 0 || batchLoading !== null}
+                  onClick={confirmAppointmentsBatch}
+                >
+                  {batchLoading === 'confirm' ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <CheckCircle2Icon className="mr-2 h-5 w-5" />
+                      Confirmar realizadas
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={selectedIds.length === 0 || batchLoading !== null}
+                  onClick={cancelAppointmentsBatch}
+                >
+                  {batchLoading === 'cancel' ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <XCircleIcon className="mr-2 h-5 w-5" />
+                      Confirmar cancelamento
+                    </>
+                  )}
+                </Button>
                 <Button type="submit">
                   <SearchIcon className="mr-2 h-5 w-5" />
                   Consultar
@@ -341,6 +442,14 @@ export const AppointmentList = () => {
             <SelectableTable>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[1%]">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                  </TableHead>
                   <TableHead>Animal</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Data</TableHead>
@@ -351,17 +460,37 @@ export const AppointmentList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell className="w-[1%]">
+                      {item.status === 'agendado' ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(item.id)}
+                          onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                          className="h-4 w-4 cursor-pointer"
+                        />
+                      ) : null}
+                    </TableCell>
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.appointmentTypeName ?? ''}</TableCell>
                     <TableCell>{formatDateTime(item.appointmentDate)}</TableCell>
-                    <TableCell>{item.status}</TableCell>
+                    <TableCell>{appointmentStatusBadge(item.status, item.appointmentDate)}</TableCell>
                     <TableCell>
                       <ActionsList
                         values={item}
                         primaryKey="id"
                         actions={[
-                          { title: 'Editar', icon: PencilIcon, action: '/consultas/:id' },
-                          { title: 'Remover', icon: XIcon, action: () => removeItem(item) },
+                          {
+                            title: 'Editar',
+                            icon: PencilIcon,
+                            action: '/consultas/:id',
+                            hideWhen: (currentItem) => currentItem.status !== 'agendado',
+                          },
+                          {
+                            title: 'Remover',
+                            icon: XIcon,
+                            action: () => removeItem(item),
+                            hideWhen: (currentItem) => currentItem.status !== 'agendado',
+                          },
                         ]}
                       />
                     </TableCell>
@@ -378,6 +507,9 @@ export const AppointmentList = () => {
             <span className="text-sm dark:text-gray-300">
               {itemCountMessage('consultas', getValues('page'), pages, total)}
             </span>
+            {selectedIds.length > 0 && (
+              <span className="text-sm dark:text-gray-300">{selectedIds.length} item(s) selecionado(s).</span>
+            )}
             <Pagination
               current={getValues('page')}
               total={pages}
@@ -391,4 +523,19 @@ export const AppointmentList = () => {
       </Card>
     </>
   )
+}
+
+function appointmentStatusBadge(status: string, appointmentDate: string) {
+  const isPending = status === 'agendado' && new Date(appointmentDate) < new Date()
+  if (isPending) return <Badge variant="warning">Pendente</Badge>
+
+  const map: Record<string, { label: string; variant: 'outline' | 'success' | 'danger' }> = {
+    agendado: { label: 'Agendado', variant: 'outline' },
+    realizado: { label: 'Realizado', variant: 'success' },
+    cancelado: { label: 'Cancelado', variant: 'danger' },
+  }
+
+  const config = map[status]
+  if (!config) return <Badge variant="outline">{status}</Badge>
+  return <Badge variant={config.variant}>{config.label}</Badge>
 }

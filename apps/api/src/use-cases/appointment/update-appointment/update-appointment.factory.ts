@@ -1,6 +1,7 @@
 import { AnamnesisRepository } from '@/repositories/anamnesis.repository'
 import { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import { AnimalRepository } from '@/repositories/animal.repository'
+import { AppointmentReminderRepository } from '@/repositories/appointment-reminder.repository'
 import { AppointmentTypeRepository } from '@/repositories/appointment-type.repository'
 import { AppointmentRepository } from '@/repositories/appointment.repository'
 import { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
@@ -10,6 +11,7 @@ import { UpdateAppointmentUseCase } from './update-appointment'
 export function makeUpdateAppointmentUseCase() {
   return new UpdateAppointmentUseCase(
     new AppointmentRepository(),
+    new AppointmentReminderRepository(),
     new AppointmentTypeRepository(),
     new AnimalRepository(),
     new VeterinaryClinicRepository(),

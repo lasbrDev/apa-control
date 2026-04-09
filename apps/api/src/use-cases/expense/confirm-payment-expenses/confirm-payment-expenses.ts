@@ -12,7 +12,7 @@ export class ConfirmPaymentExpensesUseCase {
 
   async execute(data: ConfirmPaymentExpensesData, employeeId: number): Promise<void> {
     const transactions = await this.financialTransactionRepository.findByIds(data.ids)
-    await this.financialTransactionRepository.confirmPaymentByIds(data.ids)
+    await this.financialTransactionRepository.confirmTransactionByIds(data.ids)
 
     for (const transaction of transactions) {
       if (transaction.animalId) {

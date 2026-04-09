@@ -22,16 +22,39 @@ export class UpdateRescueUseCase {
       throw new ApiError('Resgate não encontrado.', 404)
     }
 
-    const changedData = Object.entries(data).reduce(
-      (acc, [key, value]) => {
-        const shouldIgnoreKey = key === 'id' || key === 'employeeId'
-        if (shouldIgnoreKey) return acc
+    const rescueDate = startOfDay(parseISO(data.rescueDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) })
 
-        const oldValue = (existing as Record<string, unknown>)[key] ?? null
-        const newValue = typeof value !== 'undefined' ? value : oldValue
+    const normalizedData = {
+      rescueDate,
+      locationFound: data.locationFound,
+      circumstances: data.circumstances,
+      foundConditions: data.foundConditions,
+      immediateProcedures: data.immediateProcedures ?? null,
+      observations: data.observations ?? null,
+    } as const
 
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-          return { ...acc, [key]: newValue }
+    const comparableExisting = {
+      rescueDate: existing.rescueDate.getTime(),
+      locationFound: existing.locationFound,
+      circumstances: existing.circumstances,
+      foundConditions: existing.foundConditions,
+      immediateProcedures: existing.immediateProcedures ?? null,
+      observations: existing.observations ?? null,
+    } as const
+
+    const comparableNew = {
+      rescueDate: normalizedData.rescueDate.getTime(),
+      locationFound: normalizedData.locationFound,
+      circumstances: normalizedData.circumstances,
+      foundConditions: normalizedData.foundConditions,
+      immediateProcedures: normalizedData.immediateProcedures,
+      observations: normalizedData.observations,
+    } as const
+
+    const changedData = (Object.keys(normalizedData) as (keyof typeof normalizedData)[]).reduce(
+      (acc, key) => {
+        if (JSON.stringify(comparableExisting[key]) !== JSON.stringify(comparableNew[key])) {
+          return { ...acc, [key]: normalizedData[key] }
         }
 
         return acc
@@ -49,16 +72,18 @@ export class UpdateRescueUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.rescueRepository.update(
         data.id,
         {
-          rescueDate: startOfDay(parseISO(data.rescueDate, { in: tz(timeZoneName.SP) }), { in: tz(timeZoneName.SP) }),
-          locationFound: data.locationFound,
-          circumstances: data.circumstances,
-          foundConditions: data.foundConditions,
-          immediateProcedures: data.immediateProcedures ?? null,
-          observations: data.observations ?? null,
+          rescueDate: normalizedData.rescueDate,
+          locationFound: normalizedData.locationFound,
+          circumstances: normalizedData.circumstances,
+          foundConditions: normalizedData.foundConditions,
+          immediateProcedures: normalizedData.immediateProcedures,
+          observations: normalizedData.observations,
         },
         tx,
       )

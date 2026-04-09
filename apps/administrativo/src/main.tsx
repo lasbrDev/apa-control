@@ -44,6 +44,7 @@ import { OccurrenceTypeList } from './pages/occurrence-type-list'
 import { ProcedureTypeList } from './pages/procedure-type-list'
 import { ProfileForm } from './pages/profile-form'
 import { ProfileList } from './pages/profile-list'
+import { ReminderList } from './pages/reminder-list'
 import { RescueForm } from './pages/rescue-form'
 import { RescueList } from './pages/rescue-list'
 import { RevenueForm } from './pages/revenue-form'
@@ -82,6 +83,7 @@ ReactDOM.createRoot(rootElement!).render(
               <Route path="consultas" element={<AppointmentList />} />
               <Route path="consultas/cadastro" element={<AppointmentForm />} />
               <Route path="consultas/:id" element={<AppointmentForm />} />
+              <Route path="lembretes" element={<ReminderList />} />
               <Route path="ocorrencias" element={<OccurrenceList />} />
               <Route path="ocorrencias/cadastro" element={<OccurrenceForm />} />
               <Route path="ocorrencias/:id" element={<OccurrenceForm />} />

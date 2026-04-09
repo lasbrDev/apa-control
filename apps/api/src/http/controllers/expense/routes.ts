@@ -14,10 +14,6 @@ export async function expenseRoutes(app: FastifyInstance) {
   app.get('/expense.list', authorize('AdminPanel', 'Financial', 'Expenses'), listExpensesController)
   app.get('/expense.key/:id', authorize('AdminPanel', 'Financial', 'Expenses'), getExpenseByIdController)
   app.delete('/expense.delete/:id', authorize('AdminPanel', 'Financial', 'Expenses'), removeExpenseController)
-  app.post(
-    '/expense.confirmPayment',
-    authorize('AdminPanel', 'Financial', 'Expenses'),
-    confirmPaymentExpensesController,
-  )
+  app.post('/expense.confirm', authorize('AdminPanel', 'Financial', 'Expenses'), confirmPaymentExpensesController)
   app.post('/expense.reverse', authorize('AdminPanel', 'Financial', 'Expenses'), reverseExpenseController)
 }

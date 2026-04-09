@@ -11,6 +11,10 @@ import type { FastifyReply } from 'fastify'
 
 type ExportType = 'csv' | 'xlsx' | 'pdf'
 
+type ExportListOptions = {
+  pdfLandscape?: boolean
+}
+
 function getApaControlLogoDataUrl() {
   const logoPath = getRootFolder('assets/img/logo.png')
   const logoBuffer = readFileSync(logoPath)
@@ -53,7 +57,9 @@ function normalizeHeader(rawKey: string): string {
     rescueDate: 'Data do resgate',
     destinationDate: 'Data do destino',
     adoptionDate: 'Data da adoção',
+    dueDate: 'Vencimento',
     paymentDate: 'Pagamento',
+    reversalDate: 'Estorno',
     entryDate: 'Data de entrada',
     startDate: 'Data de início',
     endDate: 'Data de término',
@@ -69,7 +75,7 @@ function normalizeHeader(rawKey: string): string {
     disabledAt: 'Desativado em',
     active: 'Ativo',
     urgency: 'Urgência',
-    consultationType: 'Tipo de consulta',
+    consultationType: 'Modalidade',
     occurrenceTypeName: 'Tipo de ocorrência',
     destinationTypeName: 'Tipo de destino',
     appointmentTypeName: 'Tipo de consulta',
@@ -113,7 +119,12 @@ const enumLabels: Record<string, string> = {
   vacina: 'Vacina',
   rotina: 'Rotina',
   urgente: 'Urgente',
+  clinica: 'Clínica',
+  domiciliar: 'Domiciliar',
   emergencia: 'Emergência',
+  agendado: 'Agendado',
+  realizado: 'Realizado',
+  cancelado: 'Cancelado',
   receita: 'Receita',
   despesa: 'Despesa',
   pendente: 'Pendente',
@@ -182,6 +193,7 @@ export async function exportListData(
   title: string,
   filenameBase: string,
   items: object[],
+  options: ExportListOptions = {},
 ) {
   const rawHeaders = items.length
     ? Object.keys(items[0]).filter((key) => !/^id$/i.test(key) && !/Id$/.test(key))
@@ -212,14 +224,18 @@ export async function exportListData(
 
   const pdfTemplatePath = getRootFolder('layout/pdf/report-base.ejs')
   const pdfRows = rows.map((row) => headers.map((header) => row[header] ?? ''))
-  const pdf = await generatePdfFromTemplate(pdfTemplatePath, {
-    title,
-    logoDataUrl: getApaControlLogoDataUrl(),
-    generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
-    period: null,
-    headers,
-    rows: pdfRows,
-  })
+  const pdf = await generatePdfFromTemplate(
+    pdfTemplatePath,
+    {
+      title,
+      logoDataUrl: getApaControlLogoDataUrl(),
+      generatedAt: format(new Date(), 'dd/MM/yyyy HH:mm:ss', { in: tz(timeZoneName.SP) }),
+      period: null,
+      headers,
+      rows: pdfRows,
+    },
+    { landscape: options.pdfLandscape },
+  )
 
   reply.type('application/pdf')
   reply.header('Content-Disposition', `attachment; filename="${filenameBase}.pdf"`)

@@ -44,6 +44,8 @@ export class UpdateAnimalUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     const description = 'Cadastro atualizado'
 
     await db.transaction(async (tx) => {

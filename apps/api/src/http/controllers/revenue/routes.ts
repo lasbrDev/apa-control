@@ -10,7 +10,7 @@ import { updateRevenueController } from './update-revenue/update-revenue.control
 
 export async function revenueRoutes(app: FastifyInstance) {
   app.post('/revenue.add', authorize('AdminPanel', 'Financial', 'Revenues'), createRevenueController)
-  app.post('/revenue.confirmRevenue', authorize('AdminPanel', 'Financial', 'Revenues'), confirmRevenuesController)
+  app.post('/revenue.confirm', authorize('AdminPanel', 'Financial', 'Revenues'), confirmRevenuesController)
   app.put('/revenue.update', authorize('AdminPanel', 'Financial', 'Revenues'), updateRevenueController)
   app.get('/revenue.list', authorize('AdminPanel', 'Financial', 'Revenues'), listRevenuesController)
   app.get('/revenue.key/:id', authorize('AdminPanel', 'Financial', 'Revenues'), getRevenueByIdController)

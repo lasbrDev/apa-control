@@ -4,7 +4,15 @@ import { type Browser, chromium as playwrightChromium } from 'playwright-core'
 
 import { ApiError } from '@/utils/api-error'
 
-export async function generatePdfFromTemplate(templatePath: string, data: Record<string, unknown>): Promise<Buffer> {
+type GeneratePdfOptions = {
+  landscape?: boolean
+}
+
+export async function generatePdfFromTemplate(
+  templatePath: string,
+  data: Record<string, unknown>,
+  options: GeneratePdfOptions = {},
+): Promise<Buffer> {
   let browser: Browser | undefined
 
   try {
@@ -22,6 +30,7 @@ export async function generatePdfFromTemplate(templatePath: string, data: Record
 
     const pdf = await page.pdf({
       format: 'A4',
+      landscape: options.landscape ?? false,
       margin: {
         top: '10mm',
         right: '10mm',

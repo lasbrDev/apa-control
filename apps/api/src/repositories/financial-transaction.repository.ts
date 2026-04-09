@@ -163,7 +163,10 @@ export class FinancialTransactionRepository {
   }
 
   async cancelByIds(ids: number[]) {
-    await db.update(financialTransaction).set({ status: 'estornado' }).where(inArray(financialTransaction.id, ids))
+    await db
+      .update(financialTransaction)
+      .set({ status: 'estornado', paymentDate: null, reversalDate: sql`now()` })
+      .where(inArray(financialTransaction.id, ids))
   }
 
   async reverseById(id: number) {
@@ -173,10 +176,10 @@ export class FinancialTransactionRepository {
       .where(eq(financialTransaction.id, id))
   }
 
-  async confirmPaymentByIds(ids: number[]) {
+  async confirmTransactionByIds(ids: number[]) {
     await db
       .update(financialTransaction)
-      .set({ status: 'confirmado', paymentDate: sql`now()` })
+      .set({ status: 'confirmado', paymentDate: sql`now()`, reversalDate: null })
       .where(inArray(financialTransaction.id, ids))
   }
 }

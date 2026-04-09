@@ -7,6 +7,7 @@ import { adoptionRoutes } from './http/controllers/adoption/routes'
 import { anamnesisRoutes } from './http/controllers/anamnesis/routes'
 import { animalHistoryRoutes } from './http/controllers/animal-history/routes'
 import { animalRoutes } from './http/controllers/animal/routes'
+import { appointmentReminderRoutes } from './http/controllers/appointment-reminder/routes'
 import { appointmentTypeRoutes } from './http/controllers/appointment-type/routes'
 import { appointmentRoutes } from './http/controllers/appointment/routes'
 import { authRoutes } from './http/controllers/auth/routes'
@@ -40,6 +41,7 @@ app.register(employeeRoutes)
 app.register(animalRoutes)
 app.register(anamnesisRoutes)
 app.register(appointmentRoutes)
+app.register(appointmentReminderRoutes)
 app.register(appointmentTypeRoutes)
 app.register(campaignTypeRoutes)
 app.register(campaignRoutes)

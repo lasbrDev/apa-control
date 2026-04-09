@@ -10,7 +10,7 @@ export async function listRevenuesController(request: FastifyRequest, reply: Fas
 
   if (data.exportType) {
     const exportItems = items.map(({ proof: _proof, ...rest }) => rest)
-    return exportListData(reply, data.exportType, 'Receitas', 'receitas', exportItems)
+    return exportListData(reply, data.exportType, 'Receitas', 'receitas', exportItems, { pdfLandscape: true })
   }
 
   reply.header('X-Total-Count', count)

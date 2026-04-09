@@ -53,6 +53,8 @@ export class UpdateAnamnesisUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.anamnesisRepository.update(
         data.id,

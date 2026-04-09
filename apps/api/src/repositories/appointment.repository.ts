@@ -1,5 +1,6 @@
 import { db } from '@/database/client'
 import { animal, appointment, appointmentType, employee, veterinaryClinic } from '@/database/schema'
+import { AppointmentStatus } from '@/database/schema/enums/appointment-status'
 import type { DrizzleTransaction } from '@/database/types'
 import type { Appointment } from '@/entities'
 import type {
@@ -11,7 +12,7 @@ import { type QueryStringSettings, querifyString } from '@/utils/drizzle/querify
 import { timeZoneName } from '@/utils/time-zone'
 import { tz } from '@date-fns/tz'
 import { endOfDay, parseISO, startOfDay } from 'date-fns'
-import { type SQL, eq, gte, ilike, lte } from 'drizzle-orm'
+import { type SQL, eq, gte, ilike, inArray, lte, sql } from 'drizzle-orm'
 
 const querifyStringSettings: QueryStringSettings = {
   table: appointment,
@@ -53,7 +54,12 @@ export class AppointmentRepository {
     if (appointmentTypeId) whereList.push(eq(appointment.appointmentTypeId, appointmentTypeId))
     if (clinicId) whereList.push(eq(appointment.clinicId, clinicId))
     if (consultationType) whereList.push(eq(appointment.consultationType, consultationType))
-    if (status) whereList.push(eq(appointment.status, status))
+    if (status === 'pendente') {
+      whereList.push(eq(appointment.status, AppointmentStatus.SCHEDULED))
+      whereList.push(sql`${appointment.appointmentDate} < NOW()`)
+    } else if (status) {
+      whereList.push(eq(appointment.status, status))
+    }
     if (employeeId) whereList.push(eq(appointment.employeeId, employeeId))
     if (appointmentDateStart)
       whereList.push(
@@ -113,6 +119,18 @@ export class AppointmentRepository {
     return item
   }
 
+  async findByIds(ids: number[]) {
+    return await db
+      .select({
+        id: appointment.id,
+        animalId: appointment.animalId,
+        appointmentTypeId: appointment.appointmentTypeId,
+        status: appointment.status,
+      })
+      .from(appointment)
+      .where(inArray(appointment.id, ids))
+  }
+
   async update(id: number, data: Partial<Omit<Appointment, 'id'>>, dbTransaction: DrizzleTransaction | null = null) {
     const connection = dbTransaction ?? db
     await connection.update(appointment).set(data).where(eq(appointment.id, id))
@@ -121,5 +139,20 @@ export class AppointmentRepository {
   async delete(id: number, dbTransaction: DrizzleTransaction | null = null) {
     const connection = dbTransaction ?? db
     await connection.delete(appointment).where(eq(appointment.id, id))
+  }
+
+  async updateStatusByIds(
+    ids: number[],
+    status: (typeof AppointmentStatus)[keyof typeof AppointmentStatus],
+    dbTransaction: DrizzleTransaction | null = null,
+  ) {
+    const connection = dbTransaction ?? db
+    await connection
+      .update(appointment)
+      .set({
+        status,
+        updatedAt: new Date(),
+      })
+      .where(inArray(appointment.id, ids))
   }
 }

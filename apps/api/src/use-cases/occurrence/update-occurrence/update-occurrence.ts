@@ -42,16 +42,34 @@ export class UpdateOccurrenceUseCase {
     const occurrenceDate = parseISO(data.occurrenceDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(occurrenceDate.getTime())) throw new ApiError('Data/hora da ocorrência inválida.', 400)
 
-    const changedData = Object.entries(data).reduce(
-      (acc, [key, value]) => {
-        const shouldIgnoreKey = key === 'id'
-        if (shouldIgnoreKey) return acc
+    const normalizedData = {
+      animalId: data.animalId,
+      occurrenceTypeId: data.occurrenceTypeId,
+      occurrenceDate,
+      description: data.description.trim(),
+      observations: data.observations?.trim() || null,
+    } as const
 
-        const oldValue = (existing as Record<string, unknown>)[key] ?? null
-        const newValue = typeof value !== 'undefined' ? value : oldValue
+    const comparableExisting = {
+      animalId: existing.animalId,
+      occurrenceTypeId: existing.occurrenceTypeId,
+      occurrenceDate: existing.occurrenceDate.getTime(),
+      description: existing.description,
+      observations: existing.observations ?? null,
+    } as const
 
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-          return { ...acc, [key]: newValue }
+    const comparableNew = {
+      animalId: normalizedData.animalId,
+      occurrenceTypeId: normalizedData.occurrenceTypeId,
+      occurrenceDate: normalizedData.occurrenceDate.getTime(),
+      description: normalizedData.description,
+      observations: normalizedData.observations,
+    } as const
+
+    const changedData = (Object.keys(normalizedData) as (keyof typeof normalizedData)[]).reduce(
+      (acc, key) => {
+        if (JSON.stringify(comparableExisting[key]) !== JSON.stringify(comparableNew[key])) {
+          return { ...acc, [key]: normalizedData[key] }
         }
 
         return acc
@@ -69,15 +87,17 @@ export class UpdateOccurrenceUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.occurrenceRepository.update(
         data.id,
         {
-          animalId: data.animalId,
-          occurrenceTypeId: data.occurrenceTypeId,
+          animalId: normalizedData.animalId,
+          occurrenceTypeId: normalizedData.occurrenceTypeId,
           occurrenceDate,
-          description: data.description.trim(),
-          observations: data.observations?.trim() || null,
+          description: normalizedData.description,
+          observations: normalizedData.observations,
           updatedAt: new Date(),
         },
         tx,

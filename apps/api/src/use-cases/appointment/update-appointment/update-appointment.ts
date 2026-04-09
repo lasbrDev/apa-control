@@ -1,10 +1,12 @@
 import { db } from '@/database/client'
 import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
+import { AppointmentStatus } from '@/database/schema/enums/appointment-status'
 import { ConsultationType } from '@/database/schema/enums/consultation-type'
-import { AnimalHistory } from '@/entities'
+import { AnimalHistory, AppointmentReminder } from '@/entities'
 import type { AnamnesisRepository } from '@/repositories/anamnesis.repository'
 import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import type { AnimalRepository } from '@/repositories/animal.repository'
+import type { AppointmentReminderRepository } from '@/repositories/appointment-reminder.repository'
 import type { AppointmentTypeRepository } from '@/repositories/appointment-type.repository'
 import type { AppointmentRepository } from '@/repositories/appointment.repository'
 import type { ClinicalProcedureRepository } from '@/repositories/clinical-procedure.repository'
@@ -13,11 +15,13 @@ import { ApiError } from '@/utils/api-error'
 import { timeZoneName } from '@/utils/time-zone'
 import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
+import { buildAppointmentReminderMessage } from '../reminder-message'
 import type { UpdateAppointmentData } from './update-appointment.dto'
 
 export class UpdateAppointmentUseCase {
   constructor(
     private appointmentRepository: AppointmentRepository,
+    private appointmentReminderRepository: AppointmentReminderRepository,
     private appointmentTypeRepository: AppointmentTypeRepository,
     private animalRepository: AnimalRepository,
     private veterinaryClinicRepository: VeterinaryClinicRepository,
@@ -29,6 +33,9 @@ export class UpdateAppointmentUseCase {
   async execute(data: UpdateAppointmentData, employeeId: number): Promise<void> {
     const existing = await this.appointmentRepository.findById(data.id)
     if (!existing) throw new ApiError('Consulta não encontrada.', 404)
+    if (existing.status !== AppointmentStatus.SCHEDULED) {
+      throw new ApiError('Apenas consultas agendadas podem ser editadas.', 409)
+    }
 
     const [animal, appointmentType] = await Promise.all([
       this.animalRepository.findById(data.animalId),
@@ -42,14 +49,23 @@ export class UpdateAppointmentUseCase {
       throw new ApiError('Clínica é obrigatória para consulta clínica.', 400)
     }
 
+    let clinicName: string | null = null
     if (data.clinicId) {
       const clinic = await this.veterinaryClinicRepository.findById(data.clinicId)
       if (!clinic) throw new ApiError('Clínica não encontrada.', 404)
       if (!clinic.active) throw new ApiError('Clínica inativa.', 409)
+      clinicName = clinic.name
     }
 
     const appointmentDate = parseISO(data.appointmentDate, { in: tz(timeZoneName.SP) })
     if (Number.isNaN(appointmentDate.getTime())) throw new ApiError('Data/hora da consulta inválida.', 400)
+    const reminder = buildAppointmentReminderMessage({
+      appointmentTypeName: appointmentType.name,
+      animalName: animal.name,
+      appointmentDate,
+      consultationType: data.consultationType,
+      clinicName,
+    })
 
     if (existing.animalId !== data.animalId) {
       const [anamnesisCount, procedureCount] = await Promise.all([
@@ -65,16 +81,37 @@ export class UpdateAppointmentUseCase {
       }
     }
 
-    const changedData = Object.entries(data).reduce(
-      (acc, [key, value]) => {
-        const shouldIgnoreKey = key === 'id' || key === 'status'
-        if (shouldIgnoreKey) return acc
+    const normalizedData = {
+      animalId: data.animalId,
+      appointmentTypeId: data.appointmentTypeId,
+      clinicId: data.clinicId ?? null,
+      appointmentDate,
+      consultationType: data.consultationType,
+      observations: data.observations ?? null,
+    } as const
 
-        const oldValue = (existing as Record<string, unknown>)[key] ?? null
-        const newValue = typeof value !== 'undefined' ? value : oldValue
+    const comparableExisting = {
+      animalId: existing.animalId,
+      appointmentTypeId: existing.appointmentTypeId,
+      clinicId: existing.clinicId ?? null,
+      appointmentDate: existing.appointmentDate.getTime(),
+      consultationType: existing.consultationType,
+      observations: existing.observations ?? null,
+    } as const
 
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-          return { ...acc, [key]: newValue }
+    const comparableNew = {
+      animalId: normalizedData.animalId,
+      appointmentTypeId: normalizedData.appointmentTypeId,
+      clinicId: normalizedData.clinicId,
+      appointmentDate: normalizedData.appointmentDate.getTime(),
+      consultationType: normalizedData.consultationType,
+      observations: normalizedData.observations,
+    } as const
+
+    const changedData = (Object.keys(normalizedData) as (keyof typeof normalizedData)[]).reduce(
+      (acc, key) => {
+        if (JSON.stringify(comparableExisting[key]) !== JSON.stringify(comparableNew[key])) {
+          return { ...acc, [key]: normalizedData[key] }
         }
 
         return acc
@@ -92,6 +129,8 @@ export class UpdateAppointmentUseCase {
       return acc
     }, {})
 
+    if (Object.keys(changedData).length === 0) return
+
     await db.transaction(async (tx) => {
       await this.appointmentRepository.update(
         data.id,
@@ -107,6 +146,30 @@ export class UpdateAppointmentUseCase {
         tx,
       )
 
+      const updatedReminderCount = await this.appointmentReminderRepository.updateByAppointmentId(
+        data.id,
+        existing.employeeId,
+        {
+          title: reminder.title,
+          message: reminder.message,
+        },
+        tx,
+      )
+
+      if (updatedReminderCount === 0) {
+        await this.appointmentReminderRepository.create(
+          new AppointmentReminder({
+            appointmentId: data.id,
+            employeeId: existing.employeeId,
+            title: reminder.title,
+            message: reminder.message,
+            readAt: null,
+            createdAt: new Date(),
+          }),
+          tx,
+        )
+      }
+
       await this.animalHistoryRepository.create(
         new AnimalHistory({
           animalId: data.animalId,
@@ -114,7 +177,7 @@ export class UpdateAppointmentUseCase {
           employeeId,
           type: AnimalHistoryType.CONSULTATION,
           action: 'appointment.updated',
-          description: 'Consulta atualizada',
+          description: `Consulta ${appointmentType.name} atualizada`,
           oldValue: JSON.stringify(oldValues),
           newValue: JSON.stringify(newValues),
           createdAt: new Date(),

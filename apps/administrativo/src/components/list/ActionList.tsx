@@ -26,6 +26,10 @@ type ActionListButton<T> = {
 }
 
 export function ActionsList<T>({ actions, values, primaryKey }: ActionListProps<T>) {
+  const visibleActions = actions.filter(({ hideWhen }) => !hideWhen || !hideWhen(values))
+
+  if (visibleActions.length === 0) return null
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
@@ -41,18 +45,16 @@ export function ActionsList<T>({ actions, values, primaryKey }: ActionListProps<
           sideOffset={4}
           className="data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-32 overflow-hidden rounded-md border bg-white p-1 shadow-md data-[state=closed]:animate-out data-[state=open]:animate-in dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg"
         >
-          {actions
-            .filter(({ hideWhen }) => !hideWhen || (hideWhen && !hideWhen(values)))
-            .map(({ action, icon, title }) => (
-              <ActionButton
-                id={`${values[primaryKey]}`}
-                key={`${icon}-${title}`}
-                icon={icon}
-                title={title}
-                action={action}
-                values={values}
-              />
-            ))}
+          {visibleActions.map(({ action, icon, title }) => (
+            <ActionButton
+              id={`${values[primaryKey]}`}
+              key={`${icon}-${title}`}
+              icon={icon}
+              title={title}
+              action={action}
+              values={values}
+            />
+          ))}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

@@ -1,5 +1,8 @@
+import { eq } from 'drizzle-orm'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { db } from '@/database/client'
+import { financialTransaction } from '@/database/schema'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
 import { revenueRoutes } from '@/http/controllers/revenue/routes'
 import { AccessProfileFactory } from '@/tests/factories/access-profile'
@@ -52,12 +55,25 @@ describe('Confirm revenues (batch)', () => {
 
     const response = await app.inject({
       method: 'POST',
-      url: '/revenue.confirmRevenue',
+      url: '/revenue.confirm',
       headers: { authorization: `Bearer ${token}` },
       payload: { ids: [id1, id2] },
     })
 
     expect(response.statusCode).toBe(204)
+
+    const [transaction] = await db
+      .select({
+        status: financialTransaction.status,
+        paymentDate: financialTransaction.paymentDate,
+        reversalDate: financialTransaction.reversalDate,
+      })
+      .from(financialTransaction)
+      .where(eq(financialTransaction.id, id1))
+
+    expect(transaction?.status).toBe('confirmado')
+    expect(transaction?.paymentDate).toBeTruthy()
+    expect(transaction?.reversalDate).toBeNull()
   })
 
   it('should return 409 when trying to confirm non-reversed revenue', async () => {
@@ -65,7 +81,7 @@ describe('Confirm revenues (batch)', () => {
 
     const response = await app.inject({
       method: 'POST',
-      url: '/revenue.confirmRevenue',
+      url: '/revenue.confirm',
       headers: { authorization: `Bearer ${token}` },
       payload: { ids: [id] },
     })
@@ -76,7 +92,7 @@ describe('Confirm revenues (batch)', () => {
   it('should return 422 when ids is empty', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/revenue.confirmRevenue',
+      url: '/revenue.confirm',
       headers: { authorization: `Bearer ${token}` },
       payload: { ids: [] },
     })
@@ -87,7 +103,7 @@ describe('Confirm revenues (batch)', () => {
   it('should not access without token', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/revenue.confirmRevenue',
+      url: '/revenue.confirm',
       payload: { ids: [1] },
     })
 

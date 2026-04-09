@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { db } from '@/database/client'
-import { animalHistory } from '@/database/schema'
+import { animalHistory, financialTransaction } from '@/database/schema'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
 import { revenueRoutes } from '@/http/controllers/revenue/routes'
 import { AccessProfileFactory } from '@/tests/factories/access-profile'
@@ -27,7 +27,7 @@ describe('Reverse revenue', () => {
     incomeTypeId = transactionType.id
   })
 
-  it('should reverse revenue and write animal history', async () => {
+  it('should reverse revenue, clear payment date and write animal history', async () => {
     const token = getAuthToken({ id: employeeId, roles: ['AdminPanel', 'Financial', 'Revenues'] })
     const animal = await AnimalFactory.create()
 
@@ -41,6 +41,24 @@ describe('Reverse revenue', () => {
     expect(createResponse.statusCode).toBe(201)
     const { id } = createResponse.json<{ id: number }>()
 
+    const firstReverseResponse = await app.inject({
+      method: 'POST',
+      url: '/revenue.reverse',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { id },
+    })
+
+    expect(firstReverseResponse.statusCode).toBe(204)
+
+    const confirmResponse = await app.inject({
+      method: 'POST',
+      url: '/revenue.confirm',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { ids: [id] },
+    })
+
+    expect(confirmResponse.statusCode).toBe(204)
+
     const reverseResponse = await app.inject({
       method: 'POST',
       url: '/revenue.reverse',
@@ -49,6 +67,19 @@ describe('Reverse revenue', () => {
     })
 
     expect(reverseResponse.statusCode).toBe(204)
+
+    const [transaction] = await db
+      .select({
+        status: financialTransaction.status,
+        paymentDate: financialTransaction.paymentDate,
+        reversalDate: financialTransaction.reversalDate,
+      })
+      .from(financialTransaction)
+      .where(eq(financialTransaction.id, id))
+
+    expect(transaction?.status).toBe('estornado')
+    expect(transaction?.paymentDate).toBeNull()
+    expect(transaction?.reversalDate).toBeTruthy()
 
     const [history] = await db
       .select()
