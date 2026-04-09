@@ -23,12 +23,16 @@ export async function updateExpenseController(request: FastifyRequest, reply: Fa
   }
 
   const body = updateExpenseSchema.parse(payload)
+  const employeeId = request.user.id
 
   const updateExpenseUseCase = makeUpdateExpenseUseCase()
-  await updateExpenseUseCase.execute({
-    ...body,
-    proof: uploadedProofPath ?? body.proof ?? null,
-  })
+  await updateExpenseUseCase.execute(
+    {
+      ...body,
+      proof: uploadedProofPath ?? body.proof ?? null,
+    },
+    employeeId,
+  )
 
   return reply.status(204).send()
 }

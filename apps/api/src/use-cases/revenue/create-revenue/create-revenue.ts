@@ -1,8 +1,11 @@
 import Decimal from 'decimal.js'
 
 import { db } from '@/database/client'
+import { AnimalHistoryType } from '@/database/schema/enums/animal-history-type'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
-import { FinancialTransaction } from '@/entities'
+import { TransactionStatus } from '@/database/schema/enums/transaction-status'
+import { AnimalHistory, FinancialTransaction } from '@/entities'
+import type { AnimalHistoryRepository } from '@/repositories/animal-history.repository'
 import type { AnimalRepository } from '@/repositories/animal.repository'
 import type { CampaignRepository } from '@/repositories/campaign.repository'
 import type { FinancialTransactionRepository } from '@/repositories/financial-transaction.repository'
@@ -16,6 +19,7 @@ export class CreateRevenueUseCase {
     private transactionTypeRepository: TransactionTypeRepository,
     private campaignRepository: CampaignRepository,
     private animalRepository: AnimalRepository,
+    private animalHistoryRepository: AnimalHistoryRepository,
   ) {}
 
   async execute(data: CreateRevenueData, employeeId: number): Promise<number> {
@@ -47,11 +51,28 @@ export class CreateRevenueUseCase {
           value: new Decimal(data.value),
           proof: data.proof ?? null,
           observations: data.observations ?? null,
-          status: data.status,
+          status: TransactionStatus.CONFIRMED,
           createdAt: new Date(),
         }),
         tx,
       )
+
+      if (data.animalId) {
+        await this.animalHistoryRepository.create(
+          new AnimalHistory({
+            animalId: data.animalId,
+            rescueId: null,
+            employeeId,
+            type: AnimalHistoryType.REVENUE,
+            action: 'revenue.created',
+            description: `Receita ${data.description} registrada`,
+            oldValue: null,
+            newValue: null,
+            createdAt: new Date(),
+          }),
+          tx,
+        )
+      }
 
       return result!.id
     })

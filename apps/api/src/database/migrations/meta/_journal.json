@@ -134,6 +134,13 @@
       "when": 1775650193224,
       "tag": "0018_add-campaign-proof",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1775742273481,
+      "tag": "0019_add-new-columns-expense",
+      "breakpoints": true
     }
   ]
 }

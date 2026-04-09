@@ -118,7 +118,7 @@ const enumLabels: Record<string, string> = {
   despesa: 'Despesa',
   pendente: 'Pendente',
   confirmado: 'Confirmado',
-  cancelado: 'Cancelado',
+  estornado: 'Estornado',
   ativa: 'Ativa',
   concluida: 'Concluída',
   cancelada: 'Cancelada',

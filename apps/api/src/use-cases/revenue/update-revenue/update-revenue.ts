@@ -20,6 +20,7 @@ export class UpdateRevenueUseCase {
   async execute(data: UpdateRevenueData): Promise<void> {
     const existing = await this.financialTransactionRepository.findRevenueById(data.id)
     if (!existing) throw new ApiError('Receita não encontrada.', 404)
+    if (existing.status === 'confirmado') throw new ApiError('Não é possível editar uma receita confirmada.', 409)
 
     const transactionType = await this.transactionTypeRepository.findById(data.transactionTypeId)
     if (!transactionType) throw new ApiError('Tipo de lançamento não encontrado.', 404)
@@ -48,7 +49,6 @@ export class UpdateRevenueUseCase {
       value: new Decimal(data.value),
       proof,
       observations: data.observations ?? null,
-      status: data.status,
     })
 
     if (existing.proof && existing.proof !== proof) {

@@ -10,7 +10,7 @@ export const listExpensesSchema = apiQueryStringSchema
     campaignId: z.coerce.number().int().positive().optional(),
     animalId: z.coerce.number().int().positive().optional(),
     employeeId: z.coerce.number().int().positive().optional(),
-    status: z.enum(TransactionStatusValues).optional(),
+    status: z.enum([...TransactionStatusValues, 'vencido'] as [string, ...string[]]).optional(),
     createdAtStart: z.string().optional(),
     createdAtEnd: z.string().optional(),
   })

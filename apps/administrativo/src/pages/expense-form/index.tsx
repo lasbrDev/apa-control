@@ -28,12 +28,6 @@ interface AnimalOption {
   name: string
 }
 
-const expenseStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
-  { value: 'confirmado', label: 'Confirmado' },
-  { value: 'cancelado', label: 'Cancelado' },
-]
-
 const expenseSchema = z.object({
   id: z.number().nullish(),
   transactionTypeId: z.number({ message: RequiredMessage }).int().positive(),
@@ -41,7 +35,7 @@ const expenseSchema = z.object({
   animalId: z.union([z.number(), z.string()]).nullish(),
   description: z.string().min(1, RequiredMessage).max(200),
   value: z.number({ message: RequiredMessage }).nonnegative(RequiredMessage),
-  status: z.enum(['pendente', 'confirmado', 'cancelado']),
+  dueDate: z.string().nullish(),
   observations: z.string().nullish(),
   proof: z.string().nullish(),
   proofFile: z.any().nullish(),
@@ -73,7 +67,6 @@ export const ExpenseForm = () => {
   const expenseForm = useForm<ExpenseData>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      status: 'pendente',
       observations: '',
       proof: '',
       proofFile: null,
@@ -97,7 +90,7 @@ export const ExpenseForm = () => {
       if (values.animalId != null) formData.append('animalId', String(values.animalId))
       formData.append('description', values.description)
       formData.append('value', String(values.value))
-      formData.append('status', values.status)
+      if (values.dueDate) formData.append('dueDate', values.dueDate)
       if (values.observations) formData.append('observations', values.observations)
       if (currentProof) formData.append('proof', currentProof)
 
@@ -156,7 +149,7 @@ export const ExpenseForm = () => {
             animalId: key.animalId ?? null,
             description: key.description,
             value: Number(key.value),
-            status: key.status,
+            dueDate: key.dueDate ?? '',
             observations: key.observations ?? '',
             proof: key.proof ?? '',
           })
@@ -192,9 +185,9 @@ export const ExpenseForm = () => {
                 </div>
 
                 <div>
-                  <Form.Label htmlFor="status">Status</Form.Label>
-                  <Form.Select name="status" options={expenseStatusOptions} disabled />
-                  <Form.ErrorMessage field="status" />
+                  <Form.Label htmlFor="dueDate">Data de Vencimento</Form.Label>
+                  <Form.DateInput name="dueDate" />
+                  <Form.ErrorMessage field="dueDate" />
                 </div>
               </div>
 

@@ -10,6 +10,7 @@ import {
   PencilIcon,
   PlusIcon,
   ReceiptIcon,
+  RotateCcwIcon,
   SearchIcon,
   XIcon,
 } from 'lucide-react'
@@ -52,7 +53,9 @@ interface ExpenseListValues {
   value: number
   createdAt: string
   status: string
+  dueDate?: string | null
   paymentDate?: string | null
+  reversalDate?: string | null
   proof?: string | null
   transactionTypeName?: string
   campaignTitle?: string | null
@@ -68,7 +71,8 @@ interface SelectOption {
 const expenseStatusOptions = [
   { value: 'pendente', label: 'Pendente' },
   { value: 'confirmado', label: 'Confirmado' },
-  { value: 'cancelado', label: 'Cancelado' },
+  { value: 'estornado', label: 'Estornado' },
+  { value: 'vencido', label: 'Vencido' },
 ]
 
 const expenseFilterSchema = z
@@ -110,7 +114,7 @@ export const ExpenseList = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [batchLoading, setBatchLoading] = useState(false)
 
-  const selectableItems = items.filter((item) => item.status === 'pendente')
+  const selectableItems = items.filter((item) => item.status === 'pendente' || item.status === 'estornado')
   const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selectedIds.includes(item.id))
 
   const expenseFilterForm = useForm<ExpenseFilterData>({
@@ -119,7 +123,7 @@ export const ExpenseList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,transactionTypeId,description,value,createdAt,status,paymentDate,proof,transactionTypeName,campaignTitle,animalName,employeeName',
+        'id,transactionTypeId,description,value,createdAt,status,dueDate,paymentDate,reversalDate,proof,transactionTypeName,campaignTitle,animalName,employeeName',
       sort: '-createdAt',
       description: '',
       animalName: '',
@@ -172,27 +176,26 @@ export const ExpenseList = () => {
     [token, modal, refresh],
   )
 
-  function cancelBatch() {
-    modal.confirm({
-      title: 'Registrar cancelamento',
-      message: `Deseja cancelar ${selectedIds.length} despesa(s) selecionada(s)?`,
-      confirmText: 'Cancelar despesas',
-      callback: async (confirmed) => {
-        if (!confirmed) return
-        setBatchLoading(true)
-        try {
-          await api.post('expense.cancel', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
-          toast.success(`${selectedIds.length} despesa(s) cancelada(s) com sucesso.`)
-          setSelectedIds([])
-          refresh.force()
-        } catch (error) {
-          toast.error(errorMessageHandler(error))
-        } finally {
-          setBatchLoading(false)
-        }
-      },
-    })
-  }
+  const reverseExpense = useCallback(
+    (values: ExpenseListValues) => {
+      modal.confirm({
+        title: 'Estornar despesa',
+        message: `Deseja estornar a despesa "${values.description}"? O status voltará para pendente.`,
+        confirmText: 'Estornar',
+        callback: async (confirmed) => {
+          if (!confirmed) return
+          try {
+            await api.post('expense.reverse', { id: values.id }, { headers: { Authorization: `Bearer ${token}` } })
+            toast.success('Despesa estornada com sucesso.')
+            refresh.force()
+          } catch (error) {
+            toast.error(errorMessageHandler(error))
+          }
+        },
+      })
+    },
+    [token, modal, refresh],
+  )
 
   function confirmPaymentBatch() {
     modal.confirm({
@@ -410,14 +413,6 @@ export const ExpenseList = () => {
               <CardFooter className="mt-6 flex flex-wrap gap-3 p-0">
                 <Button
                   type="button"
-                  variant="danger"
-                  disabled={selectedIds.length === 0 || batchLoading}
-                  onClick={cancelBatch}
-                >
-                  {batchLoading ? <Spinner /> : <span>Registrar Cancelamento</span>}
-                </Button>
-                <Button
-                  type="button"
                   variant="success"
                   disabled={selectedIds.length === 0 || batchLoading}
                   onClick={confirmPaymentBatch}
@@ -466,7 +461,7 @@ export const ExpenseList = () => {
                 {items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="w-[1%]">
-                      {item.status === 'pendente' ? (
+                      {item.status === 'pendente' || item.status === 'estornado' ? (
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(item.id)}
@@ -492,21 +487,37 @@ export const ExpenseList = () => {
                       {item.animalName ?? ''}
                     </TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
-                    <TableCell>{expenseStatusBadge(item.status)}</TableCell>
+                    <TableCell>{expenseStatusBadge(item.status, item.dueDate)}</TableCell>
                     <TableCell>{item.paymentDate ? formatDate(item.paymentDate) : ''}</TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
                       <ActionsList
                         primaryKey="id"
                         values={item}
                         actions={[
-                          { icon: PencilIcon, title: 'Editar', action: ':id' },
+                          {
+                            icon: PencilIcon,
+                            title: 'Editar',
+                            action: ':id',
+                            hideWhen: (item) => item.status === 'confirmado',
+                          },
                           {
                             icon: DownloadIcon,
                             title: 'Baixar comprovante',
                             action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
                             hideWhen: (item) => !item.proof,
                           },
-                          { icon: XIcon, title: 'Remover', action: removeExpense },
+                          {
+                            icon: RotateCcwIcon,
+                            title: 'Estornar',
+                            action: reverseExpense,
+                            hideWhen: (item) => item.status !== 'confirmado',
+                          },
+                          {
+                            icon: XIcon,
+                            title: 'Remover',
+                            action: removeExpense,
+                            hideWhen: (item) => item.status === 'confirmado',
+                          },
                         ]}
                       />
                     </TableCell>
@@ -533,11 +544,15 @@ export const ExpenseList = () => {
   )
 }
 
-function expenseStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'danger' }> = {
-    pendente: { label: 'Pendente', variant: 'warning' },
+function expenseStatusBadge(status: string, dueDate?: string | null) {
+  const today = new Date().toISOString().slice(0, 10)
+  if (status === 'pendente' && dueDate && dueDate < today) {
+    return <Badge variant="danger">Vencido</Badge>
+  }
+  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'danger' | 'outline' }> = {
+    pendente: { label: 'Pendente', variant: 'outline' },
     confirmado: { label: 'Confirmado', variant: 'success' },
-    cancelado: { label: 'Cancelado', variant: 'danger' },
+    estornado: { label: 'Estornado', variant: 'warning' },
   }
   const config = map[status]
   if (!config) return <Badge variant="outline">{status}</Badge>

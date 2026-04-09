@@ -1,8 +1,12 @@
+import { and, eq } from 'drizzle-orm'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { db } from '@/database/client'
+import { animalHistory } from '@/database/schema'
 import { TransactionCategory } from '@/database/schema/enums/transaction-category'
 import { revenueRoutes } from '@/http/controllers/revenue/routes'
 import { AccessProfileFactory } from '@/tests/factories/access-profile'
+import { AnimalFactory } from '@/tests/factories/animal'
 import { EmployeeFactory } from '@/tests/factories/employee'
 import { RevenueFactory } from '@/tests/factories/revenue'
 import { TransactionTypeFactory } from '@/tests/factories/transaction-type'
@@ -37,6 +41,27 @@ describe('Create revenue', () => {
     expect(response.statusCode).toBe(201)
     expect(data).toHaveProperty('id')
     expect(typeof data.id).toBe('number')
+  })
+
+  it('should create animal history when creating revenue with animal', async () => {
+    const token = getAuthToken({ id: employeeId, roles: ['AdminPanel', 'Financial', 'Revenues'] })
+    const animal = await AnimalFactory.create()
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/revenue.add',
+      headers: { authorization: `Bearer ${token}` },
+      payload: RevenueFactory.buildCreate({ transactionTypeId: incomeTypeId, animalId: animal.id }),
+    })
+
+    expect(response.statusCode).toBe(201)
+
+    const [history] = await db
+      .select()
+      .from(animalHistory)
+      .where(and(eq(animalHistory.animalId, animal.id), eq(animalHistory.action, 'revenue.created')))
+
+    expect(history).toBeTruthy()
   })
 
   it('should return 404 when transaction type does not exist', async () => {

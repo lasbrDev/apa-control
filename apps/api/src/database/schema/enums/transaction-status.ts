@@ -1,7 +1,7 @@
 export const TransactionStatus = {
   PENDING: 'pendente',
   CONFIRMED: 'confirmado',
-  CANCELLED: 'cancelado',
+  CANCELLED: 'estornado',
 } as const
 
 export type TransactionStatusValue = (typeof TransactionStatus)[keyof typeof TransactionStatus]

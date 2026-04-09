@@ -11,7 +11,9 @@ export class FinancialTransaction {
   proof?: string | null
   observations?: string | null
   status: string
+  dueDate?: string | null
   paymentDate?: string | null
+  reversalDate?: string | null
   createdAt: Date
 
   constructor(props: Omit<FinancialTransaction, 'id'>, id?: number) {
@@ -25,7 +27,9 @@ export class FinancialTransaction {
     this.proof = props.proof
     this.observations = props.observations
     this.status = props.status
+    this.dueDate = props.dueDate
     this.paymentDate = props.paymentDate
+    this.reversalDate = props.reversalDate
     this.createdAt = props.createdAt
   }
 }

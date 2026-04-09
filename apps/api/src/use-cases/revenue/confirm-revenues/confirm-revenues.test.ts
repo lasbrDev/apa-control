@@ -35,9 +35,20 @@ describe('Confirm revenues (batch)', () => {
     return res.json().id as number
   }
 
+  async function reverseRevenue(id: number) {
+    await app.inject({
+      method: 'POST',
+      url: '/revenue.reverse',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { id },
+    })
+  }
+
   it('should confirm multiple revenues', async () => {
     const id1 = await createRevenue()
     const id2 = await createRevenue()
+    await reverseRevenue(id1)
+    await reverseRevenue(id2)
 
     const response = await app.inject({
       method: 'POST',
@@ -47,6 +58,19 @@ describe('Confirm revenues (batch)', () => {
     })
 
     expect(response.statusCode).toBe(204)
+  })
+
+  it('should return 409 when trying to confirm non-reversed revenue', async () => {
+    const id = await createRevenue()
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/revenue.confirmRevenue',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { ids: [id] },
+    })
+
+    expect(response.statusCode).toBe(409)
   })
 
   it('should return 422 when ids is empty', async () => {

@@ -27,7 +27,9 @@ export type ExpenseWithDetails = {
   proof: string | null
   observations: string | null
   status: string
+  dueDate: string | null
   paymentDate: string | null
+  reversalDate: string | null
   createdAt: Date
   transactionTypeName?: string
   campaignTitle?: string | null

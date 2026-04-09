@@ -21,6 +21,8 @@ export const financialTransaction = pgTable('financial_transaction', {
   proof: varchar({ length: 255 }),
   observations: text(),
   status: transactionStatusEnum().notNull(),
+  dueDate: date(),
   paymentDate: date(),
+  reversalDate: date(),
   createdAt: timestamp({ withTimezone: true }).notNull(),
 })

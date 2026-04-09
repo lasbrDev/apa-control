@@ -1,4 +1,3 @@
-import { TransactionStatusValues } from '@/database/schema/enums/transaction-status'
 import { apiQueryStringSchema } from '@/utils/drizzle/api-query-schema'
 import { z } from 'zod'
 
@@ -10,7 +9,7 @@ export const listRevenuesSchema = apiQueryStringSchema
     campaignId: z.coerce.number().int().positive().optional(),
     animalId: z.coerce.number().int().positive().optional(),
     employeeId: z.coerce.number().int().positive().optional(),
-    status: z.enum(TransactionStatusValues).optional(),
+    status: z.enum(['confirmado', 'estornado']).optional(),
     createdAtStart: z.string().optional(),
     createdAtEnd: z.string().optional(),
   })

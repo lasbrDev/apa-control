@@ -10,6 +10,7 @@ import {
   FileTextIcon,
   PencilIcon,
   PlusIcon,
+  RotateCcwIcon,
   SearchIcon,
   XIcon,
 } from 'lucide-react'
@@ -52,6 +53,7 @@ interface RevenueListValues {
   value: number
   createdAt: string
   status: string
+  reversalDate?: string | null
   proof?: string | null
   transactionTypeName?: string
   campaignTitle?: string | null
@@ -65,9 +67,8 @@ interface SelectOption {
 }
 
 const revenueStatusOptions = [
-  { value: 'pendente', label: 'Pendente' },
   { value: 'confirmado', label: 'Confirmado' },
-  { value: 'cancelado', label: 'Cancelado' },
+  { value: 'estornado', label: 'Estornado' },
 ]
 
 const revenueFilterSchema = z
@@ -109,7 +110,7 @@ export const RevenueList = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [batchLoading, setBatchLoading] = useState(false)
 
-  const selectableItems = items.filter((item) => item.status === 'pendente')
+  const selectableItems = items.filter((item) => item.status === 'estornado')
   const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selectedIds.includes(item.id))
 
   const revenueFilterForm = useForm<RevenueFilterData>({
@@ -118,7 +119,7 @@ export const RevenueList = () => {
       page: 1,
       perPage: 10,
       fields:
-        'id,transactionTypeId,description,value,createdAt,status,proof,transactionTypeName,campaignTitle,animalName,employeeName',
+        'id,transactionTypeId,description,value,createdAt,status,reversalDate,proof,transactionTypeName,campaignTitle,animalName,employeeName',
       sort: '-createdAt',
       description: '',
       animalName: '',
@@ -171,27 +172,26 @@ export const RevenueList = () => {
     [token, modal, refresh],
   )
 
-  function cancelBatch() {
-    modal.confirm({
-      title: 'Registrar cancelamento',
-      message: `Deseja cancelar ${selectedIds.length} receita(s) selecionada(s)?`,
-      confirmText: 'Cancelar receitas',
-      callback: async (confirmed) => {
-        if (!confirmed) return
-        setBatchLoading(true)
-        try {
-          await api.post('revenue.cancel', { ids: selectedIds }, { headers: { Authorization: `Bearer ${token}` } })
-          toast.success(`${selectedIds.length} receita(s) cancelada(s) com sucesso.`)
-          setSelectedIds([])
-          refresh.force()
-        } catch (error) {
-          toast.error(errorMessageHandler(error))
-        } finally {
-          setBatchLoading(false)
-        }
-      },
-    })
-  }
+  const reverseRevenue = useCallback(
+    (values: RevenueListValues) => {
+      modal.confirm({
+        title: 'Estornar receita',
+        message: `Deseja estornar a receita "${values.description}"?`,
+        confirmText: 'Estornar',
+        callback: async (confirmed) => {
+          if (!confirmed) return
+          try {
+            await api.post('revenue.reverse', { id: values.id }, { headers: { Authorization: `Bearer ${token}` } })
+            toast.success('Receita estornada com sucesso.')
+            refresh.force()
+          } catch (error) {
+            toast.error(errorMessageHandler(error))
+          }
+        },
+      })
+    },
+    [token, modal, refresh],
+  )
 
   function confirmRevenueBatch() {
     modal.confirm({
@@ -409,14 +409,6 @@ export const RevenueList = () => {
               <CardFooter className="mt-6 flex flex-wrap gap-3 p-0">
                 <Button
                   type="button"
-                  variant="danger"
-                  disabled={selectedIds.length === 0 || batchLoading}
-                  onClick={cancelBatch}
-                >
-                  {batchLoading ? <Spinner /> : <span>Registrar Cancelamento</span>}
-                </Button>
-                <Button
-                  type="button"
                   variant="success"
                   disabled={selectedIds.length === 0 || batchLoading}
                   onClick={confirmRevenueBatch}
@@ -464,7 +456,7 @@ export const RevenueList = () => {
                 {items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="w-[1%]">
-                      {item.status === 'pendente' ? (
+                      {item.status === 'estornado' ? (
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(item.id)}
@@ -496,14 +488,30 @@ export const RevenueList = () => {
                         primaryKey="id"
                         values={item}
                         actions={[
-                          { icon: PencilIcon, title: 'Editar', action: ':id' },
+                          {
+                            icon: PencilIcon,
+                            title: 'Editar',
+                            action: ':id',
+                            hideWhen: (item) => item.status === 'confirmado',
+                          },
                           {
                             icon: DownloadIcon,
                             title: 'Baixar comprovante',
                             action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
                             hideWhen: (item) => !item.proof,
                           },
-                          { icon: XIcon, title: 'Remover', action: removeRevenue },
+                          {
+                            icon: RotateCcwIcon,
+                            title: 'Estornar',
+                            action: reverseRevenue,
+                            hideWhen: (item) => item.status !== 'confirmado',
+                          },
+                          {
+                            icon: XIcon,
+                            title: 'Remover',
+                            action: removeRevenue,
+                            hideWhen: (item) => item.status === 'confirmado',
+                          },
                         ]}
                       />
                     </TableCell>
@@ -531,10 +539,9 @@ export const RevenueList = () => {
 }
 
 function revenueStatusBadge(status: string) {
-  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'danger' }> = {
-    pendente: { label: 'Pendente', variant: 'warning' },
+  const map: Record<string, { label: string; variant: 'warning' | 'success' | 'outline' }> = {
     confirmado: { label: 'Confirmado', variant: 'success' },
-    cancelado: { label: 'Cancelado', variant: 'danger' },
+    estornado: { label: 'Estornado', variant: 'warning' },
   }
   const config = map[status]
   if (!config) return <Badge variant="outline">{status}</Badge>

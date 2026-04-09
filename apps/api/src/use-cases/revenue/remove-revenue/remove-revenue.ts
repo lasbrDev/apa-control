@@ -9,6 +9,7 @@ export class RemoveRevenueUseCase {
   async execute(data: RemoveRevenueData): Promise<void> {
     const revenue = await this.financialTransactionRepository.findRevenueById(data.id)
     if (!revenue) throw new ApiError('Receita não encontrada.', 404)
+    if (revenue.status === 'confirmado') throw new ApiError('Não é possível remover uma receita confirmada.', 409)
 
     await this.financialTransactionRepository.delete(data.id)
     await removeUploadFile(revenue.proof)

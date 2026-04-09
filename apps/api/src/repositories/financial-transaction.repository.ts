@@ -63,7 +63,13 @@ export class FinancialTransactionRepository {
     if (campaignId) whereList.push(eq(financialTransaction.campaignId, campaignId))
     if (animalId) whereList.push(eq(financialTransaction.animalId, animalId))
     if (employeeId) whereList.push(eq(financialTransaction.employeeId, employeeId))
-    if (status) whereList.push(eq(financialTransaction.status, status))
+    if (status === 'vencido') {
+      whereList.push(eq(financialTransaction.status, 'pendente'))
+      whereList.push(sql`${financialTransaction.dueDate} IS NOT NULL`)
+      whereList.push(sql`${financialTransaction.dueDate} < CURRENT_DATE`)
+    } else if (status) {
+      whereList.push(eq(financialTransaction.status, status))
+    }
     if (createdAtStart) whereList.push(sql`${financialTransaction.createdAt}::date >= ${createdAtStart}`)
     if (createdAtEnd) whereList.push(sql`${financialTransaction.createdAt}::date <= ${createdAtEnd}`)
 
@@ -98,7 +104,9 @@ export class FinancialTransactionRepository {
         proof: financialTransaction.proof,
         observations: financialTransaction.observations,
         status: financialTransaction.status,
+        dueDate: financialTransaction.dueDate,
         paymentDate: financialTransaction.paymentDate,
+        reversalDate: financialTransaction.reversalDate,
         createdAt: financialTransaction.createdAt,
         transactionTypeName: transactionType.name,
         campaignTitle: campaign.title,
@@ -155,7 +163,14 @@ export class FinancialTransactionRepository {
   }
 
   async cancelByIds(ids: number[]) {
-    await db.update(financialTransaction).set({ status: 'cancelado' }).where(inArray(financialTransaction.id, ids))
+    await db.update(financialTransaction).set({ status: 'estornado' }).where(inArray(financialTransaction.id, ids))
+  }
+
+  async reverseById(id: number) {
+    await db
+      .update(financialTransaction)
+      .set({ status: 'estornado', paymentDate: null, reversalDate: sql`now()` })
+      .where(eq(financialTransaction.id, id))
   }
 
   async confirmPaymentByIds(ids: number[]) {
@@ -163,9 +178,5 @@ export class FinancialTransactionRepository {
       .update(financialTransaction)
       .set({ status: 'confirmado', paymentDate: sql`now()` })
       .where(inArray(financialTransaction.id, ids))
-  }
-
-  async confirmRevenuesByIds(ids: number[]) {
-    await db.update(financialTransaction).set({ status: 'confirmado' }).where(inArray(financialTransaction.id, ids))
   }
 }

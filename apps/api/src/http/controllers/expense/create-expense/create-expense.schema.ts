@@ -1,4 +1,3 @@
-import { TransactionStatusValues } from '@/database/schema/enums/transaction-status'
 import { z } from 'zod'
 
 const optionalId = z.preprocess(
@@ -12,7 +11,7 @@ export const createExpenseSchema = z.object({
   animalId: optionalId,
   description: z.string().min(1, 'Descrição é obrigatória').max(200),
   value: z.coerce.number().nonnegative('Valor deve ser maior ou igual a zero'),
+  dueDate: z.string().nullish(),
   observations: z.string().nullish(),
-  status: z.enum(TransactionStatusValues),
   proof: z.string().nullish(),
 })
