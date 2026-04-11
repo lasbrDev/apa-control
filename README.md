@@ -84,14 +84,14 @@ APP_LOG_DIR=./logs
 # Banco de Dados
 DATABASE_URL=postgresql://usuario:senha@localhost:5432/nome_do_banco
 
-# Email
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=seu-email@gmail.com
-EMAIL_PASSWORD=sua-senha-de-app
-OVERRIDE_EMAIL=email-para-testes@exemplo.com
-```
+# AWS S3 (uploads de comprovantes/documentos)
+AWS_DEFAULT_REGION=us-east-1
+AWS_ACCESS_KEY_ID=seu-access-key-id
+AWS_SECRET_ACCESS_KEY=seu-secret-access-key
+AWS_S3_BUCKET=nome-do-bucket
+AWS_S3_PREFIX=apa-control
 
+```
 Crie `apps/administrativo/.env`:
 
 ```bash
@@ -112,7 +112,7 @@ cd apps/api
 pnpm drizzle-kit generate --name nome_da_migracao
 ```
 
-**Variáveis opcionais:** `EMAIL_*` e `OVERRIDE_EMAIL` só são necessárias se o sistema enviar e-mails. `API_URL` é usado internamente pelo backend (padrão: `http://localhost:3333`).
+**Variáveis opcionais:** `API_URL` é usado internamente pelo backend (padrão: `http://localhost:3333`).
 
 ### Criação do Primeiro Usuário Admin
 
@@ -218,7 +218,6 @@ apa-control/
 - **Autenticação**: JWT + bcrypt
 - **Validação**: Zod
 - **Logs**: Winston
-- **Email**: Nodemailer
 - **PDFs**: Playwright
 - **Exports**: CSV (csv-stringify), Excel (exceljs)
 
@@ -356,7 +355,3 @@ pnpm reinstall
 ## Licença
 
 MIT
-
-## Documentação Adicional
-
-- [REQUIREMENTS.md](REQUIREMENTS.md) — Requisitos funcionais, escopo e decisões de implementação

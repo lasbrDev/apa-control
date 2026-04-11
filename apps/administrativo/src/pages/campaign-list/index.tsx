@@ -41,6 +41,7 @@ import {
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
+import { resolveFileUrl } from '../../helpers/file-url'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -381,7 +382,7 @@ export const CampaignList = () => {
               <TableBody>
                 {items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="max-w-[220px] truncate" title={item.title}>
+                    <TableCell className="max-w-55 truncate" title={item.title}>
                       {item.title}
                     </TableCell>
                     <TableCell>{item.campaignTypeName ?? `#${item.campaignTypeId}`}</TableCell>
@@ -399,7 +400,7 @@ export const CampaignList = () => {
                           {
                             icon: DownloadIcon,
                             title: 'Baixar comprovante',
-                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            action: (item) => window.open(resolveFileUrl(item.proof!, appConfig.API_URL), '_blank'),
                             hideWhen: (item) => !item.proof,
                           },
                           {

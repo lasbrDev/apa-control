@@ -20,6 +20,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1028.0",
     "@date-fns/tz": "^1.2.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
@@ -44,7 +45,6 @@
     "json-2-csv": "^5.5.9",
     "jsonwebtoken": "^9.0.2",
     "linebreak": "^1.1.0",
-    "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
     "playwright-core": "^1.59.1",
     "request-ip": "^3.3.0",
@@ -60,7 +60,6 @@
     "@types/ejs": "^3.1.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.7.2",
-    "@types/nodemailer": "7.0.2",
     "@types/pg": "^8.15.5",
     "@types/request-ip": "^0.0.41",
     "@vitest/coverage-v8": "^2.1.4",

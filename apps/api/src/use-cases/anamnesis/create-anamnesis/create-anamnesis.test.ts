@@ -48,6 +48,17 @@ describe('Anamnesis lifecycle', () => {
     return { animal, createdAppointment }
   }
 
+  function buildRequiredAnamnesisPayload(appointmentId: number) {
+    return {
+      appointmentId,
+      symptomsPresented: 'Vomito',
+      dietaryHistory: 'Racao regular',
+      behavioralHistory: 'Comportamento normal',
+      requestedExams: 'Hemograma',
+      presumptiveDiagnosis: 'Gastrite',
+    }
+  }
+
   it('should create/update/delete anamnesis and write animal history', async () => {
     const token = getAuthToken({ id: employeeId, roles: ['AdminPanel', 'Anamnesis'] })
     const { animal, createdAppointment } = await createAppointmentBase()
@@ -56,11 +67,7 @@ describe('Anamnesis lifecycle', () => {
       method: 'POST',
       url: '/anamnesis.add',
       headers: { authorization: `Bearer ${token}` },
-      payload: {
-        appointmentId: createdAppointment.id,
-        symptomsPresented: 'Vomito',
-        dietaryHistory: 'Racao regular',
-      },
+      payload: buildRequiredAnamnesisPayload(createdAppointment.id),
     })
 
     expect(createResponse.statusCode).toBe(201)
@@ -78,7 +85,7 @@ describe('Anamnesis lifecycle', () => {
       headers: { authorization: `Bearer ${token}` },
       payload: {
         id,
-        appointmentId: createdAppointment.id,
+        ...buildRequiredAnamnesisPayload(createdAppointment.id),
         symptomsPresented: 'Vomito e apatia',
         dietaryHistory: 'Racao hipoalergenica',
       },
@@ -115,10 +122,7 @@ describe('Anamnesis lifecycle', () => {
       method: 'POST',
       url: '/anamnesis.add',
       headers: { authorization: `Bearer ${token}` },
-      payload: {
-        appointmentId: createdAppointment.id,
-        symptomsPresented: 'Tosse',
-      },
+      payload: buildRequiredAnamnesisPayload(createdAppointment.id),
     })
 
     const secondResponse = await app.inject({
@@ -126,7 +130,7 @@ describe('Anamnesis lifecycle', () => {
       url: '/anamnesis.add',
       headers: { authorization: `Bearer ${token}` },
       payload: {
-        appointmentId: createdAppointment.id,
+        ...buildRequiredAnamnesisPayload(createdAppointment.id),
         symptomsPresented: 'Febre',
       },
     })

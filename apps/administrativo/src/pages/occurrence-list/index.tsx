@@ -285,7 +285,7 @@ export const OccurrenceList = () => {
                     <TableCell>{item.animalName ?? ''}</TableCell>
                     <TableCell>{item.occurrenceTypeName ?? ''}</TableCell>
                     <TableCell>{formatDateTime(item.occurrenceDate)}</TableCell>
-                    <TableCell className="max-w-[400px] truncate" title={item.description}>
+                    <TableCell className="max-w-100 truncate" title={item.description}>
                       {item.description}
                     </TableCell>
                     <TableCell>

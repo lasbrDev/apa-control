@@ -34,7 +34,6 @@ import { ExpenseList } from './pages/expense-list'
 import { FinalDestinationForm } from './pages/final-destination-form'
 import { FinalDestinationList } from './pages/final-destination-list'
 import { FinalDestinationTypeList } from './pages/final-destination-type-list'
-import { ForgotPassword } from './pages/forgot-password'
 import { Home } from './pages/home'
 import { Login } from './pages/login'
 import { NotFound } from './pages/not-found'
@@ -62,7 +61,6 @@ ReactDOM.createRoot(rootElement!).render(
         <AppProvider>
           <Routes>
             <Route path="login" element={<Login />} />
-            <Route path="esqueceu-senha" element={<ForgotPassword />} />
             <Route path="/" element={<PanelOutlet pages={pages} />}>
               <Route index element={<Home />} />
               <Route path="perfis" element={<ProfileList />} />

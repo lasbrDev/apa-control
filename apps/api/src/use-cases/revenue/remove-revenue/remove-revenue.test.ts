@@ -35,8 +35,18 @@ describe('Remove revenue', () => {
     return res.json().id as number
   }
 
+  async function reverseRevenue(id: number) {
+    await app.inject({
+      method: 'POST',
+      url: '/revenue.reverse',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { id },
+    })
+  }
+
   it('should remove revenue successfully', async () => {
     const id = await createRevenue()
+    await reverseRevenue(id)
 
     const response = await app.inject({
       method: 'DELETE',

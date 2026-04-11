@@ -42,6 +42,7 @@ import {
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
+import { resolveFileUrl } from '../../helpers/file-url'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -487,7 +488,7 @@ export const AdoptionList = () => {
                           {
                             icon: DownloadIcon,
                             title: 'Baixar arquivo',
-                            action: (i) => window.open(`${appConfig.API_URL}${i.proof}`, '_blank'),
+                            action: (i) => window.open(resolveFileUrl(i.proof!, appConfig.API_URL), '_blank'),
                             hideWhen: (i) => !i.proof,
                           },
                           {

@@ -102,7 +102,7 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
 
   return (
     <div id="panel" className="flex w-full flex-col overflow-x-hidden lg:h-screen lg:overflow-hidden">
-      <header className="glass-card relative top-[30px] right-4 left-4 z-97 flex min-h-[calc(128px+env(safe-area-inset-top))] w-[calc(100%-2rem)] items-center justify-between overflow-visible rounded-t-xl rounded-b-xl border-gray-200/50 border-b bg-white/90 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] backdrop-blur-xl transition-all duration-300 ease-in-out lg:fixed lg:top-[30px] lg:right-20 lg:left-20 lg:w-[calc(100%-10rem)] dark:border-gray-700/50 dark:bg-gray-900/90">
+      <header className="glass-card relative top-7.5 right-4 left-4 z-97 flex min-h-[calc(128px+env(safe-area-inset-top))] w-[calc(100%-2rem)] items-center justify-between overflow-visible rounded-t-xl rounded-b-xl border-gray-200/50 border-b bg-white/90 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] backdrop-blur-xl transition-all duration-300 ease-in-out lg:fixed lg:top-7.5 lg:right-20 lg:left-20 lg:w-[calc(100%-10rem)] dark:border-gray-700/50 dark:bg-gray-900/90">
         <div className="mx-auto flex w-full max-w-full items-center justify-between gap-4 px-4 lg:px-20">
           <div className="flex items-center gap-3 lg:flex-1">
             <button
@@ -164,7 +164,7 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
                   align="end"
                   sideOffset={8}
                   collisionPadding={16}
-                  className="glass-card data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-100 min-w-[200px] overflow-hidden rounded-xl border border-gray-200/50 p-1"
+                  className="glass-card data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-100 min-w-50 overflow-hidden rounded-xl border border-gray-200/50 p-1"
                 >
                   <div className="px-3 py-2.5">
                     <p className="font-semibold text-gray-900 text-sm leading-tight dark:text-gray-100">
@@ -237,12 +237,12 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-full flex-auto items-stretch pr-[calc(1rem+env(safe-area-inset-right))] pl-[calc(1rem+env(safe-area-inset-left))] lg:h-[calc(100vh-30px)] lg:overflow-hidden lg:px-20 lg:pt-[calc(30px+128px+30px)] lg:pb-[30px]">
+      <div className="mx-auto flex w-full max-w-full flex-auto items-stretch pr-[calc(1rem+env(safe-area-inset-right))] pl-[calc(1rem+env(safe-area-inset-left))] lg:h-[calc(100vh-30px)] lg:overflow-hidden lg:px-20 lg:pt-[calc(30px+128px+30px)] lg:pb-7.5">
         <ScrollArea.Root>
           <div
             style={{ backfaceVisibility: 'hidden' }}
             className={cn(
-              'glass-card fixed top-0 bottom-0 z-1001 flex w-[calc(275px+env(safe-area-inset-left))] max-w-full transform-gpu overflow-y-auto border-gray-200/50 border-r shadow-sm transition-[left] duration-300 ease-in-out lg:top-[calc(30px+128px+30px)] lg:bottom-[30px] lg:left-auto lg:z-94 lg:w-[260px] lg:overflow-hidden lg:rounded-xl lg:py-4',
+              'glass-card fixed top-0 bottom-0 z-1001 flex w-[calc(275px+env(safe-area-inset-left))] max-w-full transform-gpu overflow-y-auto border-gray-200/50 border-r shadow-sm transition-[left] duration-300 ease-in-out lg:top-[calc(30px+128px+30px)] lg:bottom-7.5 lg:left-auto lg:z-94 lg:w-65 lg:overflow-hidden lg:rounded-xl lg:py-4',
               sidebarOpened
                 ? hasInteracted
                   ? 'slide-in-from-left left-0 animate-in duration-300'
@@ -318,7 +318,7 @@ export const Panel = ({ pages, signOut, basename = '' }: PanelProps) => {
           }}
         />
 
-        <div className="max-w-full flex-auto shrink-0 pt-12 pb-4 lg:flex lg:h-[calc(100vh-30px-128px-30px-30px)] lg:flex-col lg:overflow-hidden lg:pt-0 lg:pb-0 lg:pl-[285px]">
+        <div className="max-w-full flex-auto shrink-0 pt-12 pb-4 lg:flex lg:h-[calc(100vh-30px-128px-30px-30px)] lg:flex-col lg:overflow-hidden lg:pt-0 lg:pb-0 lg:pl-71.25">
           <div className="h-full w-full lg:overflow-hidden lg:rounded-xl">
             <div className="h-full w-full lg:hidden">
               <Outlet />

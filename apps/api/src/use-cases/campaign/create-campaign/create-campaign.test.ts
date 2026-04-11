@@ -71,7 +71,7 @@ describe('Create campaign', () => {
 
     expect(createResponse.statusCode).toBe(201)
     expect(keyResponse.statusCode).toBe(200)
-    expect(keyResponse.json().proof).toMatch(/^\/uploads\/campaign\//)
+    expect(keyResponse.json().proof).toMatch(/^(\/uploads\/campaign\/|https?:\/\/)/)
 
     await app.inject({
       method: 'DELETE',

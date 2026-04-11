@@ -42,6 +42,7 @@ import {
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDateTime } from '../../helpers/date'
+import { resolveFileUrl } from '../../helpers/file-url'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -497,7 +498,8 @@ export const ClinicalProcedureList = () => {
                           {
                             title: 'Baixar arquivo',
                             icon: DownloadIcon,
-                            action: (currentItem) => window.open(`${appConfig.API_URL}${currentItem.proof}`, '_blank'),
+                            action: (currentItem) =>
+                              window.open(resolveFileUrl(currentItem.proof!, appConfig.API_URL), '_blank'),
                             hideWhen: (currentItem) => !currentItem.proof,
                           },
                           {

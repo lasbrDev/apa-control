@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LogInIcon } from 'lucide-react'
@@ -71,13 +71,6 @@ export const Login = () => {
                   autoComplete="current-password"
                 />
                 <Form.ErrorMessage field="password" />
-
-                <Link
-                  className="mt-3 block text-right font-medium text-brand text-sm hover:text-brand/90"
-                  to={'/esqueceu-senha'}
-                >
-                  Esqueceu sua senha ?
-                </Link>
               </div>
 
               <Button

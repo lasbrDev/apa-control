@@ -40,6 +40,7 @@ import {
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
+import { resolveFileUrl } from '../../helpers/file-url'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -533,7 +534,7 @@ export const RevenueList = () => {
                         />
                       ) : null}
                     </TableCell>
-                    <TableCell className="max-w-[200px] truncate" title={item.description}>
+                    <TableCell className="max-w-50 truncate" title={item.description}>
                       {item.description}
                     </TableCell>
                     <TableCell>{item.transactionTypeName ?? `#${item.transactionTypeId}`}</TableCell>
@@ -543,10 +544,10 @@ export const RevenueList = () => {
                       )}
                     </TableCell>
                     <TableCell>{formatDate(item.createdAt)}</TableCell>
-                    <TableCell className="max-w-[180px] truncate" title={item.campaignTitle ?? ''}>
+                    <TableCell className="max-w-45 truncate" title={item.campaignTitle ?? ''}>
                       {item.campaignTitle ?? ''}
                     </TableCell>
-                    <TableCell className="max-w-[180px] truncate" title={item.animalName ?? ''}>
+                    <TableCell className="max-w-45 truncate" title={item.animalName ?? ''}>
                       {item.animalName ?? ''}
                     </TableCell>
                     <TableCell>{item.employeeName ?? ''}</TableCell>
@@ -566,7 +567,7 @@ export const RevenueList = () => {
                           {
                             icon: DownloadIcon,
                             title: 'Baixar comprovante',
-                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            action: (item) => window.open(resolveFileUrl(item.proof!, appConfig.API_URL), '_blank'),
                             hideWhen: (item) => !item.proof,
                           },
                           {

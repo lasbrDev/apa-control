@@ -9,12 +9,13 @@ const envSchema = z.object({
   APP_SECRET: z.string(),
   APP_NAME: z.string(),
   APP_LOG_DIR: z.string().optional(),
+  AWS_DEFAULT_REGION: z.string().optional().default(''),
+  AWS_ACCESS_KEY_ID: z.string().optional().default(''),
+  AWS_SECRET_ACCESS_KEY: z.string().optional().default(''),
+  AWS_S3_BUCKET: z.string().optional().default(''),
+  AWS_S3_PREFIX: z.string().optional().default(''),
+  AWS_S3_PUBLIC_URL: z.string().optional().default(''),
   DATABASE_URL: z.string(),
-  EMAIL_HOST: z.string().optional().default(''),
-  EMAIL_PORT: z.string().transform(Number).optional().default(587),
-  EMAIL_USER: z.string().optional().default(''),
-  EMAIL_PASSWORD: z.string().optional().default(''),
-  OVERRIDE_EMAIL: z.string().optional().default(''),
 })
 
 export const env = envSchema.parse(process.env)

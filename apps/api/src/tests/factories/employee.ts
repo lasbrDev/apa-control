@@ -17,13 +17,14 @@ function generateCpf() {
   return `${base}${firstDigit}${secondDigit}`
 }
 
+function generateLogin() {
+  return `user${Date.now()}${faker.string.alphanumeric({ length: 8 }).toLowerCase()}`
+}
+
 const EmployeeFactory = {
   buildCreate: (props?: Partial<CreateEmployeeData>): CreateEmployeeData => ({
     name: faker.person.fullName(),
-    login: faker.internet
-      .username()
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, ''),
+    login: generateLogin(),
     cpf: generateCpf(),
     email: faker.internet.email() || null,
     password: 'password123',
@@ -42,7 +43,7 @@ const EmployeeFactory = {
 
   build: (props?: Partial<typeof employee.$inferInsert>) => ({
     name: faker.person.fullName(),
-    login: faker.internet.username(),
+    login: generateLogin(),
     cpf: generateCpf(),
     email: faker.internet.email(),
     passwordHash: bcrypt.hashSync('password123', 10),

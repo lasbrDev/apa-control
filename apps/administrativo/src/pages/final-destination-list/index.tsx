@@ -38,6 +38,7 @@ import {
 import { appConfig } from '../../config'
 import { errorMessageHandler } from '../../helpers/axios'
 import { formatDate } from '../../helpers/date'
+import { resolveFileUrl } from '../../helpers/file-url'
 import { itemCountMessage } from '../../helpers/item-count'
 import { toQueryString } from '../../helpers/qs'
 import { type ReportExportType, downloadReportBlob } from '../../helpers/report-download'
@@ -343,7 +344,7 @@ export const FinalDestinationList = () => {
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>{item.destinationTypeName ?? `#${item.destinationTypeId}`}</TableCell>
                     <TableCell>{item.destinationDate ? formatDate(item.destinationDate) : ''}</TableCell>
-                    <TableCell className="max-w-[220px] truncate" title={item.reason}>
+                    <TableCell className="max-w-55 truncate" title={item.reason}>
                       {item.reason}
                     </TableCell>
                     <TableCell>{item.employeeName ?? `#${item.employeeId}`}</TableCell>
@@ -356,7 +357,7 @@ export const FinalDestinationList = () => {
                           {
                             icon: DownloadIcon,
                             title: 'Baixar comprovante',
-                            action: (item) => window.open(`${appConfig.API_URL}${item.proof}`, '_blank'),
+                            action: (item) => window.open(resolveFileUrl(item.proof!, appConfig.API_URL), '_blank'),
                             hideWhen: (item) => !item.proof,
                           },
                           { icon: XIcon, title: 'Remover', action: removeFinalDestination },

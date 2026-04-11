@@ -552,13 +552,13 @@ export const RescueForm = () => {
                             <TableRow key={item.id}>
                               <TableCell>{item.createdAt ? formatDateNoComma(item.createdAt) : ''}</TableCell>
                               <TableCell>{formatAnimalHistoryType(item.type)}</TableCell>
-                              <TableCell className="max-w-[260px] truncate" title={item.description}>
+                              <TableCell className="max-w-65 truncate" title={item.description}>
                                 {item.description}
                               </TableCell>
-                              <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.oldValue)}>
+                              <TableCell className="max-w-65 truncate" title={formatHistoryValue(item.oldValue)}>
                                 {formatHistoryValue(item.oldValue)}
                               </TableCell>
-                              <TableCell className="max-w-[260px] truncate" title={formatHistoryValue(item.newValue)}>
+                              <TableCell className="max-w-65 truncate" title={formatHistoryValue(item.newValue)}>
                                 {formatHistoryValue(item.newValue)}
                               </TableCell>
                               <TableCell>{item.employeeName ?? ''}</TableCell>

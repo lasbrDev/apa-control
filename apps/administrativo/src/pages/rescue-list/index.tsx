@@ -294,10 +294,10 @@ export const RescueList = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.animalName ?? `#${item.animalId}`}</TableCell>
                     <TableCell>{item.rescueDate ? formatDate(item.rescueDate) : ''}</TableCell>
-                    <TableCell className="max-w-[200px] truncate" title={item.locationFound}>
+                    <TableCell className="max-w-50 truncate" title={item.locationFound}>
                       {item.locationFound}
                     </TableCell>
-                    <TableCell className="max-w-[200px] truncate" title={item.circumstances}>
+                    <TableCell className="max-w-50 truncate" title={item.circumstances}>
                       {item.circumstances}
                     </TableCell>
                     <TableCell className="w-[1%] whitespace-nowrap">
